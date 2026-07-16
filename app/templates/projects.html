@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Projects — {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="section">
+  <h1>Projects</h1>
+
+  {% if all_tech %}
+  <p class="filters">
+    <a href="{{ url_for('projects') }}" class="{{ 'active' if not active_tech }}">All</a>
+    {% for tech in all_tech %}
+    <a href="{{ url_for('projects') }}?tech={{ tech }}"
+       class="{{ 'active' if tech == active_tech }}">{{ tech }}</a>
+    {% endfor %}
+  </p>
+  {% endif %}
+
+  {% if projects %}
+  <ul class="card-grid">
+    {% for project in projects %}
+    <li class="card">
+      <h3>{{ project.title }}</h3>
+      <p>{{ project.summary }}</p>
+      <p class="tech">{{ project.tech | join(' · ') }}</p>
+      {% if project.github %}<a href="{{ project.github }}">GitHub</a>{% endif %}
+      {% if project.demo %}<a href="{{ project.demo }}">Live demo</a>{% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="empty">No projects match this filter yet.</p>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}Something went wrong — {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="section error-page">
+  <h1>Something went wrong</h1>
+  <p>An unexpected error occurred on my end. Please try again in a moment.</p>
+  <p>If it keeps happening, reach me at <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>.</p>
+</section>
+{% endblock %}

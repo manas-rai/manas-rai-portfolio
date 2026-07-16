@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Contact — {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="section contact">
+  <h1>Contact</h1>
+
+  {% if sent %}
+  <p class="flash flash-success">Thanks — your message is on its way. I'll be in touch.</p>
+  {% else %}
+    {% if flash %}<p class="flash flash-error">{{ flash }}</p>{% endif %}
+
+    <form method="post" action="{{ url_for('contact_submit') }}" class="contact-form">
+      <label>
+        Name
+        <input type="text" name="name" value="{{ values.name or '' }}" required />
+        {% if errors.name %}<span class="field-error">{{ errors.name }}</span>{% endif %}
+      </label>
+
+      <label>
+        Email
+        <input type="email" name="email" value="{{ values.email or '' }}" required />
+        {% if errors.email %}<span class="field-error">{{ errors.email }}</span>{% endif %}
+      </label>
+
+      <label>
+        Message
+        <textarea name="message" rows="6" required>{{ values.message or '' }}</textarea>
+        {% if errors.message %}<span class="field-error">{{ errors.message }}</span>{% endif %}
+      </label>
+
+      {# Honeypot: hidden from real users, tempting to bots. #}
+      <div class="honeypot" aria-hidden="true">
+        <label>Website<input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
+      </div>
+
+      <button type="submit" class="btn">Send message</button>
+    </form>
+  {% endif %}
+</section>
+{% endblock %}
