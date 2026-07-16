@@ -69,36 +69,29 @@ A new CloudFront distribution takes ~5–15 min to finish deploying.
 
 ### Automated deploys (CI/CD)
 
-After the first manual `sam deploy --guided`, the [`deploy`
-workflow](.github/workflows/deploy.yml) runs `sam build && sam deploy` on every push
-to `main` — so updating content (resume, posts, projects) is just: edit the file,
-commit, push, live in ~2–3 min. No manual deploy.
+The [`deploy` workflow](.github/workflows/deploy.yml) runs `sam build && sam deploy`
+on every push to `main` — including the very first deploy (it self-provisions the S3
+artifact bucket and ECR repo). Updating content (resume, posts, projects) is just:
+edit the file, commit, push, live in ~2–3 min. No manual deploy needed.
 
 One-time setup:
 
-1. **Create a GitHub OIDC identity provider** in IAM (`token.actions.githubusercontent.com`).
-2. **Create an IAM role** the workflow assumes, with a trust policy scoped to this
-   repo's `main` branch:
-   ```json
-   {
-     "Effect": "Allow",
-     "Principal": { "Federated": "arn:aws:iam::<ACCOUNT_ID>:oidc-provider/token.actions.githubusercontent.com" },
-     "Action": "sts:AssumeRoleWithWebIdentity",
-     "Condition": {
-       "StringEquals": { "token.actions.githubusercontent.com:aud": "sts.amazonaws.com" },
-       "StringLike": { "token.actions.githubusercontent.com:sub": "repo:manas-rai/manas-rai-portfolio:ref:refs/heads/main" }
-     }
-   }
-   ```
-   The role needs permissions for CloudFormation, Lambda, ECR, CloudFront, S3, and
-   IAM (to manage the function's execution role). For a personal project,
-   `PowerUserAccess` + an inline `iam:*` on the stack's roles is the quick path;
-   scope down later per the SAM docs.
-3. **Add repo secrets** (Settings → Secrets and variables → Actions):
-   - `AWS_DEPLOY_ROLE_ARN` — the role from step 2 (required).
+1. **Create an IAM user** (e.g. `portfolio`) with programmatic access and permissions
+   to deploy — CloudFormation, Lambda, ECR, CloudFront, S3, and IAM. For a personal
+   project `AdministratorAccess` is the simple choice; scope down later.
+2. **Create an access key** for that user (IAM → Users → Security credentials →
+   Create access key). Copy the **Access key ID** and **Secret access key**.
+3. **Add repo secrets** (Settings → Secrets and variables → Actions → New repository
+   secret):
+   - `AWS_ACCESS_KEY_ID` — the access key ID (required).
+   - `AWS_SECRET_ACCESS_KEY` — the secret access key (required).
    - `RESEND_API_KEY` or `SMTP_HOST`/`SMTP_USER`/`SMTP_PASSWORD` — optional; the
      workflow passes these to every deploy, so **if you use email, set them here** or
      a CI deploy will reset them to empty.
+
+> Access keys are long-lived credentials — keep them only in GitHub Secrets (never in
+> the repo), and rotate/delete them if exposed. GitHub OIDC roles are the more secure
+> alternative once you're comfortable with AWS IAM.
 
 ### Email (optional)
 
