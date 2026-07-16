@@ -30,7 +30,7 @@ def test_build_index_parses_projects_and_posts(tmp_path: Path) -> None:
     posts_dir.mkdir()
     _write(posts_dir / "2026-07-16-a-post.md", VALID_POST)
 
-    index = build_index(projects, posts_dir, include_drafts=False)
+    index = build_index(projects, posts_dir, tmp_path / "resume.yaml", include_drafts=False)
 
     assert len(index.projects) == 1
     assert index.featured_projects[0].title == "X"
@@ -48,7 +48,7 @@ def test_malformed_frontmatter_raises_at_build(tmp_path: Path) -> None:
     )
 
     with pytest.raises(ContentError):
-        build_index(tmp_path / "projects.yaml", posts_dir, include_drafts=False)
+        build_index(tmp_path / "projects.yaml", posts_dir, tmp_path / "resume.yaml", include_drafts=False)
 
 
 def test_drafts_excluded_in_production(tmp_path: Path) -> None:
@@ -57,11 +57,47 @@ def test_drafts_excluded_in_production(tmp_path: Path) -> None:
     draft = VALID_POST.replace("tags: [python, meta]", "draft: true")
     _write(posts_dir / "draft.md", draft)
 
-    prod = build_index(tmp_path / "projects.yaml", posts_dir, include_drafts=False)
-    dev = build_index(tmp_path / "projects.yaml", posts_dir, include_drafts=True)
+    prod = build_index(tmp_path / "projects.yaml", posts_dir, tmp_path / "resume.yaml", include_drafts=False)
+    dev = build_index(tmp_path / "projects.yaml", posts_dir, tmp_path / "resume.yaml", include_drafts=True)
 
     assert prod.posts == []
     assert len(dev.posts) == 1
+
+
+def test_resume_loaded_when_present(tmp_path: Path) -> None:
+    resume = tmp_path / "resume.yaml"
+    _write(
+        resume,
+        'name: Jane Doe\ntitle: Engineer\nsummary: Builds things.\n'
+        "skills:\n  - group: Languages\n    items: [Python]\n"
+        "experience:\n  - role: Dev\n    company: Acme\n    period: 2020\n"
+        "    highlights: [Shipped]\n",
+    )
+    index = build_index(
+        tmp_path / "projects.yaml", tmp_path / "posts", resume, include_drafts=False
+    )
+    assert index.resume.name == "Jane Doe"
+    assert index.resume.skills[0].items == ["Python"]
+    assert index.resume.experience[0].company == "Acme"
+
+
+def test_resume_absent_is_none(tmp_path: Path) -> None:
+    index = build_index(
+        tmp_path / "projects.yaml",
+        tmp_path / "posts",
+        tmp_path / "missing.yaml",
+        include_drafts=False,
+    )
+    assert index.resume is None
+
+
+def test_resume_missing_required_key_raises(tmp_path: Path) -> None:
+    resume = tmp_path / "resume.yaml"
+    _write(resume, "name: Jane\ntitle: Engineer\n")  # no summary
+    with pytest.raises(ContentError):
+        build_index(
+            tmp_path / "projects.yaml", tmp_path / "posts", resume, include_drafts=False
+        )
 
 
 def test_rendered_html_is_sanitized(tmp_path: Path) -> None:
@@ -70,6 +106,6 @@ def test_rendered_html_is_sanitized(tmp_path: Path) -> None:
     xss = VALID_POST + "\n<script>alert('x')</script>\n"
     _write(posts_dir / "2026-07-16-a-post.md", xss)
 
-    index = build_index(tmp_path / "projects.yaml", posts_dir, include_drafts=False)
+    index = build_index(tmp_path / "projects.yaml", posts_dir, tmp_path / "resume.yaml", include_drafts=False)
 
     assert "<script>" not in index.post("2026-07-16-a-post").html

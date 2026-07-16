@@ -54,11 +54,46 @@ class Post:
 
 
 @dataclass(frozen=True)
+class ExperienceEntry:
+    role: str
+    company: str
+    period: str
+    highlights: list[str]
+
+
+@dataclass(frozen=True)
+class EducationEntry:
+    qualification: str
+    institution: str
+    period: str
+
+
+@dataclass(frozen=True)
+class SkillGroup:
+    group: str
+    items: list[str]
+
+
+@dataclass(frozen=True)
+class Resume:
+    name: str
+    title: str
+    location: str
+    email: str
+    summary: str
+    links: list[dict[str, str]]
+    skills: list[SkillGroup]
+    experience: list[ExperienceEntry]
+    education: list[EducationEntry]
+
+
+@dataclass(frozen=True)
 class ContentIndex:
     """Immutable, in-memory view of all content, built once at startup."""
 
     projects: list[Project]
     posts: list[Post] = field(default_factory=list)
+    resume: Resume | None = None
     _by_slug: dict[str, Post] = field(default_factory=dict)
     _by_tag: dict[str, list[Post]] = field(default_factory=dict)
 
@@ -140,12 +175,66 @@ def _load_post(path: Path) -> Post:
     )
 
 
+def _load_resume(resume_file: Path) -> Resume | None:
+    if not resume_file.exists():
+        return None
+    try:
+        raw = yaml.safe_load(resume_file.read_text()) or {}
+    except yaml.YAMLError as exc:
+        raise ContentError(f"Malformed resume file {resume_file}: {exc}") from exc
+    if not isinstance(raw, dict):
+        raise ContentError(f"{resume_file} must be a mapping")
+
+    required = ("name", "title", "summary")
+    missing = [k for k in required if k not in raw]
+    if missing:
+        raise ContentError(f"{resume_file} missing keys: {', '.join(missing)}")
+
+    try:
+        return Resume(
+            name=raw["name"],
+            title=raw["title"],
+            location=raw.get("location", ""),
+            email=raw.get("email", ""),
+            summary=raw["summary"],
+            links=[dict(link) for link in raw.get("links", [])],
+            skills=[
+                SkillGroup(group=s["group"], items=list(s.get("items", [])))
+                for s in raw.get("skills", [])
+            ],
+            experience=[
+                ExperienceEntry(
+                    role=e["role"],
+                    company=e["company"],
+                    period=e["period"],
+                    highlights=list(e.get("highlights", [])),
+                )
+                for e in raw.get("experience", [])
+            ],
+            education=[
+                EducationEntry(
+                    qualification=ed["qualification"],
+                    institution=ed["institution"],
+                    period=ed["period"],
+                )
+                for ed in raw.get("education", [])
+            ],
+        )
+    except (KeyError, TypeError) as exc:
+        raise ContentError(f"Invalid entry in {resume_file}: {exc}") from exc
+
+
 def build_index(
-    projects_file: Path, posts_dir: Path, *, include_drafts: bool
+    projects_file: Path,
+    posts_dir: Path,
+    resume_file: Path,
+    *,
+    include_drafts: bool,
 ) -> ContentIndex:
     """Parse all content once and build lookup structures. Raises ContentError
     on any malformed file so failures happen at boot, not per-request."""
     projects = _load_projects(projects_file)
+    resume = _load_resume(resume_file)
 
     posts: list[Post] = []
     if posts_dir.exists():
@@ -167,5 +256,9 @@ def build_index(
             by_tag.setdefault(tag, []).append(post)
 
     return ContentIndex(
-        projects=projects, posts=posts, _by_slug=by_slug, _by_tag=by_tag
+        projects=projects,
+        posts=posts,
+        resume=resume,
+        _by_slug=by_slug,
+        _by_tag=by_tag,
     )

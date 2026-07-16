@@ -100,6 +100,28 @@ a:hover { text-decoration: underline; }
 .flash-error { background: #fdecea; color: #a3271d; }
 
 .resume-header { display: flex; justify-content: space-between; align-items: center; }
+.resume-intro { margin-bottom: 2rem; }
+.resume-name { font-size: 1.2rem; font-weight: 600; margin-bottom: 0.2rem; }
+.resume-contact { color: var(--muted); font-size: 0.9rem; margin-top: 0; }
+.resume-block { margin-top: 2rem; }
+.resume-block h2 { border-bottom: 1px solid var(--border); padding-bottom: 0.35rem; }
+.skill-groups { list-style: none; padding: 0; }
+.skill-groups li { margin-bottom: 0.4rem; }
+.skill-label { font-weight: 600; }
+.resume-entry { margin-bottom: 1.4rem; }
+.resume-entry-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.resume-role { font-weight: 600; }
+.resume-entry ul { margin: 0.4rem 0 0; padding-left: 1.2rem; }
+.resume-entry li { margin-bottom: 0.25rem; }
+.resume-projects { list-style: none; padding: 0; }
+.resume-projects li { margin-bottom: 1rem; }
+.resume-projects p { margin: 0.2rem 0 0; }
 .empty { color: var(--muted); }
 .error-page { text-align: center; padding: 3rem 0; }
 
