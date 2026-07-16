@@ -1,4 +1,4 @@
-# Lambda container image (arm64/Graviton). Built and pushed by `sam deploy`.
+# Lambda container image (x86_64). Built and pushed by `sam deploy`.
 FROM public.ecr.aws/lambda/python:3.12
 
 # uv for fast, locked dependency installation.

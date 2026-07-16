@@ -191,7 +191,7 @@ finished, and each has an explicit template/behavior:
 
 ## 7. Deployment Architecture
 
-- **Serverless** on **AWS Lambda** (container image, arm64/Graviton) fronted by
+- **Serverless** on **AWS Lambda** (container image, x86_64) fronted by
   **CloudFront**, defined as infrastructure-as-code in `template.yaml` (AWS SAM).
 - **Origin security**: the Lambda **Function URL uses IAM auth** and is reachable only
   through CloudFront via **Origin Access Control** (SigV4-signed requests). The raw
@@ -228,7 +228,7 @@ to eliminate.
 | Email | SMTP or Resend/Postmark API |
 | Package manager | `uv` (`pyproject.toml` + `uv.lock`) |
 | ASGI-to-Lambda | Mangum |
-| Hosting | AWS Lambda (arm64) + CloudFront, via SAM (`template.yaml`) — see §7 |
+| Hosting | AWS Lambda (x86_64) + CloudFront, via SAM (`template.yaml`) — see §7 |
 | Domain/DNS | Custom domain via ACM cert + CloudFront alias |
 
 ## 9. Security Considerations

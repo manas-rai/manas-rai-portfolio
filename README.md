@@ -40,7 +40,7 @@ uv run ruff check .
 
 ## Deployment
 
-Primary target: **AWS Lambda (container image, arm64) behind CloudFront**, defined
+Primary target: **AWS Lambda (container image, x86_64) behind CloudFront**, defined
 in [`template.yaml`](template.yaml) (AWS SAM). The Lambda Function URL uses IAM auth
 and is reachable only through CloudFront via Origin Access Control, so the raw
 `*.lambda-url` host returns 403 if hit directly. Cold start is ~1s; cost is ~$0/month
@@ -55,7 +55,7 @@ always-free tier).
 ### Deploy
 
 ```bash
-sam build              # builds the arm64 image from Dockerfile.lambda
+sam build              # builds the x86_64 image from Dockerfile.lambda
 sam deploy --guided    # first run: creates the ECR repo, stack, and distribution
 # thereafter: sam build && sam deploy
 ```
@@ -66,6 +66,39 @@ sam deploy --guided    # first run: creates the ECR repo, stack, and distributio
 - **FunctionUrl** — the raw origin (403 by design; not for visitors).
 
 A new CloudFront distribution takes ~5–15 min to finish deploying.
+
+### Automated deploys (CI/CD)
+
+After the first manual `sam deploy --guided`, the [`deploy`
+workflow](.github/workflows/deploy.yml) runs `sam build && sam deploy` on every push
+to `main` — so updating content (resume, posts, projects) is just: edit the file,
+commit, push, live in ~2–3 min. No manual deploy.
+
+One-time setup:
+
+1. **Create a GitHub OIDC identity provider** in IAM (`token.actions.githubusercontent.com`).
+2. **Create an IAM role** the workflow assumes, with a trust policy scoped to this
+   repo's `main` branch:
+   ```json
+   {
+     "Effect": "Allow",
+     "Principal": { "Federated": "arn:aws:iam::<ACCOUNT_ID>:oidc-provider/token.actions.githubusercontent.com" },
+     "Action": "sts:AssumeRoleWithWebIdentity",
+     "Condition": {
+       "StringEquals": { "token.actions.githubusercontent.com:aud": "sts.amazonaws.com" },
+       "StringLike": { "token.actions.githubusercontent.com:sub": "repo:manas-rai/manas-rai-portfolio:ref:refs/heads/main" }
+     }
+   }
+   ```
+   The role needs permissions for CloudFormation, Lambda, ECR, CloudFront, S3, and
+   IAM (to manage the function's execution role). For a personal project,
+   `PowerUserAccess` + an inline `iam:*` on the stack's roles is the quick path;
+   scope down later per the SAM docs.
+3. **Add repo secrets** (Settings → Secrets and variables → Actions):
+   - `AWS_DEPLOY_ROLE_ARN` — the role from step 2 (required).
+   - `RESEND_API_KEY` or `SMTP_HOST`/`SMTP_USER`/`SMTP_PASSWORD` — optional; the
+     workflow passes these to every deploy, so **if you use email, set them here** or
+     a CI deploy will reset them to empty.
 
 ### Email (optional)
 
