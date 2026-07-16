@@ -46,3 +46,16 @@ jobs:
           echo "===== WEBACL ON DISTRIBUTION ====="
           aws cloudfront get-distribution-config --id "$DIST" \
             --query 'DistributionConfig.WebACLId' --output text
+
+          echo "===== DISTRIBUTION STATUS ====="
+          aws cloudfront get-distribution --id "$DIST" --query 'Distribution.Status' --output text
+
+          echo "===== DEFAULT BEHAVIOR POLICIES ====="
+          aws cloudfront get-distribution-config --id "$DIST" \
+            --query 'DistributionConfig.DefaultCacheBehavior.{ORP:OriginRequestPolicyId,Cache:CachePolicyId}' --output json
+
+          echo "===== ORP DETAILS (does it forward Authorization?) ====="
+          ORP=$(aws cloudfront get-distribution-config --id "$DIST" \
+            --query 'DistributionConfig.DefaultCacheBehavior.OriginRequestPolicyId' --output text)
+          aws cloudfront get-origin-request-policy --id "$ORP" \
+            --query 'OriginRequestPolicy.OriginRequestPolicyConfig.{Headers:HeadersConfig,Query:QueryStringsConfig.QueryStringBehavior}' --output json
