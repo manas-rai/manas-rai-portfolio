@@ -34,6 +34,16 @@ Parameters:
   EmailTo:
     Type: String
     Default: rai.manas12@gmail.com
+  WebAclArn:
+    Type: String
+    Default: ""
+    Description: >
+      WAF WebACL ARN to keep associated with the distribution. The CI auto-detects
+      any already-attached WebACL (e.g. CloudFront's free security protections) and
+      passes it here, so CloudFormation doesn't try to remove it. Empty = none.
+
+Conditions:
+  HasWebAcl: !Not [!Equals [!Ref WebAclArn, ""]]
 
 Globals:
   Function:
@@ -108,6 +118,8 @@ Resources:
         Comment: !Sub "${AWS::StackName} portfolio"
         HttpVersion: http2and3
         PriceClass: PriceClass_100
+        # Keep any WAF WebACL the CI detected as already attached (see WebAclArn).
+        WebACLId: !If [HasWebAcl, !Ref WebAclArn, !Ref "AWS::NoValue"]
         Origins:
           - Id: lambda-origin
             # Function URL host, extracted from the full https://.../ URL.
