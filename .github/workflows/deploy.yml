@@ -49,7 +49,22 @@ jobs:
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
         run: |
+          # Preserve any WAF WebACL already attached to the distribution (e.g. the
+          # free CloudFront security protections). Without this, CloudFormation
+          # tries to remove it, which AWS blocks. Safe on first deploy: the stack
+          # doesn't exist yet, so the lookup yields nothing.
+          web_acl=""
+          dist=$(aws cloudformation describe-stack-resources \
+            --stack-name manas-rai-portfolio --logical-resource-id Distribution \
+            --query 'StackResources[0].PhysicalResourceId' --output text 2>/dev/null || true)
+          if [ -n "$dist" ] && [ "$dist" != "None" ]; then
+            web_acl=$(aws cloudfront get-distribution --id "$dist" \
+              --query 'Distribution.DistributionConfig.WebACLId' --output text 2>/dev/null || true)
+          fi
+          [ "$web_acl" = "None" ] && web_acl=""
+
           overrides=()
+          [ -n "$web_acl" ] && overrides+=("WebAclArn=$web_acl")
           [ -n "$RESEND_API_KEY" ] && overrides+=("ResendApiKey=$RESEND_API_KEY")
           [ -n "$SMTP_HOST" ] && overrides+=("SmtpHost=$SMTP_HOST")
           [ -n "$SMTP_USER" ] && overrides+=("SmtpUser=$SMTP_USER")
