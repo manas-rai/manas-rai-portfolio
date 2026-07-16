@@ -40,6 +40,39 @@ uv run ruff check .
 
 ## Deployment
 
-Containerized via the `Dockerfile` and deployed on Render. Set `RESEND_API_KEY` (or
-the `SMTP_*` variables) and `IS_PRODUCTION=true` in the environment. See design §7.1
-for the cold-start/availability decision.
+Deployed on Render from the committed [`render.yaml`](render.yaml) blueprint
+(Docker web service, free plan, health check at `/healthz`, auto-deploy on push
+to `main`).
+
+### First-time setup
+
+1. **Create the service**: in the Render dashboard → **New → Blueprint** → connect
+   this repo. Render reads `render.yaml` and provisions the service.
+2. **Set the email secret** (optional): add either `RESEND_API_KEY` or the
+   `SMTP_*` variables under the service's **Environment**. Until one is set, the
+   contact form fails gracefully rather than sending (design §6.1).
+3. **Custom domain** (optional): add it under **Settings → Custom Domains** and
+   point DNS at Render.
+
+### Keep-alive (free tier)
+
+The free plan spins down after ~15 min idle (30–60s cold start). The
+[`keep-alive` workflow](.github/workflows/keep-alive.yml) pings `/healthz` every
+~10 min to mitigate this. To enable it, add a repo **variable** (Settings →
+Secrets and variables → Actions → Variables):
+
+```
+RENDER_PING_URL = https://<your-service>.onrender.com/healthz
+```
+
+A dedicated uptime monitor (e.g. UptimeRobot, 5-min interval) is more reliable
+than GitHub's scheduler if cold starts remain a problem. To eliminate them
+entirely, switch `plan: free` to `plan: starter` in `render.yaml` (design §7.1).
+
+Verify the image builds and serves locally the same way Render does:
+
+```bash
+docker build -t portfolio .
+docker run --rm -e PORT=10000 -p 10000:10000 portfolio
+# then: curl localhost:10000/healthz
+```
