@@ -40,7 +40,7 @@ uv run ruff check .
 
 ## Deployment
 
-Primary target: **AWS Lambda (container image, arm64) behind CloudFront**, defined
+Primary target: **AWS Lambda (container image, x86_64) behind CloudFront**, defined
 in [`template.yaml`](template.yaml) (AWS SAM). The Lambda Function URL uses IAM auth
 and is reachable only through CloudFront via Origin Access Control, so the raw
 `*.lambda-url` host returns 403 if hit directly. Cold start is ~1s; cost is ~$0/month
@@ -55,7 +55,7 @@ always-free tier).
 ### Deploy
 
 ```bash
-sam build              # builds the arm64 image from Dockerfile.lambda
+sam build              # builds the x86_64 image from Dockerfile.lambda
 sam deploy --guided    # first run: creates the ECR repo, stack, and distribution
 # thereafter: sam build && sam deploy
 ```
@@ -66,6 +66,32 @@ sam deploy --guided    # first run: creates the ECR repo, stack, and distributio
 - **FunctionUrl** — the raw origin (403 by design; not for visitors).
 
 A new CloudFront distribution takes ~5–15 min to finish deploying.
+
+### Automated deploys (CI/CD)
+
+The [`deploy` workflow](.github/workflows/deploy.yml) runs `sam build && sam deploy`
+on every push to `main` — including the very first deploy (it self-provisions the S3
+artifact bucket and ECR repo). Updating content (resume, posts, projects) is just:
+edit the file, commit, push, live in ~2–3 min. No manual deploy needed.
+
+One-time setup:
+
+1. **Create an IAM user** (e.g. `portfolio`) with programmatic access and permissions
+   to deploy — CloudFormation, Lambda, ECR, CloudFront, S3, and IAM. For a personal
+   project `AdministratorAccess` is the simple choice; scope down later.
+2. **Create an access key** for that user (IAM → Users → Security credentials →
+   Create access key). Copy the **Access key ID** and **Secret access key**.
+3. **Add repo secrets** (Settings → Secrets and variables → Actions → New repository
+   secret):
+   - `AWS_ACCESS_KEY_ID` — the access key ID (required).
+   - `AWS_SECRET_ACCESS_KEY` — the secret access key (required).
+   - `RESEND_API_KEY` or `SMTP_HOST`/`SMTP_USER`/`SMTP_PASSWORD` — optional; the
+     workflow passes these to every deploy, so **if you use email, set them here** or
+     a CI deploy will reset them to empty.
+
+> Access keys are long-lived credentials — keep them only in GitHub Secrets (never in
+> the repo), and rotate/delete them if exposed. GitHub OIDC roles are the more secure
+> alternative once you're comfortable with AWS IAM.
 
 ### Email (optional)
 

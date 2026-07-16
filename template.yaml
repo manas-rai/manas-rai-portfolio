@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  Manas Rai portfolio — FastAPI on Lambda (container image, arm64) behind a
+  Manas Rai portfolio — FastAPI on Lambda (container image, x86_64) behind a
   CloudFront distribution. The Function URL uses IAM auth and is reachable only
   through CloudFront via Origin Access Control, so the raw *.lambda-url host
   cannot be hit directly.
@@ -46,7 +46,7 @@ Resources:
     Properties:
       PackageType: Image
       Architectures:
-        - arm64
+        - x86_64
       Environment:
         Variables:
           IS_PRODUCTION: !Ref IsProduction
