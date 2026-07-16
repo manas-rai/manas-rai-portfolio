@@ -9,16 +9,79 @@
     <a class="btn" href="{{ path_for('static', path='resume.pdf') }}" download>Download PDF</a>
   </div>
 
-  <p class="lead">
-    {{ site_name }} — {{ site_tagline }}
-    <br /><a href="mailto:{{ contact_email }}">{{ contact_email }}</a>
-  </p>
+  {% if resume %}
+  <header class="resume-intro">
+    <p class="resume-name">{{ resume.name }} — {{ resume.title }}</p>
+    <p class="resume-contact">
+      {% if resume.location %}{{ resume.location }} · {% endif %}
+      <a href="mailto:{{ resume.email }}">{{ resume.email }}</a>
+      {% for link in resume.links %} · <a href="{{ link.url }}">{{ link.label }}</a>{% endfor %}
+    </p>
+    <p class="lead">{{ resume.summary }}</p>
+  </header>
 
-  {# On-page resume is rendered from structured data; the PDF is the canonical
-     download. Keep both in sync on any resume change (design doc §4.4). #}
+  {% if resume.skills %}
+  <div class="resume-block">
+    <h2>Skills</h2>
+    <ul class="skill-groups">
+      {% for group in resume.skills %}
+      <li><span class="skill-label">{{ group.group }}:</span> {{ group.items | join(', ') }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  {% if resume.experience %}
+  <div class="resume-block">
+    <h2>Experience</h2>
+    {% for job in resume.experience %}
+    <div class="resume-entry">
+      <div class="resume-entry-head">
+        <span class="resume-role">{{ job.role }}{% if job.company %} · {{ job.company }}{% endif %}</span>
+        <span class="date">{{ job.period }}</span>
+      </div>
+      {% if job.highlights %}
+      <ul>
+        {% for point in job.highlights %}<li>{{ point }}</li>{% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if projects %}
+  <div class="resume-block">
+    <h2>Selected projects</h2>
+    <ul class="resume-projects">
+      {% for project in projects %}
+      <li>
+        <span class="resume-role">{{ project.title }}</span>
+        <span class="tech">{{ project.tech | join(' · ') }}</span>
+        <p>{{ project.summary }}</p>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  {% if resume.education %}
+  <div class="resume-block">
+    <h2>Education</h2>
+    {% for ed in resume.education %}
+    <div class="resume-entry-head">
+      <span class="resume-role">{{ ed.qualification }}{% if ed.institution %} · {{ ed.institution }}{% endif %}</span>
+      <span class="date">{{ ed.period }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% else %}
   <p class="empty">
-    On-page resume content coming soon. For now, grab the
+    Resume content is being finalized. For now, grab the
     <a href="{{ path_for('static', path='resume.pdf') }}">PDF</a>.
   </p>
+  {% endif %}
 </section>
 {% endblock %}

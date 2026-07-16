@@ -24,6 +24,7 @@ async def lifespan(app: FastAPI):
     app.state.content_index = build_index(
         CONTENT_DIR / "projects.yaml",
         POSTS_DIR,
+        CONTENT_DIR / "resume.yaml",
         include_drafts=not settings.is_production,
     )
     yield

@@ -1,0 +1,47 @@
+# On-page resume content — the canonical source for the /resume page (design §4.4).
+# Keep static/resume.pdf in sync when you edit this file.
+#
+# NOTE: experience and education below are PLACEHOLDERS. Replace them with your
+# real details (roles, companies, dates, achievements). Skills and the projects
+# section are drawn from real data.
+
+name: Manas Rai
+title: Software Engineer
+location: India
+email: rai.manas12@gmail.com
+links:
+  - label: GitHub
+    url: https://github.com/manas-rai
+
+summary: >
+  Software engineer focused on Python backends, AI/agent systems, and cloud
+  infrastructure — from multi-agent LangGraph pipelines to serverless AWS
+  deployments. [Replace this with your own two-to-three line summary.]
+
+skills:
+  - group: Languages
+    items: [Python, TypeScript, Go, SQL]
+  - group: Frameworks & tools
+    items: [FastAPI, LangGraph, "React / Next.js", Docker, "AWS (Lambda, CloudFront)"]
+  - group: Data & ML
+    items: [PostgreSQL, pgvector, ClickHouse, scikit-learn]
+
+experience:
+  - role: "Senior Software Engineer  [placeholder — replace]"
+    company: "Company Name"
+    period: "2023 – Present"
+    highlights:
+      - "Lead achievement with concrete impact and a metric (e.g. cut X by N%)."
+      - "A second responsibility or result worth highlighting."
+      - "A third, ideally showing scope or ownership."
+  - role: "Software Engineer  [placeholder — replace]"
+    company: "Previous Company"
+    period: "2020 – 2023"
+    highlights:
+      - "Built or shipped something notable."
+      - "Collaborated / owned an area."
+
+education:
+  - qualification: "B.Tech, Computer Science  [placeholder — replace]"
+    institution: "University Name"
+    period: "2016 – 2020"

@@ -23,6 +23,13 @@ def test_healthz(client: TestClient) -> None:
     assert client.get("/healthz").json() == {"status": "ok"}
 
 
+def test_resume_renders_structured_data(client: TestClient) -> None:
+    resp = client.get("/resume")
+    assert resp.status_code == 200
+    assert "Skills" in resp.text
+    assert "Download PDF" in resp.text
+
+
 def test_unknown_post_renders_404(client: TestClient) -> None:
     resp = client.get("/blog/does-not-exist")
     assert resp.status_code == 404
