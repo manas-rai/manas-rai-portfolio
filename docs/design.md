@@ -1,12 +1,17 @@
 # Solution Design: Personal Portfolio Website
 
 **Author:** Manas Rai
-**Version:** 1.1
+**Version:** 1.2
 **Date:** July 2026
 
+> **Changelog — v1.2:** Moved hosting from a single-container host (Render) to AWS
+> Lambda + CloudFront (§3, §7, §7.1, §8, §9); the ~1s Lambda cold start removes the
+> free-tier idle-spin-down 404s. Internal links are now root-relative so navigation
+> works behind CloudFront's host rewrite.
+>
 > **Changelog — v1.1:** Incorporated four fixes from design review: (1) contact-form
-> availability on Render, (2) Markdown rendering security policy, (3) startup-time
-> content indexing, (4) error/empty-state handling. See §7.1, §4.2, §4.5, and §6.1.
+> availability, (2) Markdown rendering security policy, (3) startup-time content
+> indexing, (4) error/empty-state handling. See §7.1, §4.2, §4.5, and §6.1.
 
 ---
 
@@ -34,14 +39,17 @@ A personal portfolio site presenting a full personal brand: home/intro, projects
 Browser
    |
    v
-FastAPI application
-   |-- Routing (/, /projects, /blog, /resume, /contact, /healthz)
-   |-- Jinja2 templates (HTML rendering)
-   |-- Content index (built once at startup from Markdown posts + project config)
-   +-- Contact handler --> Email service (SMTP / Resend), external
+CloudFront (CDN, TLS, caches /static/*)
+   |  (Origin Access Control — SigV4-signed)
+   v
+Lambda Function URL (IAM auth)
    |
    v
-Render (single container deploy)
+FastAPI application (Mangum ASGI adapter)
+   |-- Routing (/, /projects, /blog, /resume, /contact, /healthz)
+   |-- Jinja2 templates (HTML rendering)
+   |-- Content index (built once at cold start from Markdown posts + project config)
+   +-- Contact handler --> Email service (SMTP / Resend), external
 ```
 
 (See the architecture diagram shared above for the visual version of this.)
@@ -183,27 +191,31 @@ finished, and each has an explicit template/behavior:
 
 ## 7. Deployment Architecture
 
-- **Containerized** via a single `Dockerfile` (FastAPI + Uvicorn/Gunicorn).
-- **Hosting**: **Render**, git-push deploys, HTTPS included.
-- **Domain**: custom domain (e.g. `manasrai.dev`) via Namecheap or similar, pointed at Render.
-- **CI**: a simple GitHub Actions workflow can run linting/tests on push; Render handles the actual deploy on merge to `main`.
+- **Serverless** on **AWS Lambda** (container image, arm64/Graviton) fronted by
+  **CloudFront**, defined as infrastructure-as-code in `template.yaml` (AWS SAM).
+- **Origin security**: the Lambda **Function URL uses IAM auth** and is reachable only
+  through CloudFront via **Origin Access Control** (SigV4-signed requests). The raw
+  `*.lambda-url` host returns 403 to direct access.
+- **TLS/CDN**: CloudFront terminates HTTPS and caches `/static/*` at the edge; dynamic
+  pages are not cached.
+- **Domain**: custom domain (e.g. `manasrai.dev`) via an ACM certificate (in
+  `us-east-1`) plus a CloudFront alias, with DNS pointed at the distribution.
+- **CI/deploy**: `sam build && sam deploy`; a GitHub Actions workflow can run
+  linting/tests on push.
 
 ### 7.1 Availability & the contact form (fix #1)
 The single most conversion-critical path on the site is the contact form — it's what a
-recruiter reaches *after* reading the resume. Render's free tier spins the service down
-after ~15 min of inactivity and takes 30–60s to wake, which means a recruiter would hit
-a 30–60s spinner (or a request timeout) on exactly the page that matters most. That is
-not an acceptable tradeoff for this site's purpose.
+recruiter reaches *after* reading the resume, so it must respond immediately.
 
-**Decision — pick one, in priority order:**
-1. **Preferred:** run on Render's **$7/month Starter plan from day one** to eliminate
-   cold starts entirely. This is treated as a launch requirement, not a "later" upgrade.
-2. **If staying on free tier initially:** add a **keep-alive ping** hitting `/healthz`
-   every ~10 minutes (external cron / uptime monitor) so the service stays warm. This is
-   a mitigation, not a fix — a redeploy or a missed ping still yields a cold start.
+The serverless design keeps it warm enough for that: **Lambda cold starts are ~1s**
+(vs the 30–60s spin-up of an idle free-tier container host), and warm invocations are
+single-digit milliseconds. There is no idle-spin-down "asleep" state that returns
+routing errors — the earlier free-tier host surfaced idle spin-down as intermittent
+`x-render-routing: no-server` 404s on navigation, which this architecture removes.
 
-The original framing of the paid upgrade as "later, before actively sharing the link"
-is inverted here: warm availability of the contact path is a day-one concern.
+If sub-second cold starts ever need to become zero, **Provisioned Concurrency** on the
+Lambda is the lever — but at portfolio traffic the ~1s cold start is not worth paying
+to eliminate.
 
 ## 8. Tech Stack Summary
 
@@ -215,15 +227,17 @@ is inverted here: warm availability of the contact path is a day-one concern.
 | HTML sanitization | `nh3` (ammonia) for rendered post HTML |
 | Email | SMTP or Resend/Postmark API |
 | Package manager | `uv` (`pyproject.toml` + `uv.lock`) |
-| Hosting | Render (Starter plan preferred — see §7.1) |
-| Domain/DNS | Namecheap (or similar) |
+| ASGI-to-Lambda | Mangum |
+| Hosting | AWS Lambda (arm64) + CloudFront, via SAM (`template.yaml`) — see §7 |
+| Domain/DNS | Custom domain via ACM cert + CloudFront alias |
 
 ## 9. Security Considerations
 
 - Sanitize/escape all user-submitted contact form fields before including them in emails.
 - Sanitize rendered blog-post HTML via `nh3` before templating (see §4.2).
 - Rate-limit the `/contact` endpoint to prevent spam/abuse (per-process limitation noted in §4.3).
-- Serve over HTTPS (handled automatically by Render).
+- Serve over HTTPS (terminated at CloudFront); the Lambda origin is IAM-authed and
+  reachable only via CloudFront (Origin Access Control).
 - No secrets (SMTP credentials, API keys) committed to git — use environment variables.
 
 ## 10. Future Enhancements

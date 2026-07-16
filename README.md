@@ -8,7 +8,7 @@ See [`docs/design.md`](docs/design.md) for the full solution design.
 ## Stack
 
 FastAPI · Jinja2 · Markdown (posts) + YAML (projects) · `nh3` sanitization ·
-`uv` for dependencies · Docker · Render for hosting.
+`uv` for dependencies · AWS Lambda + CloudFront (SAM) for hosting.
 
 ## Local development
 
@@ -93,11 +93,3 @@ docker run --rm -p 9000:8080 portfolio-lambda
 curl -s -XPOST http://localhost:9000/2015-03-31/functions/function/invocations \
   -d '{"version":"2.0","rawPath":"/healthz","requestContext":{"http":{"method":"GET","path":"/healthz"}},"isBase64Encoded":false}'
 ```
-
-### Alternative: Render
-
-A Render blueprint ([`render.yaml`](render.yaml)) and a [`keep-alive`
-workflow](.github/workflows/keep-alive.yml) are also maintained (Docker web service,
-`/healthz` check). Note Render's free tier spins down after ~15 min idle (30–60s cold
-start, surfaced as `x-render-routing: no-server` 404s on navigation); the keep-alive
-ping mitigates it and `plan: starter` eliminates it. Lambda avoids this entirely.
