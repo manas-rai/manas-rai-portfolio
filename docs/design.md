@@ -17,7 +17,7 @@ A personal portfolio site presenting a full personal brand: home/intro, projects
 ## 2. Goals & Non-Goals
 
 **Goals**
-- Present projects (RegLens, DevFlow Kit, jobscout-ai, PIE migration work) with clear writeups and links
+- Present projects (RegLens, Cloud Waste Hunter, CostTracker, DevFlow Kit) with clear writeups and links
 - Support a blog authored in Markdown, versioned in git
 - Serve an on-page resume plus a downloadable PDF
 - Provide a working contact form without third-party form-builder lock-in
