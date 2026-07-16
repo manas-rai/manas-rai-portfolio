@@ -1,0 +1,28 @@
+- title: RegLens
+  summary: >
+    Regulatory-document analysis tool that surfaces obligations and changes
+    across large compliance corpora.
+  tech: [Python, FastAPI, LLMs]
+  github: https://github.com/manas-rai/reglens
+  featured: true
+
+- title: DevFlow Kit
+  summary: >
+    Developer workflow toolkit that streamlines local setup, task running,
+    and repo automation.
+  tech: [Python, CLI, Automation]
+  github: https://github.com/manas-rai/devflow-kit
+  featured: true
+
+- title: jobscout-ai
+  summary: >
+    Agent that scouts job postings, ranks fit, and drafts tailored outreach.
+  tech: [Python, LLMs, Agents]
+  github: https://github.com/manas-rai/jobscout-ai
+  featured: false
+
+- title: PIE Migration
+  summary: >
+    Large-scale platform migration modernizing a legacy integration estate.
+  tech: [Python, Migration, Architecture]
+  featured: false

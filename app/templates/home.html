@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero">
+  <h1>{{ site_name }}</h1>
+  <p class="tagline">{{ site_tagline }}</p>
+  <p class="hero-actions">
+    <a class="btn" href="{{ url_for('projects') }}">See my work</a>
+    <a class="btn btn-ghost" href="{{ url_for('contact_form') }}">Get in touch</a>
+  </p>
+</section>
+
+<section class="section">
+  <h2>Featured projects</h2>
+  {% if featured_projects %}
+  <ul class="card-grid">
+    {% for project in featured_projects %}
+    <li class="card">
+      <h3>{{ project.title }}</h3>
+      <p>{{ project.summary }}</p>
+      <p class="tech">{{ project.tech | join(' · ') }}</p>
+      {% if project.github %}<a href="{{ project.github }}">GitHub</a>{% endif %}
+      {% if project.demo %}<a href="{{ project.demo }}">Live demo</a>{% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="empty">Projects coming soon.</p>
+  {% endif %}
+</section>
+
+{% if recent_posts %}
+<section class="section">
+  <h2>Recent writing</h2>
+  <ul class="post-list">
+    {% for post in recent_posts %}
+    <li>
+      <a href="{{ url_for('blog_post', slug=post.slug) }}">{{ post.title }}</a>
+      <span class="date">{{ post.date.strftime('%b %d, %Y') }}</span>
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+{% endblock %}
