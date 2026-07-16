@@ -1,28 +1,37 @@
 - title: RegLens
   summary: >
-    Regulatory-document analysis tool that surfaces obligations and changes
-    across large compliance corpora.
-  tech: [Python, FastAPI, LLMs]
+    Multi-agent regulatory compliance automation. Feed it a regulatory PDF and
+    your control matrix — it extracts every obligation, checks each against your
+    policies via RAG, scores the gaps by risk, and produces an audit report with
+    a human-in-the-loop approval gate.
+  tech: [Python, FastAPI, LangGraph, pgvector]
   github: https://github.com/manas-rai/reglens
   featured: true
 
-- title: DevFlow Kit
+- title: Cloud Waste Hunter
   summary: >
-    Developer workflow toolkit that streamlines local setup, task running,
-    and repo automation.
-  tech: [Python, CLI, Automation]
-  github: https://github.com/manas-rai/devflow-kit
+    Automated AWS cost optimization with ML-powered waste detection. Flags idle
+    EC2 instances, unattached EBS volumes, and stale snapshots — then eliminates
+    them safely with dry-run previews, manual approval, and 7-day rollback.
+  tech: [Python, FastAPI, scikit-learn, Next.js]
+  github: https://github.com/manas-rai/cloud-waste-hunter
   featured: true
 
-- title: jobscout-ai
+- title: CostTracker
   summary: >
-    Agent that scouts job postings, ranks fit, and drafts tailored outreach.
-  tech: [Python, LLMs, Agents]
-  github: https://github.com/manas-rai/jobscout-ai
+    Open-source, self-hosted LLM cost tracking. A drop-in SDK wraps OpenAI,
+    Anthropic, Groq, and Bedrock clients to record usage and cost straight to
+    ClickHouse or PostgreSQL, with a bundled analytics dashboard.
+  tech: [Python, ClickHouse, PostgreSQL]
+  github: https://github.com/manas-rai/costtracker
   featured: false
 
-- title: PIE Migration
+- title: DevFlow Kit
   summary: >
-    Large-scale platform migration modernizing a legacy integration estate.
-  tech: [Python, Migration, Architecture]
+    AI agents that turn Jira tickets into pull requests with zero infrastructure.
+    Agents refine specs, decompose complex tickets into parallel subtasks, and
+    open GitHub issues that the Claude Code app implements — target repos stay
+    untouched.
+  tech: [Python, Jira, GitHub, Claude]
+  github: https://github.com/manas-rai/devflow-kit
   featured: false
