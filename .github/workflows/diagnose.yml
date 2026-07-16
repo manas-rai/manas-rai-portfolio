@@ -1,0 +1,48 @@
+# One-off diagnostic: dump the deployed CloudFront <-> Lambda auth wiring so we
+# can see why the Function URL returns 403. Trigger manually; remove when done.
+name: diagnose
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Diagnose
+        run: |
+          FN=$(aws cloudformation describe-stack-resources --stack-name manas-rai-portfolio \
+            --logical-resource-id PortfolioFunction --query 'StackResources[0].PhysicalResourceId' --output text)
+          DIST=$(aws cloudformation describe-stack-resources --stack-name manas-rai-portfolio \
+            --logical-resource-id Distribution --query 'StackResources[0].PhysicalResourceId' --output text)
+          echo "FUNCTION=$FN"
+          echo "DISTRIBUTION=$DIST"
+
+          echo "===== FUNCTION URL CONFIG ====="
+          aws lambda get-function-url-config --function-name "$FN" \
+            --query '{AuthType:AuthType,Url:FunctionUrl}' --output json
+
+          echo "===== LAMBDA RESOURCE POLICY ====="
+          aws lambda get-policy --function-name "$FN" --query 'Policy' --output text 2>&1 || echo "NO RESOURCE POLICY FOUND"
+
+          echo "===== DISTRIBUTION ORIGINS (domain + OAC id) ====="
+          aws cloudfront get-distribution-config --id "$DIST" \
+            --query 'DistributionConfig.Origins.Items[].{Domain:DomainName,OAC:OriginAccessControlId}' --output json
+
+          echo "===== ORIGIN ACCESS CONTROLS ====="
+          aws cloudfront list-origin-access-controls \
+            --query 'OriginAccessControlList.Items[].{Id:Id,Name:Name,Type:OriginAccessControlOriginType,Signing:SigningBehavior}' --output json
+
+          echo "===== WEBACL ON DISTRIBUTION ====="
+          aws cloudfront get-distribution-config --id "$DIST" \
+            --query 'DistributionConfig.WebACLId' --output text
