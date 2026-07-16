@@ -62,26 +62,16 @@ Resources:
       Dockerfile: Dockerfile.lambda
       DockerTag: latest
 
+  # Public Function URL — CloudFront proxies to it directly. (The OAC + IAM-auth
+  # setup was configured exactly to AWS's spec but signed requests were still
+  # rejected with 403; a public origin is the reliable choice for public content.)
   PortfolioFunctionUrl:
     Type: AWS::Lambda::Url
     Properties:
       TargetFunctionArn: !Ref PortfolioFunction
-      AuthType: AWS_IAM
+      AuthType: NONE
 
-  # Lets CloudFront sign (SigV4) its requests to the IAM-auth Function URL.
-  CloudFrontOac:
-    Type: AWS::CloudFront::OriginAccessControl
-    Properties:
-      OriginAccessControlConfig:
-        Name: !Sub "${AWS::StackName}-lambda-oac"
-        OriginAccessControlOriginType: lambda
-        SigningBehavior: always
-        SigningProtocol: sigv4
-
-  # Forwards query strings (needed for ?tech / ?tag / ?page) and the headers the
-  # app uses, but NOT the Authorization header. CloudFront OAC carries its SigV4
-  # signature in Authorization; a policy that forwards Authorization makes
-  # CloudFront skip signing, so Lambda rejects the request with 403.
+  # Forwards query strings (needed for ?tech / ?tag / ?page) and the app's headers.
   LambdaOriginRequestPolicy:
     Type: AWS::CloudFront::OriginRequestPolicy
     Properties:
@@ -112,7 +102,6 @@ Resources:
           - Id: lambda-origin
             # Function URL host, extracted from the full https://.../ URL.
             DomainName: !Select [2, !Split ["/", !GetAtt PortfolioFunctionUrl.FunctionUrl]]
-            OriginAccessControlId: !GetAtt CloudFrontOac.Id
             CustomOriginConfig:
               OriginProtocolPolicy: https-only
               OriginSSLProtocols:
@@ -133,20 +122,19 @@ Resources:
             CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
             OriginRequestPolicyId: !Ref LambdaOriginRequestPolicy
 
-  # Authorizes CloudFront (this distribution only) to invoke the Function URL.
-  CloudFrontInvokePermission:
+  # Required for a public (AuthType NONE) Function URL to be invokable.
+  PublicInvokePermission:
     Type: AWS::Lambda::Permission
     Properties:
       FunctionName: !Ref PortfolioFunction
       Action: lambda:InvokeFunctionUrl
-      Principal: cloudfront.amazonaws.com
-      FunctionUrlAuthType: AWS_IAM
-      SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${Distribution.Id}"
+      Principal: "*"
+      FunctionUrlAuthType: NONE
 
 Outputs:
   CloudFrontURL:
     Description: Public site URL (serve this to visitors).
     Value: !Sub "https://${Distribution.DomainName}"
   FunctionUrl:
-    Description: Raw Function URL (IAM-auth; direct browser access returns 403 by design).
+    Description: Raw Function URL (public; serve visitors the CloudFront URL instead).
     Value: !GetAtt PortfolioFunctionUrl.FunctionUrl
