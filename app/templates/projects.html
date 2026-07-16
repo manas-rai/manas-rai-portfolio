@@ -8,9 +8,9 @@
 
   {% if all_tech %}
   <p class="filters">
-    <a href="{{ url_for('projects') }}" class="{{ 'active' if not active_tech }}">All</a>
+    <a href="{{ path_for('projects') }}" class="{{ 'active' if not active_tech }}">All</a>
     {% for tech in all_tech %}
-    <a href="{{ url_for('projects') }}?tech={{ tech }}"
+    <a href="{{ path_for('projects') }}?tech={{ tech }}"
        class="{{ 'active' if tech == active_tech }}">{{ tech }}</a>
     {% endfor %}
   </p>

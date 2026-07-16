@@ -5,8 +5,8 @@
   <h1>{{ site_name }}</h1>
   <p class="tagline">{{ site_tagline }}</p>
   <p class="hero-actions">
-    <a class="btn" href="{{ url_for('projects') }}">See my work</a>
-    <a class="btn btn-ghost" href="{{ url_for('contact_form') }}">Get in touch</a>
+    <a class="btn" href="{{ path_for('projects') }}">See my work</a>
+    <a class="btn btn-ghost" href="{{ path_for('contact_form') }}">Get in touch</a>
   </p>
 </section>
 
@@ -35,7 +35,7 @@
   <ul class="post-list">
     {% for post in recent_posts %}
     <li>
-      <a href="{{ url_for('blog_post', slug=post.slug) }}">{{ post.title }}</a>
+      <a href="{{ path_for('blog_post', slug=post.slug) }}">{{ post.title }}</a>
       <span class="date">{{ post.date.strftime('%b %d, %Y') }}</span>
     </li>
     {% endfor %}

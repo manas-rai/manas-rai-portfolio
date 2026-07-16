@@ -17,6 +17,7 @@ dependencies = [
     "httpx>=0.27",
     "pydantic[email]>=2.9",
     "pydantic-settings>=2.6",
+    "mangum>=0.19",
 ]
 
 [dependency-groups]
