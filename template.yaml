@@ -78,6 +78,28 @@ Resources:
         SigningBehavior: always
         SigningProtocol: sigv4
 
+  # Forwards query strings (needed for ?tech / ?tag / ?page) and the headers the
+  # app uses, but NOT the Authorization header. CloudFront OAC carries its SigV4
+  # signature in Authorization; a policy that forwards Authorization makes
+  # CloudFront skip signing, so Lambda rejects the request with 403.
+  LambdaOriginRequestPolicy:
+    Type: AWS::CloudFront::OriginRequestPolicy
+    Properties:
+      OriginRequestPolicyConfig:
+        Name: !Sub "${AWS::StackName}-lambda-orp"
+        HeadersConfig:
+          HeaderBehavior: whitelist
+          Headers:
+            - Content-Type
+            - Accept
+            - Accept-Language
+            - User-Agent
+            - Referer
+        CookiesConfig:
+          CookieBehavior: none
+        QueryStringsConfig:
+          QueryStringBehavior: all
+
   Distribution:
     Type: AWS::CloudFront::Distribution
     Properties:
@@ -101,9 +123,7 @@ Resources:
           AllowedMethods: [GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE]
           # Managed CachingDisabled — dynamic pages are never cached.
           CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
-          # Managed AllViewerExceptHostHeader — forwards method/body/query but
-          # keeps Host = origin so the OAC SigV4 signature stays valid.
-          OriginRequestPolicyId: b689b0a8-53d0-40ab-baf2-68738e2966ac
+          OriginRequestPolicyId: !Ref LambdaOriginRequestPolicy
         CacheBehaviors:
           - PathPattern: /static/*
             TargetOriginId: lambda-origin
@@ -111,7 +131,7 @@ Resources:
             AllowedMethods: [GET, HEAD, OPTIONS]
             # Managed CachingOptimized — static assets cached at the edge.
             CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
-            OriginRequestPolicyId: b689b0a8-53d0-40ab-baf2-68738e2966ac
+            OriginRequestPolicyId: !Ref LambdaOriginRequestPolicy
 
   # Authorizes CloudFront (this distribution only) to invoke the Function URL.
   CloudFrontInvokePermission:
