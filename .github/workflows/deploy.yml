@@ -40,13 +40,23 @@ jobs:
         run: sam build
 
       - name: Deploy
+        # Only pass email parameter-overrides that are actually set — SAM rejects
+        # empty "Key=" values. Secrets come in via env (avoids inlining them in
+        # the script) and only non-empty ones are appended.
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
         run: |
-          sam deploy \
-            --resolve-s3 \
-            --no-confirm-changeset \
-            --no-fail-on-empty-changeset \
-            --parameter-overrides \
-              "ResendApiKey=${{ secrets.RESEND_API_KEY }}" \
-              "SmtpHost=${{ secrets.SMTP_HOST }}" \
-              "SmtpUser=${{ secrets.SMTP_USER }}" \
-              "SmtpPassword=${{ secrets.SMTP_PASSWORD }}"
+          overrides=()
+          [ -n "$RESEND_API_KEY" ] && overrides+=("ResendApiKey=$RESEND_API_KEY")
+          [ -n "$SMTP_HOST" ] && overrides+=("SmtpHost=$SMTP_HOST")
+          [ -n "$SMTP_USER" ] && overrides+=("SmtpUser=$SMTP_USER")
+          [ -n "$SMTP_PASSWORD" ] && overrides+=("SmtpPassword=$SMTP_PASSWORD")
+
+          args=(--resolve-s3 --no-confirm-changeset --no-fail-on-empty-changeset)
+          if [ ${#overrides[@]} -gt 0 ]; then
+            args+=(--parameter-overrides "${overrides[@]}")
+          fi
+          sam deploy "${args[@]}"
