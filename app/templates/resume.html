@@ -6,7 +6,7 @@
 <section class="section resume">
   <div class="resume-header">
     <h1>Resume</h1>
-    <a class="btn" href="{{ url_for('static', path='resume.pdf') }}" download>Download PDF</a>
+    <a class="btn" href="{{ path_for('static', path='resume.pdf') }}" download>Download PDF</a>
   </div>
 
   <p class="lead">
@@ -18,7 +18,7 @@
      download. Keep both in sync on any resume change (design doc §4.4). #}
   <p class="empty">
     On-page resume content coming soon. For now, grab the
-    <a href="{{ url_for('static', path='resume.pdf') }}">PDF</a>.
+    <a href="{{ path_for('static', path='resume.pdf') }}">PDF</a>.
   </p>
 </section>
 {% endblock %}

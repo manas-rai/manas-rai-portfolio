@@ -40,39 +40,64 @@ uv run ruff check .
 
 ## Deployment
 
-Deployed on Render from the committed [`render.yaml`](render.yaml) blueprint
-(Docker web service, free plan, health check at `/healthz`, auto-deploy on push
-to `main`).
+Primary target: **AWS Lambda (container image, arm64) behind CloudFront**, defined
+in [`template.yaml`](template.yaml) (AWS SAM). The Lambda Function URL uses IAM auth
+and is reachable only through CloudFront via Origin Access Control, so the raw
+`*.lambda-url` host returns 403 if hit directly. Cold start is ~1s; cost is ~$0/month
+at portfolio traffic (Lambda always-free tier + free Function URL + CloudFront
+always-free tier).
 
-### First-time setup
+### Prerequisites
 
-1. **Create the service**: in the Render dashboard → **New → Blueprint** → connect
-   this repo. Render reads `render.yaml` and provisions the service.
-2. **Set the email secret** (optional): add either `RESEND_API_KEY` or the
-   `SMTP_*` variables under the service's **Environment**. Until one is set, the
-   contact form fails gracefully rather than sending (design §6.1).
-3. **Custom domain** (optional): add it under **Settings → Custom Domains** and
-   point DNS at Render.
+- AWS account with credentials configured (`aws configure`)
+- [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html) and Docker
 
-### Keep-alive (free tier)
-
-The free plan spins down after ~15 min idle (30–60s cold start). The
-[`keep-alive` workflow](.github/workflows/keep-alive.yml) pings `/healthz` every
-~10 min to mitigate this. To enable it, add a repo **variable** (Settings →
-Secrets and variables → Actions → Variables):
-
-```
-RENDER_PING_URL = https://<your-service>.onrender.com/healthz
-```
-
-A dedicated uptime monitor (e.g. UptimeRobot, 5-min interval) is more reliable
-than GitHub's scheduler if cold starts remain a problem. To eliminate them
-entirely, switch `plan: free` to `plan: starter` in `render.yaml` (design §7.1).
-
-Verify the image builds and serves locally the same way Render does:
+### Deploy
 
 ```bash
-docker build -t portfolio .
-docker run --rm -e PORT=10000 -p 10000:10000 portfolio
-# then: curl localhost:10000/healthz
+sam build              # builds the arm64 image from Dockerfile.lambda
+sam deploy --guided    # first run: creates the ECR repo, stack, and distribution
+# thereafter: sam build && sam deploy
 ```
+
+`sam deploy` prints two outputs:
+
+- **CloudFrontURL** — the public site (`https://xxxx.cloudfront.net`); serve this.
+- **FunctionUrl** — the raw origin (403 by design; not for visitors).
+
+A new CloudFront distribution takes ~5–15 min to finish deploying.
+
+### Email (optional)
+
+Pass one transport at deploy time; until then the contact form fails gracefully
+(design §6.1):
+
+```bash
+sam deploy --parameter-overrides ResendApiKey=re_xxx
+# or: SmtpHost=... SmtpUser=... SmtpPassword=...
+```
+
+### Custom domain (optional)
+
+Add an ACM certificate (in `us-east-1`) and an `Aliases` entry to the CloudFront
+distribution, then point DNS (CNAME) at the distribution domain.
+
+### Local verification (no deploy)
+
+The Lambda image runs under the bundled runtime emulator:
+
+```bash
+docker build -f Dockerfile.lambda -t portfolio-lambda .
+docker run --rm -p 9000:8080 portfolio-lambda
+# in another shell:
+curl -s -XPOST http://localhost:9000/2015-03-31/functions/function/invocations \
+  -d '{"version":"2.0","rawPath":"/healthz","requestContext":{"http":{"method":"GET","path":"/healthz"}},"isBase64Encoded":false}'
+```
+
+### Alternative: Render
+
+A Render blueprint ([`render.yaml`](render.yaml)) and a [`keep-alive`
+workflow](.github/workflows/keep-alive.yml) are also maintained (Docker web service,
+`/healthz` check). Note Render's free tier spins down after ~15 min idle (30–60s cold
+start, surfaced as `x-render-routing: no-server` 404s on navigation); the keep-alive
+ping mitigates it and `plan: starter` eliminates it. Lambda avoids this entirely.

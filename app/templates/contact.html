@@ -11,7 +11,7 @@
   {% else %}
     {% if flash %}<p class="flash flash-error">{{ flash }}</p>{% endif %}
 
-    <form method="post" action="{{ url_for('contact_submit') }}" class="contact-form">
+    <form method="post" action="{{ path_for('contact_submit') }}" class="contact-form">
       <label>
         Name
         <input type="text" name="name" value="{{ values.name or '' }}" required />

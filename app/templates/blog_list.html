@@ -8,9 +8,9 @@
 
   {% if all_tags %}
   <p class="filters">
-    <a href="{{ url_for('blog_list') }}" class="{{ 'active' if not active_tag }}">All</a>
+    <a href="{{ path_for('blog_list') }}" class="{{ 'active' if not active_tag }}">All</a>
     {% for tag in all_tags %}
-    <a href="{{ url_for('blog_list') }}?tag={{ tag }}"
+    <a href="{{ path_for('blog_list') }}?tag={{ tag }}"
        class="{{ 'active' if tag == active_tag }}">{{ tag }}</a>
     {% endfor %}
   </p>
@@ -20,7 +20,7 @@
   <ul class="post-list">
     {% for post in posts %}
     <li class="post-summary">
-      <a href="{{ url_for('blog_post', slug=post.slug) }}">{{ post.title }}</a>
+      <a href="{{ path_for('blog_post', slug=post.slug) }}">{{ post.title }}</a>
       <span class="date">{{ post.date.strftime('%b %d, %Y') }}</span>
       <p>{{ post.summary }}</p>
     </li>
@@ -29,10 +29,10 @@
 
   <nav class="pagination">
     {% if has_prev %}
-    <a href="{{ url_for('blog_list') }}?page={{ page - 1 }}{% if active_tag %}&tag={{ active_tag }}{% endif %}">← Newer</a>
+    <a href="{{ path_for('blog_list') }}?page={{ page - 1 }}{% if active_tag %}&tag={{ active_tag }}{% endif %}">← Newer</a>
     {% endif %}
     {% if has_next %}
-    <a href="{{ url_for('blog_list') }}?page={{ page + 1 }}{% if active_tag %}&tag={{ active_tag }}{% endif %}">Older →</a>
+    <a href="{{ path_for('blog_list') }}?page={{ page + 1 }}{% if active_tag %}&tag={{ active_tag }}{% endif %}">Older →</a>
     {% endif %}
   </nav>
   {% else %}
