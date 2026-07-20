@@ -3,13 +3,19 @@
 {% block title %}Contact — {{ site_name }}{% endblock %}
 
 {% block content %}
-<section class="section contact">
-  <h1>Contact</h1>
+<section class="section contact prose">
+  <div class="section-head">
+    <span class="section-eyebrow">//</span>
+    <h1>Contact</h1>
+  </div>
 
   {% if sent %}
   <p class="flash flash-success">Thanks — your message is on its way. I'll be in touch.</p>
-  <p><a href="{{ path_for('home') }}">← Back home</a></p>
+  <p class="back"><a href="{{ path_for('home') }}">← Back home</a></p>
   {% else %}
+    <p class="page-intro">
+      Have a role, a project, or a question? Drop me a line — I read everything.
+    </p>
     <p class="flash flash-error" id="contact-status" hidden></p>
 
     <form method="post" action="{{ path_for('contact_submit') }}" class="contact-form"
@@ -34,7 +40,7 @@
         <label>Website<input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
       </div>
 
-      <button type="submit" class="btn">Send message</button>
+      <button type="submit" class="btn btn-primary">Send message →</button>
     </form>
   {% endif %}
 </section>

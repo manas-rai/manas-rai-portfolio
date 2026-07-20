@@ -3,10 +3,10 @@
 {% block title %}Resume — {{ site_name }}{% endblock %}
 
 {% block content %}
-<section class="section resume">
+<section class="section resume prose">
   <div class="resume-header">
     <h1>Resume</h1>
-    <a class="btn" href="{{ path_for('static', path='resume.pdf') }}" download>Download PDF</a>
+    <a class="btn btn-primary" href="{{ path_for('static', path='resume.pdf') }}" download>Download PDF ↓</a>
   </div>
 
   {% if resume %}

@@ -52,6 +52,20 @@ def test_contact_form_posts_to_pages_function(site: Path) -> None:
 def test_static_assets_copied(site: Path) -> None:
     assert (site / "static" / "css" / "style.css").exists()
     assert (site / "static" / "js" / "contact.js").exists()
+    assert (site / "static" / "fonts" / "space-grotesk-700.woff2").exists()
+    assert (site / "static" / "images" / "favicon.svg").exists()
+
+
+def test_pages_carry_canonical_and_og_meta(site: Path) -> None:
+    html = (site / "blog" / "2026-07-16-hello-world" / "index.html").read_text()
+    assert '<link rel="canonical" href="https://manas-rai-portfolio.pages.dev/blog/2026-07-16-hello-world/"' in html
+    assert 'property="og:title"' in html
+
+
+def test_nav_marks_current_section(site: Path) -> None:
+    html = (site / "projects" / "index.html").read_text()
+    assert 'aria-current="page">Projects</a>' in html
+    assert 'aria-current="page">Blog</a>' not in html
 
 
 def test_headers_file_sets_security_headers(site: Path) -> None:

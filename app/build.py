@@ -17,9 +17,11 @@ from app.config import (
     CONTACT_EMAIL,
     CONTENT_DIR,
     DIST_DIR,
+    GITHUB_URL,
     POSTS_DIR,
     SITE_NAME,
     SITE_TAGLINE,
+    SITE_URL,
     STATIC_DIR,
     TEMPLATES_DIR,
 )
@@ -119,9 +121,10 @@ class SiteWriter:
         self.base_context = base_context
 
     def page(self, template: str, url: str, context: dict | None = None) -> None:
-        """Render template to dist/<url>/index.html (or a literal *.html path)."""
+        """Render template to dist/<url>/index.html (or a literal *.html path).
+        Injects page_url so templates can emit canonical/OG URLs."""
         html = self.env.get_template(template).render(
-            self.base_context | (context or {})
+            self.base_context | {"page_url": url} | (context or {})
         )
         relative = url.lstrip("/")
         out = (
@@ -156,6 +159,8 @@ def build(dist: Path = DIST_DIR, *, include_drafts: bool = False) -> None:
             "site_name": SITE_NAME,
             "site_tagline": SITE_TAGLINE,
             "contact_email": CONTACT_EMAIL,
+            "site_url": SITE_URL,
+            "github_url": GITHUB_URL,
             "path_for": path_for,
         },
     )
@@ -163,9 +168,13 @@ def build(dist: Path = DIST_DIR, *, include_drafts: bool = False) -> None:
     _write_home(writer, index)
     _write_projects(writer, index)
     _write_blog(writer, index)
-    writer.page("resume.html", "/resume/", {"resume": index.resume, "projects": index.projects})
-    writer.page("contact.html", "/contact/", {"sent": False})
-    writer.page("contact.html", "/contact/sent/", {"sent": True})
+    writer.page(
+        "resume.html",
+        "/resume/",
+        {"resume": index.resume, "projects": index.projects, "active_nav": "resume"},
+    )
+    writer.page("contact.html", "/contact/", {"sent": False, "active_nav": "contact"})
+    writer.page("contact.html", "/contact/sent/", {"sent": True, "active_nav": "contact"})
     writer.page("errors/404.html", "/404.html")
 
     shutil.copytree(STATIC_DIR, dist / "static")
@@ -194,7 +203,11 @@ def _write_projects(writer: SiteWriter, index: ContentIndex) -> None:
             lambda t: path_for("projects_tech", tech=t),
             active,
         )
-        writer.page("projects.html", url, {"projects": projects, "filters": filters})
+        writer.page(
+            "projects.html",
+            url,
+            {"projects": projects, "filters": filters, "active_nav": "projects"},
+        )
 
     render(ROUTES["projects"], None)
     for tech in all_tech:
@@ -220,6 +233,7 @@ def _write_blog(writer: SiteWriter, index: ContentIndex) -> None:
                     "filters": filters,
                     "prev_url": page["prev_url"],
                     "next_url": page["next_url"],
+                    "active_nav": "blog",
                 },
             )
 
@@ -228,7 +242,11 @@ def _write_blog(writer: SiteWriter, index: ContentIndex) -> None:
         render_list(path_for("blog_tag", tag=tag), index.posts_for_tag(tag), tag)
 
     for post in index.posts:
-        writer.page("blog_post.html", path_for("blog_post", slug=post.slug), {"post": post})
+        writer.page(
+            "blog_post.html",
+            path_for("blog_post", slug=post.slug),
+            {"post": post, "active_nav": "blog"},
+        )
 
 
 def main() -> None:
