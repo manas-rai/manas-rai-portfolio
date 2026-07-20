@@ -18,6 +18,7 @@ from app.config import (
     CONTENT_DIR,
     DIST_DIR,
     GITHUB_URL,
+    LINKEDIN_URL,
     POSTS_DIR,
     SITE_NAME,
     SITE_TAGLINE,
@@ -161,6 +162,7 @@ def build(dist: Path = DIST_DIR, *, include_drafts: bool = False) -> None:
             "contact_email": CONTACT_EMAIL,
             "site_url": SITE_URL,
             "github_url": GITHUB_URL,
+            "linkedin_url": LINKEDIN_URL,
             "path_for": path_for,
         },
     )

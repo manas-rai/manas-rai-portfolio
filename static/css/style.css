@@ -129,13 +129,6 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 }
 .brand:hover { text-decoration: none; }
 
-.accent-dot {
-  background: var(--gradient);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
 .site-nav { display: flex; gap: 1.4rem; flex-wrap: wrap; }
 .site-nav a {
   position: relative;

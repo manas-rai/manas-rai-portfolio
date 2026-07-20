@@ -17,3 +17,4 @@ SITE_TAGLINE = (
 CONTACT_EMAIL = "rai.manas12@gmail.com"
 SITE_URL = "https://manas-rai-portfolio.pages.dev"
 GITHUB_URL = "https://github.com/manas-rai"
+LINKEDIN_URL = "https://www.linkedin.com/in/manas-rai-a84179213"
