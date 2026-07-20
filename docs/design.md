@@ -191,8 +191,8 @@ Cloudflare's problem.)
   with automatic TLS.
 - **CI/deploy**: Cloudflare Pages Git integration builds and publishes on every
   push to `main` (build command `python -m app.build`, deps from
-  `requirements.txt`, Python pinned by `.python-version`) and gives each PR a
-  preview URL. GitHub Actions runs ruff + pytest + build as the merge gate — no
+  `requirements.txt`, the build image's preinstalled Python — unpinned so no
+  toolchain download runs per build) and gives each PR a preview URL. GitHub Actions runs ruff + pytest + build as the merge gate — no
   Cloudflare credentials in GitHub at all.
 - **Domain**: add the domain in Pages → Custom domains; with DNS on Cloudflare the
   CNAME + certificate are automatic.

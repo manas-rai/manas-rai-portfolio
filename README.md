@@ -68,8 +68,10 @@ and a build check on GitHub as the merge gate.
 Dependencies are auto-installed from `requirements.txt` (generated from
 `uv.lock` — regenerate with
 `uv export --no-dev --no-hashes --no-annotate -o requirements.txt` whenever
-deps change; CI fails if it drifts). Python version is pinned by
-`.python-version`.
+deps change; CI fails if it drifts). The build uses the image's preinstalled
+Python (any ≥3.12 works, per `pyproject.toml`) — deliberately unpinned, since
+pinning forces a Python download on every build. Enable **Build cache** in the
+Pages project settings to also cache pip downloads between builds.
 
 ### Contact-form env vars
 
