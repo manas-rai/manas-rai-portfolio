@@ -52,25 +52,30 @@ Pushing to `main` rebuilds and publishes the site automatically.
 
 ## Deployment
 
-The [`deploy` workflow](.github/workflows/deploy.yml) builds `dist/` and
-publishes it (plus the `functions/` directory) to Cloudflare Pages on every
-push to `main`. Pull requests run tests + a build check only.
+Deploys run through **Cloudflare Pages' Git integration**: Cloudflare clones
+the repo, installs `requirements.txt`, runs the build, and publishes `dist/`
+(plus the `functions/` directory) on every push to `main` — with a preview URL
+for every PR. The [`ci` workflow](.github/workflows/ci.yml) runs lint, tests,
+and a build check on GitHub as the merge gate.
 
-### One-time setup
+### Pages project settings
 
-1. **Cloudflare account** (free plan is enough — unlimited static bandwidth).
-2. **API token**: dashboard → My Profile → API Tokens → Create Token → use the
-   "Edit Cloudflare Workers" template or a custom token with **Pages: Edit**
-   permission. Also note your **Account ID** (dashboard → Workers & Pages →
-   right sidebar).
-3. **Repo secrets** (Settings → Secrets and variables → Actions):
-   - `CLOUDFLARE_API_TOKEN`
-   - `CLOUDFLARE_ACCOUNT_ID`
-4. **First deploy** creates the Pages project, or create it up front:
-   `npx wrangler pages project create manas-rai-portfolio --production-branch=main`.
-5. **Contact-form env vars** (Pages project → Settings → Environment
-   variables, Production): `RESEND_API_KEY`, `EMAIL_FROM`, `EMAIL_TO`.
-   Until they're set the form fails gracefully with a mailto fallback.
+- **Production branch**: `main`
+- **Framework preset**: None
+- **Build command**: `python -m app.build`
+- **Build output directory**: `dist`
+
+Dependencies are auto-installed from `requirements.txt` (generated from
+`uv.lock` — regenerate with
+`uv export --no-dev --no-hashes --no-annotate -o requirements.txt` whenever
+deps change; CI fails if it drifts). Python version is pinned by
+`.python-version`.
+
+### Contact-form env vars
+
+Pages project → Settings → Environment variables (Production):
+`RESEND_API_KEY`, `EMAIL_FROM`, `EMAIL_TO`. Until they're set the form fails
+gracefully with a mailto fallback.
 
 ### Custom domain
 
