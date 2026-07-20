@@ -85,6 +85,8 @@ class Resume:
     skills: list[SkillGroup]
     experience: list[ExperienceEntry]
     education: list[EducationEntry]
+    certifications: list[str] = field(default_factory=list)
+    awards: list[str] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -219,6 +221,8 @@ def _load_resume(resume_file: Path) -> Resume | None:
                 )
                 for ed in raw.get("education", [])
             ],
+            certifications=[str(c) for c in raw.get("certifications", [])],
+            awards=[str(a) for a in raw.get("awards", [])],
         )
     except (KeyError, TypeError) as exc:
         raise ContentError(f"Invalid entry in {resume_file}: {exc}") from exc

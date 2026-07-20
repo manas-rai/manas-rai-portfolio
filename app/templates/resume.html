@@ -65,6 +65,24 @@
   </div>
   {% endif %}
 
+  {% if resume.certifications %}
+  <div class="resume-block">
+    <h2>Certifications</h2>
+    <ul class="resume-list">
+      {% for cert in resume.certifications %}<li>{{ cert }}</li>{% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  {% if resume.awards %}
+  <div class="resume-block">
+    <h2>Awards</h2>
+    <ul class="resume-list">
+      {% for award in resume.awards %}<li>{{ award }}</li>{% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
   {% if resume.education %}
   <div class="resume-block">
     <h2>Education</h2>

@@ -1,47 +1,106 @@
 # On-page resume content — the canonical source for the /resume page (design §4.4).
 # Keep static/resume.pdf in sync when you edit this file.
-#
-# NOTE: experience and education below are PLACEHOLDERS. Replace them with your
-# real details (roles, companies, dates, achievements). Skills and the projects
-# section are drawn from real data.
 
 name: Manas Rai
-title: Software Engineer
-location: India
+title: Software Engineer · GenAI Engineer
+location: Bengaluru, India
 email: rai.manas12@gmail.com
 links:
   - label: GitHub
     url: https://github.com/manas-rai
 
 summary: >
-  Software engineer focused on Python backends, AI/agent systems, and cloud
-  infrastructure — from multi-agent LangGraph pipelines to serverless AWS
-  deployments. [Replace this with your own two-to-three line summary.]
+  Software engineer with ~5 years building production backend systems, the last
+  ~2 focused on Generative AI — LLM applications, RAG pipelines, and multi-agent
+  systems — on a foundation of async Python microservices, distributed data
+  pipelines, and semantic search. Owns systems end-to-end: architecture, backend
+  services, cloud infrastructure, and production launch, including a
+  multi-tenant healthcare RAG platform load-tested for 2,000+ concurrent
+  sessions at sub-second latency.
 
 skills:
-  - group: Languages
-    items: [Python, TypeScript, Go, SQL]
-  - group: Frameworks & tools
-    items: [FastAPI, LangGraph, "React / Next.js", Docker, "AWS (Lambda, CloudFront)"]
-  - group: Data & ML
-    items: [PostgreSQL, pgvector, ClickHouse, scikit-learn]
+  - group: Backend & languages
+    items: [Python, Go, FastAPI, Flask, Django, REST APIs, Microservices,
+            WebSockets, Async programming, SQLAlchemy, Alembic, System design]
+  - group: Generative AI & LLMs
+    items: [LLMs, RAG, AI agents, Multi-agent orchestration, Prompt engineering,
+            LangChain, LangGraph, LangSmith, OpenAI API, Anthropic Claude API,
+            Model Context Protocol (MCP), Google ADK, A2A Protocol, Embeddings,
+            Vector databases, LLM evaluation (RAGAS), LLM observability & cost monitoring]
+  - group: Data science & ML
+    items: [pandas, numpy, scikit-learn, EDA, Feature engineering, Hugging Face]
+  - group: Frontend
+    items: [React, JavaScript, HTML5]
+  - group: Databases & vector stores
+    items: [PostgreSQL, MySQL, MongoDB, Neo4j, Snowflake, Aurora, Redis,
+            Pinecone, pgvector, FAISS, MongoDB Atlas Vector Search]
+  - group: Cloud & DevOps
+    items: ["AWS (EC2, RDS, ECS, S3, SQS, Lambda, Bedrock, Cognito)",
+            Azure OpenAI, Docker, Kubernetes, Jenkins, CI/CD, Datadog, MLOps]
+  - group: Tools & practices
+    items: [Claude Code, VS Code, Jira, GitHub, Agile, Scrum]
 
 experience:
-  - role: "Senior Software Engineer  [placeholder — replace]"
-    company: "Company Name"
-    period: "2023 – Present"
+  - role: Tech Lead
+    company: Tricon Infotech
+    period: "Jul 2024 – Present · Bengaluru"
     highlights:
-      - "Lead achievement with concrete impact and a metric (e.g. cut X by N%)."
-      - "A second responsibility or result worth highlighting."
-      - "A third, ideally showing scope or ownership."
-  - role: "Software Engineer  [placeholder — replace]"
-    company: "Previous Company"
-    period: "2020 – 2023"
+      - Launched a healthcare chatbot from zero to production by architecting a
+        multi-tenant RAG pipeline on Azure with tenant-isolated vector stores,
+        secure authentication, and data partitioning — directly enabling the
+        product's first paying customers.
+      - Engineered an LLM-powered clinical simulation platform using prompt
+        engineering and RAG to replicate real patient interactions for physician
+        training; load-tested for 2,000 concurrent sessions at sub-second
+        response latency.
+      - Built a multi-tenant VS Code agent platform with a meta "maker" agent
+        that generates governed agents, skills, hooks, and prompts — interviewing
+        the developer, planning, and checking new instructions against the
+        existing set before implementing.
+      - Reduced manual developer workflow time by ~60% by automating multi-step
+        SDLC tasks (code-review scaffolding, test generation, documentation)
+        through agentic orchestration patterns.
+      - Shipped a multi-tenant lead-generation data pipeline with SQLAlchemy and
+        AWS Cognito, enforcing per-account data isolation across 5+ client
+        accounts.
+      - Built an automated NLP-powered web crawler that extracts and structures
+        institutional data, powering a qualification-matching recommendation
+        engine — cutting 15+ hours/week of manual research.
+  - role: Solution Leader
+    company: Brane Enterprises
+    period: "Oct 2021 – Jul 2024 · Hyderabad"
     highlights:
-      - "Built or shipped something notable."
-      - "Collaborated / owned an area."
+      - Promoted 3 times in 3 years (Trainee → Developer → Senior Developer →
+        Solution Leader), the fastest progression in the engineering org at the
+        time.
+      - Cut data retrieval time by 75% (4x faster) by implementing semantic
+        search with Neo4j graph traversal and MongoDB vector indexing across
+        500K+ embeddings and data points.
+      - Improved real-time audio transmission stability by 35% by engineering
+        bidirectional WebSocket streaming with adaptive buffering and error
+        recovery for NLP voice applications.
+      - Designed and deployed async Python microservices for non-blocking
+        concurrent request handling, increasing API throughput and resolving
+        request-timeout failures seen under production load.
+      - Built a FastAPI persistence service with JWT authentication serving as
+        the data backbone for multiple product interfaces, with zero-downtime
+        deployments and CI/CD integration.
+
+certifications:
+  - Building with the Claude API — Anthropic Academy
+  - Introduction to Model Context Protocol (MCP) — Anthropic Academy
+  - Claude Code in Action — Anthropic Academy
+
+awards:
+  - Outstanding Performer Award — Tricon Infotech (Dec 2025), for delivering
+    2 end-to-end AI products in a single year.
+  - Spot Award — Tricon Infotech, for shipping the healthcare chatbot from
+    architecture to production launch.
 
 education:
-  - qualification: "B.Tech, Computer Science  [placeholder — replace]"
-    institution: "University Name"
-    period: "2016 – 2020"
+  - qualification: B.Tech., Mechanical Engineering
+    institution: UPTU, Uttar Pradesh, India
+    period: "2014"
+  - qualification: Competitive Examination Preparation & Career Transition (UPSC ESE)
+    institution: Self-directed
+    period: "2014 – 2021"
