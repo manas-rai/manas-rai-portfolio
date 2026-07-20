@@ -1,0 +1,39 @@
+# One-off: deletes the retired AWS stack (Lambda + CloudFront + ECR) now that
+# the site is hosted on Cloudflare Pages. Run manually via workflow_dispatch;
+# delete this workflow (and the AWS_* repo secrets) once it has succeeded.
+name: teardown-aws
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  teardown:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
+
+      - name: Delete the CloudFormation stack
+        run: sam delete --stack-name manas-rai-portfolio --region us-east-1 --no-prompts
+
+      - name: Wait until the stack is fully gone
+        # CloudFront disable+delete can take ~15 min; poll to completion so a
+        # green run really means "everything is deleted".
+        run: |
+          if aws cloudformation describe-stacks --stack-name manas-rai-portfolio \
+               --region us-east-1 >/dev/null 2>&1; then
+            aws cloudformation wait stack-delete-complete \
+              --stack-name manas-rai-portfolio --region us-east-1
+          fi
+          echo "Stack manas-rai-portfolio is deleted."
