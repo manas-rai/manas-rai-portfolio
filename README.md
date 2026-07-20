@@ -1,28 +1,38 @@
 # manas-rai-portfolio
 
-Personal portfolio site built with FastAPI + Jinja2 — projects, blog, resume, and
-contact, all server-rendered from Markdown and YAML content. No database.
+Personal portfolio site — projects, blog, resume, and contact — statically
+generated from Markdown and YAML content and hosted on **Cloudflare Pages**.
+No database, no server: the Jinja2 templates are rendered once at build time,
+and the only dynamic piece is the contact form, which posts to a tiny
+Cloudflare Pages Function.
 
 See [`docs/design.md`](docs/design.md) for the full solution design.
 
 ## Stack
 
-FastAPI · Jinja2 · Markdown (posts) + YAML (projects) · `nh3` sanitization ·
-`uv` for dependencies · AWS Lambda + CloudFront (SAM) for hosting.
+Jinja2 (build-time rendering) · Markdown (posts) + YAML (projects/resume) ·
+`nh3` sanitization · `uv` for dependencies · Cloudflare Pages (hosting +
+contact Function).
 
 ## Local development
 
 ```bash
-uv sync                 # install dependencies
-cp .env.example .env    # configure (optional for local — contact will fallback)
-uv run uvicorn app.main:app --reload
+uv sync                        # install dependencies
+uv run python -m app.build     # render the site into dist/  (--drafts to include drafts)
+python -m http.server -d dist  # preview at http://127.0.0.1:8000
 ```
 
-The site is then at http://127.0.0.1:8000.
+To exercise the contact form locally, run the Pages dev server instead (it
+serves `dist/` *and* the Function):
 
-Content is parsed **once at startup** into an in-memory index (design §4.5), so a
-malformed post fails the boot rather than a live request. Drafts (`draft: true` in
-frontmatter) are shown locally and hidden when `IS_PRODUCTION=true`.
+```bash
+cp .dev.vars.example .dev.vars   # add your Resend key (never commit .dev.vars)
+npx wrangler pages dev dist
+```
+
+Content is parsed once per build; a malformed post fails the build rather than
+a live request. Drafts (`draft: true` in frontmatter) are excluded unless you
+pass `--drafts`.
 
 ## Tests & linting
 
@@ -36,86 +46,47 @@ uv run ruff check .
 - **Projects**: edit `content/projects.yaml`.
 - **Blog posts**: add a Markdown file to `content/posts/` with YAML frontmatter
   (`title`, `date`, `summary`, optional `tags`, `draft`). Commit and push.
-- **Resume**: replace `static/resume.pdf`; keep the on-page `/resume` view in sync.
+- **Resume**: replace `static/resume.pdf`; keep `content/resume.yaml` in sync.
+
+Pushing to `main` rebuilds and publishes the site automatically.
 
 ## Deployment
 
-Primary target: **AWS Lambda (container image, x86_64) behind CloudFront**, defined
-in [`template.yaml`](template.yaml) (AWS SAM). The Lambda Function URL uses IAM auth
-and is reachable only through CloudFront via Origin Access Control, so the raw
-`*.lambda-url` host returns 403 if hit directly. Cold start is ~1s; cost is ~$0/month
-at portfolio traffic (Lambda always-free tier + free Function URL + CloudFront
-always-free tier).
+The [`deploy` workflow](.github/workflows/deploy.yml) builds `dist/` and
+publishes it (plus the `functions/` directory) to Cloudflare Pages on every
+push to `main`. Pull requests run tests + a build check only.
 
-### Prerequisites
+### One-time setup
 
-- AWS account with credentials configured (`aws configure`)
-- [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html) and Docker
+1. **Cloudflare account** (free plan is enough — unlimited static bandwidth).
+2. **API token**: dashboard → My Profile → API Tokens → Create Token → use the
+   "Edit Cloudflare Workers" template or a custom token with **Pages: Edit**
+   permission. Also note your **Account ID** (dashboard → Workers & Pages →
+   right sidebar).
+3. **Repo secrets** (Settings → Secrets and variables → Actions):
+   - `CLOUDFLARE_API_TOKEN`
+   - `CLOUDFLARE_ACCOUNT_ID`
+4. **First deploy** creates the Pages project, or create it up front:
+   `npx wrangler pages project create manas-rai-portfolio --production-branch=main`.
+5. **Contact-form env vars** (Pages project → Settings → Environment
+   variables, Production): `RESEND_API_KEY`, `EMAIL_FROM`, `EMAIL_TO`.
+   Until they're set the form fails gracefully with a mailto fallback.
 
-### Deploy
+### Custom domain
 
-```bash
-sam build              # builds the x86_64 image from Dockerfile.lambda
-sam deploy --guided    # first run: creates the ECR repo, stack, and distribution
-# thereafter: sam build && sam deploy
-```
+Pages project → **Custom domains** → add your domain. If the domain's DNS is
+on Cloudflare (free), the CNAME and TLS certificate are provisioned
+automatically.
 
-`sam deploy` prints two outputs:
+### Security posture
 
-- **CloudFrontURL** — the public site (`https://xxxx.cloudfront.net`); serve this.
-- **FunctionUrl** — the raw origin (403 by design; not for visitors).
-
-A new CloudFront distribution takes ~5–15 min to finish deploying.
-
-### Automated deploys (CI/CD)
-
-The [`deploy` workflow](.github/workflows/deploy.yml) runs `sam build && sam deploy`
-on every push to `main` — including the very first deploy (it self-provisions the S3
-artifact bucket and ECR repo). Updating content (resume, posts, projects) is just:
-edit the file, commit, push, live in ~2–3 min. No manual deploy needed.
-
-One-time setup:
-
-1. **Create an IAM user** (e.g. `portfolio`) with programmatic access and permissions
-   to deploy — CloudFormation, Lambda, ECR, CloudFront, S3, and IAM. For a personal
-   project `AdministratorAccess` is the simple choice; scope down later.
-2. **Create an access key** for that user (IAM → Users → Security credentials →
-   Create access key). Copy the **Access key ID** and **Secret access key**.
-3. **Add repo secrets** (Settings → Secrets and variables → Actions → New repository
-   secret):
-   - `AWS_ACCESS_KEY_ID` — the access key ID (required).
-   - `AWS_SECRET_ACCESS_KEY` — the secret access key (required).
-   - `RESEND_API_KEY` or `SMTP_HOST`/`SMTP_USER`/`SMTP_PASSWORD` — optional; the
-     workflow passes these to every deploy, so **if you use email, set them here** or
-     a CI deploy will reset them to empty.
-
-> Access keys are long-lived credentials — keep them only in GitHub Secrets (never in
-> the repo), and rotate/delete them if exposed. GitHub OIDC roles are the more secure
-> alternative once you're comfortable with AWS IAM.
-
-### Email (optional)
-
-Pass one transport at deploy time; until then the contact form fails gracefully
-(design §6.1):
-
-```bash
-sam deploy --parameter-overrides ResendApiKey=re_xxx
-# or: SmtpHost=... SmtpUser=... SmtpPassword=...
-```
-
-### Custom domain (optional)
-
-Add an ACM certificate (in `us-east-1`) and an `Aliases` entry to the CloudFront
-distribution, then point DNS (CNAME) at the distribution domain.
-
-### Local verification (no deploy)
-
-The Lambda image runs under the bundled runtime emulator:
-
-```bash
-docker build -f Dockerfile.lambda -t portfolio-lambda .
-docker run --rm -p 9000:8080 portfolio-lambda
-# in another shell:
-curl -s -XPOST http://localhost:9000/2015-03-31/functions/function/invocations \
-  -d '{"version":"2.0","rawPath":"/healthz","requestContext":{"http":{"method":"GET","path":"/healthz"}},"isBase64Encoded":false}'
-```
+- Static pages: no server, no sessions, no database — nothing to break into.
+  `_headers` (written by the build) sets a strict same-origin
+  Content-Security-Policy, `X-Frame-Options: DENY`, `nosniff`, and HSTS.
+- Post/`projects.yaml` HTML is sanitized with `nh3` at build time.
+- The contact Function validates and length-caps every field, drops honeypot
+  submissions, rejects cross-origin posts and oversized bodies, and sends
+  plain-text email through Resend's JSON API (no header/HTML injection).
+  Secrets live only in the Pages project environment.
+- Optional hardening: add a Cloudflare **rate-limiting rule** on
+  `/api/contact` (one rule is included in the free plan), and/or Turnstile.

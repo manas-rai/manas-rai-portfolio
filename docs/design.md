@@ -1,23 +1,33 @@
 # Solution Design: Personal Portfolio Website
 
 **Author:** Manas Rai
-**Version:** 1.2
+**Version:** 2.0
 **Date:** July 2026
 
-> **Changelog — v1.2:** Moved hosting from a single-container host (Render) to AWS
-> Lambda + CloudFront (§3, §7, §7.1, §8, §9); the ~1s Lambda cold start removes the
-> free-tier idle-spin-down 404s. Internal links are now root-relative so navigation
-> works behind CloudFront's host rewrite.
+> **Changelog — v2.0:** Replaced the server architecture entirely. The site is now
+> **statically generated at build time** (Jinja2 → HTML) and hosted on **Cloudflare
+> Pages**; the FastAPI/Lambda/CloudFront stack is removed (§3, §7, §8). The contact
+> form — the one dynamic piece — moved to a Cloudflare Pages Function (§4.3).
+> Motivation: the AWS OAC/IAM origin wiring caused repeated 403 incidents (PRs
+> #8–#13) for no benefit at this traffic level; static hosting has zero cold start,
+> unlimited free bandwidth, native custom-domain TLS, and a far smaller attack
+> surface (§9).
+>
+> **Changelog — v1.2:** Moved hosting from Render to AWS Lambda + CloudFront.
 >
 > **Changelog — v1.1:** Incorporated four fixes from design review: (1) contact-form
-> availability, (2) Markdown rendering security policy, (3) startup-time content
-> indexing, (4) error/empty-state handling. See §7.1, §4.2, §4.5, and §6.1.
+> availability, (2) Markdown rendering security policy, (3) content indexing,
+> (4) error/empty-state handling.
 
 ---
 
 ## 1. Overview
 
-A personal portfolio site presenting a full personal brand: home/intro, projects, blog, resume, and contact. Built on FastAPI (matching existing stack expertise) with server-rendered Jinja2 templates and a flat-file content store — no database required for v1.
+A personal portfolio site presenting a full personal brand: home/intro, projects,
+blog, resume, and contact. Content is flat files (Markdown + YAML) versioned in git;
+a small Python build script renders it through Jinja2 templates into a fully static
+site. The only server-side code is a ~100-line Cloudflare Pages Function backing the
+contact form. No database, no application server.
 
 ## 2. Goals & Non-Goals
 
@@ -26,9 +36,10 @@ A personal portfolio site presenting a full personal brand: home/intro, projects
 - Support a blog authored in Markdown, versioned in git
 - Serve an on-page resume plus a downloadable PDF
 - Provide a working contact form without third-party form-builder lock-in
-- Deploy cheaply, with a custom domain, and redeploy automatically on git push
+- Deploy free, with a custom domain, and redeploy automatically on git push
+- No cold starts — every page is a static file served from a CDN edge
 
-**Non-goals (v1)**
+**Non-goals (v2)**
 - No user accounts, comments, or admin UI
 - No CMS or database-backed content editing
 - No analytics dashboards beyond a lightweight, privacy-respecting tracker (optional, later)
@@ -36,101 +47,92 @@ A personal portfolio site presenting a full personal brand: home/intro, projects
 ## 3. Architecture
 
 ```
-Browser
+git push to main
    |
    v
-CloudFront (CDN, TLS, caches /static/*)
-   |  (Origin Access Control — SigV4-signed)
+GitHub Actions: ruff + pytest, then `python -m app.build`
+   |            (Jinja2 templates + content/ --> dist/ static HTML)
    v
-Lambda Function URL (IAM auth)
-   |
-   v
-FastAPI application (Mangum ASGI adapter)
-   |-- Routing (/, /projects, /blog, /resume, /contact, /healthz)
-   |-- Jinja2 templates (HTML rendering)
-   |-- Content index (built once at cold start from Markdown posts + project config)
-   +-- Contact handler --> Email service (SMTP / Resend), external
+wrangler pages deploy dist  -->  Cloudflare Pages
+                                    |-- static pages + assets (edge-cached, free bandwidth)
+                                    +-- /api/contact  (Pages Function, JS)
+                                           |
+                                           v
+                                        Resend API --> owner's inbox
 ```
 
-(See the architecture diagram shared above for the visual version of this.)
+Everything a visitor sees is a pre-rendered file; the Function is invoked only on
+contact-form submission.
 
 ## 4. Component Breakdown
 
-### 4.1 Web layer — FastAPI + Jinja2
-- FastAPI serves both HTML pages (via `Jinja2Templates`) and any small JSON endpoints (e.g. project data used for a filterable grid).
-- Routes are grouped with `APIRouter` per section: `routes/home.py`, `routes/projects.py`, `routes/blog.py`, `routes/contact.py`.
-- Static assets (CSS, images, resume PDF) served via `StaticFiles` mount at `/static`.
+### 4.1 Build layer — Jinja2 static generation (`app/build.py`)
+- `python -m app.build` renders every page into `dist/`: home, project list plus one
+  page per tech filter, blog list plus per-tag and per-page variants, each post,
+  resume, contact, and `404.html`.
+- Filter/tag pages are **pre-rendered as real paths** (`/projects/tech/python/`,
+  `/blog/tag/meta/`) because a static host cannot vary on query strings. Slugs are
+  generated with a collision check that fails the build.
+- Templates receive a `path_for()` helper mirroring the old route names, so the
+  templates stayed almost unchanged through the migration.
+- Static assets are copied to `dist/static/`; a `_headers` file (security headers,
+  §9) is written alongside.
 
 ### 4.2 Content layer
-- **Projects**: a single `content/projects.yaml` (or `.json`) listing each project with title, summary, tech stack, GitHub link, and optional live-demo link. No database — this file is the source of truth and is easy to update via git.
-- **Blog posts**: individual Markdown files in `content/posts/`, each with YAML frontmatter (`title`, `date`, `tags`, `summary`, optional `draft`). Parsed using `python-frontmatter` + `markdown`/`mistune`.
-- This keeps content editing to "write a `.md` file, commit, push" — no admin panel to build or secure.
+- **Projects**: a single `content/projects.yaml` listing each project with title,
+  summary, tech stack, GitHub link, and optional live-demo link.
+- **Blog posts**: individual Markdown files in `content/posts/`, each with YAML
+  frontmatter (`title`, `date`, `tags`, `summary`, optional `draft`). Parsed using
+  `python-frontmatter` + `markdown`.
+- Content editing remains "write a `.md` file, commit, push".
 
 **Markdown rendering security policy (fix #2).**
-Rendered Markdown produces raw HTML that is injected into templates with Jinja's
-`| safe` filter, which disables autoescaping for that content. Blog posts are
-**git-authored by the site owner only** — there is no user-submitted Markdown — so
-the practical XSS risk is low. Regardless, the pipeline sanitizes rendered post HTML
-through `nh3` (Rust `ammonia` bindings) with an allowlist of tags/attributes before it
-reaches a template. This is a defense-in-depth measure: it costs almost nothing at
-startup (see §4.5, rendering happens once) and guarantees a compromised or careless
-commit can't inject script. Any content requiring tags outside the allowlist is an
-explicit, reviewed change to the allowlist, not a silent bypass.
+Rendered Markdown is injected with Jinja's `| safe` filter. Posts are git-authored
+by the site owner only, but as defense-in-depth the pipeline still sanitizes
+rendered HTML through `nh3` with a tag/attribute allowlist before it reaches a
+template. Widening the allowlist is an explicit, reviewed change. Sanitization now
+happens **once at build time**, so a compromised or careless commit can't ship
+script to visitors.
 
-### 4.3 Contact form
-- A plain HTML form posts to `/contact` (FastAPI endpoint).
-- Server validates input (Pydantic model), sends the message via SMTP or a transactional email API (e.g. Resend, Postmark).
-- Basic spam mitigation: honeypot field + simple rate limiting (`slowapi`).
-- **Note:** `slowapi`'s default limiter is per-process and in-memory. On a single
-  free-tier container this is fine, but the limit state resets on every cold start and
-  redeploy and would not be shared across replicas if the app is ever scaled out. This
-  is an accepted v1 limitation; the honeypot is the more durable line of defense.
-- Failure handling for a downed email service is specified in §6.1.
+### 4.3 Contact form — Cloudflare Pages Function (`functions/api/contact.js`)
+- The static `/contact/` page posts to `/api/contact`.
+- **Progressive enhancement:** with JS (`static/js/contact.js`) the form submits via
+  `fetch` and shows inline success/error; without JS the browser posts the form and
+  the Function 303-redirects to the pre-rendered `/contact/sent/` page.
+- The Function validates and length-caps every field, checks the honeypot
+  (accept-and-drop so bots get no signal), rejects cross-origin posts and oversized
+  bodies, and delivers via **Resend's JSON API as plain text** — user input can
+  neither inject email headers nor render as HTML in the inbox.
+- Credentials (`RESEND_API_KEY`, `EMAIL_FROM`, `EMAIL_TO`) live in the Pages project
+  environment, never in the repo.
+- Rate limiting: a Cloudflare rate-limiting rule on `/api/contact` (one rule free)
+  is the durable option; the honeypot plus validation is the baseline. (Replaces the
+  old in-process `slowapi` limiter, which reset on every cold start anyway.)
+- Email-service failure handling is specified in §6.1.
 
 ### 4.4 Resume
-- Resume content lives as structured data (reused for the on-page `/resume` view) plus a static PDF in `/static/resume.pdf` for direct download.
-- **Canonical source:** the structured data is authoritative for the on-page view;
-  the PDF is maintained separately and is authoritative for the download. These are two
-  sources of truth and *will* drift if edited carelessly — updating one without the
-  other is the failure mode to watch. Auto-generating the PDF from the structured data
-  is deferred (see §10) as over-engineering for v1; until then, treat "update both" as
-  a manual checklist item on any resume change.
+- Structured data in `content/resume.yaml` drives the on-page `/resume/` view; the
+  downloadable PDF at `/static/resume.pdf` is maintained separately. Two sources of
+  truth — "update both" remains a manual checklist item on any resume change
+  (auto-generation deferred, §10).
 
-### 4.5 Content index — built at startup (fix #3)
-Because the container rebuilds and redeploys on every git push, all content is
-**immutable for the lifetime of a running process**. The app therefore parses content
-**once at application startup** (FastAPI lifespan/startup handler) into an in-memory
-index, rather than re-reading and re-parsing files on each request:
-
-- Parse `projects.yaml` and every file in `content/posts/` a single time.
-- Build lookup structures: `slug -> Post`, `tag -> [Post]`, and a date-sorted list for
-  the blog listing and pagination.
-- Render (and sanitize, per §4.2) each post's HTML once and cache it on the index.
-- **Fail fast:** malformed frontmatter or an unparseable file raises at boot, so a bad
-  commit fails the deploy immediately instead of surfacing as a 500 on a live request.
-- Posts with `draft: true` in frontmatter are excluded from the index in production
-  (see §10 note on draft handling).
-
-This removes per-request disk I/O and Markdown parsing, makes tag filtering and
-pagination trivial in-memory operations, and turns content errors into deploy-time
-failures rather than runtime ones.
+### 4.5 Content index — built at build time (fix #3)
+The v1.1 startup-time index survives intact as the build-time index: one parse of
+all content into lookup structures (`slug -> Post`, `tag -> [Post]`, date-sorted
+lists), post HTML rendered and sanitized once. **Fail fast** got stronger: a
+malformed file now fails the *build* in CI, so a bad commit can never even deploy,
+let alone 500. Drafts (`draft: true`) are excluded unless `--drafts` is passed
+locally.
 
 ## 5. Directory Structure
 
 ```
 portfolio/
 ├── app/
-│   ├── main.py
-│   ├── routes/
-│   │   ├── home.py
-│   │   ├── projects.py
-│   │   ├── blog.py
-│   │   ├── resume.py
-│   │   ├── contact.py
-│   │   └── health.py              # /healthz for keep-alive + platform checks
+│   ├── build.py                   # static site generator (python -m app.build)
+│   ├── config.py                  # paths + site constants
 │   ├── services/
-│   │   ├── content_loader.py      # builds the startup content index
-│   │   └── email_sender.py
+│   │   └── content_loader.py      # builds the content index at build time
 │   └── templates/
 │       ├── base.html
 │       ├── home.html
@@ -139,112 +141,102 @@ portfolio/
 │       ├── blog_post.html
 │       ├── resume.html
 │       ├── contact.html
-│       └── errors/
-│           ├── 404.html
-│           └── 500.html
+│       └── errors/404.html
+├── functions/
+│   └── api/contact.js             # Cloudflare Pages Function (contact form)
 ├── content/
 │   ├── projects.yaml
+│   ├── resume.yaml
 │   └── posts/
-│       └── 2026-07-16-example-post.md
+│       └── 2026-07-16-hello-world.md
 ├── static/
-│   ├── css/
-│   ├── images/
-│   └── resume.pdf
-├── pyproject.toml                 # uv-managed (see §8)
-├── uv.lock
-├── Dockerfile
+│   ├── css/  images/  js/contact.js  resume.pdf
+├── dist/                          # build output (gitignored, deployed)
+├── pyproject.toml                 # uv-managed
 └── README.md
 ```
 
 ## 6. Routing / Page Design
 
-| Route | Method | Purpose |
+| Path | Kind | Purpose |
 |---|---|---|
-| `/` | GET | Home: intro, tagline, featured projects |
-| `/projects` | GET | Full project list, filterable by tag/tech |
-| `/blog` | GET | Blog post list, paginated |
-| `/blog/{slug}` | GET | Individual blog post |
-| `/resume` | GET | On-page resume + PDF download link |
-| `/contact` | GET, POST | Contact form + submission handler |
-| `/healthz` | GET | Liveness check for keep-alive ping and platform health checks |
+| `/` | static | Home: intro, tagline, featured projects |
+| `/projects/`, `/projects/tech/<slug>/` | static | Project list, per-tech filter pages |
+| `/blog/`, `/blog/tag/<slug>/`, `.../page/N/` | static | Blog list, per-tag + pagination pages |
+| `/blog/<slug>/` | static | Individual blog post |
+| `/resume/` | static | On-page resume + PDF download link |
+| `/contact/`, `/contact/sent/` | static | Contact form, no-JS success page |
+| `/api/contact` | Function | POST-only submission handler |
+
+(`/healthz` is gone — there is no server to health-check; Pages availability is
+Cloudflare's problem.)
 
 ### 6.1 Error & empty states (fix #4)
-Happy paths are only half the design; these states are what make the site feel
-finished, and each has an explicit template/behavior:
-
-- **`/blog/{slug}` unknown slug** → return HTTP 404 rendered with `errors/404.html`
-  (branded page with a link back to the blog index), never a stack trace. Backed by a
-  custom FastAPI exception handler for `HTTPException` 404.
-- **Empty blog list** (`/blog` with no published posts) → render `blog_list.html` with a
-  friendly "no posts yet" empty state rather than a blank page.
-- **Empty/malformed project list** → `/projects` degrades to an empty-state message; a
-  malformed `projects.yaml` fails at startup (§4.5), not at request time.
-- **Contact POST — email service failure** → catch the send error, re-render
-  `contact.html` with the user's input preserved and a graceful message ("Something
-  went wrong sending your message — you can also reach me directly at <email>"),
-  returning HTTP 200 (form re-render) rather than a 500. The direct-email fallback
-  ensures a failed send never costs a real contact.
-- **Contact POST — validation error** → re-render the form with field-level errors and
-  the submitted values intact.
-- **Unhandled 500** → generic branded `errors/500.html` via a global exception handler;
-  no framework stack traces leak to users in production.
+- **Unknown path** → Cloudflare Pages serves the branded `404.html` automatically.
+- **Empty blog/project lists** → friendly empty-state copy, rendered at build time.
+- **Malformed content** → fails the CI build; a broken page can never go live.
+- **Contact POST — email service down/unconfigured** → the Function returns a
+  graceful error ("…you can also reach me directly at <email>") shown inline by the
+  JS; never a blank 500. The direct-email fallback ensures a failed send never
+  costs a real contact.
+- **Contact POST — validation error** → per-field messages returned as JSON and
+  shown inline; browser-level `required`/`maxlength` catches most before submit.
+- **500s** — no server-rendered pages exist, so the class of unhandled template/app
+  exceptions at request time is gone by construction.
 
 ## 7. Deployment Architecture
 
-- **Serverless** on **AWS Lambda** (container image, x86_64) fronted by
-  **CloudFront**, defined as infrastructure-as-code in `template.yaml` (AWS SAM).
-- **Origin security**: the Lambda **Function URL uses IAM auth** and is reachable only
-  through CloudFront via **Origin Access Control** (SigV4-signed requests). The raw
-  `*.lambda-url` host returns 403 to direct access.
-- **TLS/CDN**: CloudFront terminates HTTPS and caches `/static/*` at the edge; dynamic
-  pages are not cached.
-- **Domain**: custom domain (e.g. `manasrai.dev`) via an ACM certificate (in
-  `us-east-1`) plus a CloudFront alias, with DNS pointed at the distribution.
-- **CI/deploy**: `sam build && sam deploy`; a GitHub Actions workflow can run
-  linting/tests on push.
-
-### 7.1 Availability & the contact form (fix #1)
-The single most conversion-critical path on the site is the contact form — it's what a
-recruiter reaches *after* reading the resume, so it must respond immediately.
-
-The serverless design keeps it warm enough for that: **Lambda cold starts are ~1s**
-(vs the 30–60s spin-up of an idle free-tier container host), and warm invocations are
-single-digit milliseconds. There is no idle-spin-down "asleep" state that returns
-routing errors — the earlier free-tier host surfaced idle spin-down as intermittent
-`x-render-routing: no-server` 404s on navigation, which this architecture removes.
-
-If sub-second cold starts ever need to become zero, **Provisioned Concurrency** on the
-Lambda is the lever — but at portfolio traffic the ~1s cold start is not worth paying
-to eliminate.
+- **Cloudflare Pages** (free plan): unlimited static bandwidth/requests, 500
+  builds/month (we build in GitHub Actions, so this is irrelevant), custom domains
+  with automatic TLS.
+- **CI/deploy**: GitHub Actions on push to `main` — ruff + pytest + build, then
+  `wrangler pages deploy dist`. PRs run the test/build job as a check. Needs two
+  repo secrets: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`.
+- **Domain**: add the domain in Pages → Custom domains; with DNS on Cloudflare the
+  CNAME + certificate are automatic.
+- **Availability (supersedes v1.2 §7.1):** static files from the edge have **zero
+  cold start** — the conversion-critical path (recruiter → resume → contact) never
+  waits on a container spin-up or Lambda init. Pages Functions run on Workers
+  isolates (~0 ms cold start) for the form itself.
 
 ## 8. Tech Stack Summary
 
 | Layer | Choice |
 |---|---|
-| Backend framework | FastAPI |
-| Templating | Jinja2 (server-rendered; chosen over Next.js/React for zero build step, single-language deploy, and simplest hosting for a content site) |
-| Content format | Markdown (posts) + YAML (projects) |
-| HTML sanitization | `nh3` (ammonia) for rendered post HTML |
-| Email | SMTP or Resend/Postmark API |
+| Site generation | Python + Jinja2 (`app/build.py`), run in CI |
+| Content format | Markdown (posts) + YAML (projects/resume) |
+| HTML sanitization | `nh3` (ammonia) at build time |
+| Contact endpoint | Cloudflare Pages Function (JS) |
+| Email | Resend HTTP API |
 | Package manager | `uv` (`pyproject.toml` + `uv.lock`) |
-| ASGI-to-Lambda | Mangum |
-| Hosting | AWS Lambda (x86_64) + CloudFront, via SAM (`template.yaml`) — see §7 |
-| Domain/DNS | Custom domain via ACM cert + CloudFront alias |
+| Hosting | Cloudflare Pages (free plan) — see §7 |
+| Domain/DNS | Cloudflare DNS + Pages custom domain (auto-TLS) |
 
 ## 9. Security Considerations
 
-- Sanitize/escape all user-submitted contact form fields before including them in emails.
-- Sanitize rendered blog-post HTML via `nh3` before templating (see §4.2).
-- Rate-limit the `/contact` endpoint to prevent spam/abuse (per-process limitation noted in §4.3).
-- Serve over HTTPS (terminated at CloudFront); the Lambda origin is IAM-authed and
-  reachable only via CloudFront (Origin Access Control).
-- No secrets (SMTP credentials, API keys) committed to git — use environment variables.
+The static architecture shrinks the attack surface to (a) the CDN, which is
+Cloudflare's responsibility, and (b) one POST endpoint:
+
+- **`_headers` on every response:** strict same-origin Content-Security-Policy (no
+  inline script/style, no third-party loads), `X-Frame-Options: DENY`,
+  `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy`, HSTS.
+- **No server, no sessions, no database** — SQLi, session hijacking, dependency
+  RCE-at-request-time, and stack-trace leakage are eliminated by construction.
+- Blog HTML sanitized via `nh3` at build time (§4.2).
+- Contact Function: field validation + length caps, honeypot, same-origin check,
+  body-size limit, plain-text email via JSON API (no header/HTML injection),
+  secrets only in the Pages environment. Optional: Cloudflare rate-limiting rule
+  and/or Turnstile on `/api/contact`.
+- No secrets committed to git; `.dev.vars` (local Function secrets) is gitignored.
 
 ## 10. Future Enhancements
 
-- Move project/post content into a lightweight database if the content volume grows significantly.
-- Add a minimal admin view (auth-gated) for editing content without git access.
-- Add privacy-respecting analytics (e.g. Plausible) to track visits.
+- Visual redesign (typography system, dark mode, responsive card grid, OG/social
+  meta tags) — reviewed and queued separately.
+- Add privacy-respecting analytics (e.g. Plausible, or Cloudflare Web Analytics,
+  which is free and cookieless).
 - Add an OG-image generator for blog posts (dynamic social preview cards).
-- Auto-generate the resume PDF from the structured resume data to eliminate the two-source drift noted in §4.4.
-- Optionally expose a small public API (`/api/projects`) so other tools (like your agent projects) can pull your project list programmatically.
+- Auto-generate the resume PDF from the structured resume data to eliminate the
+  two-source drift noted in §4.4.
+- Turnstile on the contact form if honeypot + rate limiting ever proves
+  insufficient.

@@ -6,12 +6,10 @@
 <section class="section">
   <h1>Blog</h1>
 
-  {% if all_tags %}
+  {% if filters | length > 1 %}
   <p class="filters">
-    <a href="{{ path_for('blog_list') }}" class="{{ 'active' if not active_tag }}">All</a>
-    {% for tag in all_tags %}
-    <a href="{{ path_for('blog_list') }}?tag={{ tag }}"
-       class="{{ 'active' if tag == active_tag }}">{{ tag }}</a>
+    {% for f in filters %}
+    <a href="{{ f.url }}" class="{{ 'active' if f.active }}">{{ f.label }}</a>
     {% endfor %}
   </p>
   {% endif %}
@@ -27,14 +25,12 @@
     {% endfor %}
   </ul>
 
+  {% if prev_url or next_url %}
   <nav class="pagination">
-    {% if has_prev %}
-    <a href="{{ path_for('blog_list') }}?page={{ page - 1 }}{% if active_tag %}&tag={{ active_tag }}{% endif %}">← Newer</a>
-    {% endif %}
-    {% if has_next %}
-    <a href="{{ path_for('blog_list') }}?page={{ page + 1 }}{% if active_tag %}&tag={{ active_tag }}{% endif %}">Older →</a>
-    {% endif %}
+    {% if prev_url %}<a href="{{ prev_url }}">← Newer</a>{% endif %}
+    {% if next_url %}<a href="{{ next_url }}">Older →</a>{% endif %}
   </nav>
+  {% endif %}
   {% else %}
   <p class="empty">No posts yet — check back soon.</p>
   {% endif %}

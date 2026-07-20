@@ -1,62 +1,49 @@
-# Auto-deploy to AWS on push to main: sam build + sam deploy. Restores the
-# "push to publish" flow — edit content, commit, push, and it goes live.
+# Build the static site and publish it to Cloudflare Pages on push to main.
+# PRs run the test + build job only, as a check.
 #
-# One-time setup (see README → Deployment → Automated deploys):
-#   - An IAM user's access key in secrets AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY.
-#   - Optional email secrets (RESEND_API_KEY / SMTP_*) so deploys preserve them.
+# One-time setup (see README → Deployment):
+#   - Cloudflare Pages project "manas-rai-portfolio" (created on first deploy
+#     or via the dashboard), with RESEND_API_KEY / EMAIL_FROM / EMAIL_TO set as
+#     project environment variables for the contact-form Function.
+#   - Repo secrets CLOUDFLARE_API_TOKEN (Pages:Edit) and CLOUDFLARE_ACCOUNT_ID.
 name: deploy
 
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch: {}
 
-# Never run two deploys against the same stack at once.
 concurrency:
-  group: deploy-main
+  group: deploy-${{ github.ref }}
   cancel-in-progress: false
 
 permissions:
   contents: read
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest # x86_64 — builds the x86_64 Lambda image natively
+  test:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --locked
+      - run: uv run ruff check .
+      - run: uv run pytest
+      - run: uv run python -m app.build
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --locked
+      - run: uv run python -m app.build
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-
-      - uses: aws-actions/setup-sam@v2
-        with:
-          use-installer: true
-
-      - name: Build
-        run: sam build
-
-      - name: Deploy
-        # Only pass email parameter-overrides that are actually set — SAM rejects
-        # empty "Key=" values. Secrets come in via env (avoids inlining them in
-        # the script) and only non-empty ones are appended.
-        env:
-          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-          SMTP_HOST: ${{ secrets.SMTP_HOST }}
-          SMTP_USER: ${{ secrets.SMTP_USER }}
-          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
-        run: |
-          overrides=()
-          [ -n "$RESEND_API_KEY" ] && overrides+=("ResendApiKey=$RESEND_API_KEY")
-          [ -n "$SMTP_HOST" ] && overrides+=("SmtpHost=$SMTP_HOST")
-          [ -n "$SMTP_USER" ] && overrides+=("SmtpUser=$SMTP_USER")
-          [ -n "$SMTP_PASSWORD" ] && overrides+=("SmtpPassword=$SMTP_PASSWORD")
-
-          args=(--resolve-s3 --no-confirm-changeset --no-fail-on-empty-changeset)
-          if [ ${#overrides[@]} -gt 0 ]; then
-            args+=(--parameter-overrides "${overrides[@]}")
-          fi
-          sam deploy "${args[@]}"
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=manas-rai-portfolio
