@@ -23,7 +23,7 @@
 
   <header class="site-header">
     <div class="header-inner">
-      <a class="brand" href="{{ path_for('home') }}">{{ site_name }}<span class="accent-dot">.</span></a>
+      <a class="brand" href="{{ path_for('home') }}">{{ site_name }}</a>
       <nav class="site-nav" aria-label="Main">
         <a href="{{ path_for('projects') }}" class="{{ 'active' if active_nav == 'projects' }}"
            {% if active_nav == 'projects' %}aria-current="page"{% endif %}>Projects</a>
@@ -46,6 +46,7 @@
       <p>&copy; {{ site_name }}</p>
       <p class="footer-links">
         <a href="{{ github_url }}">GitHub</a>
+        <a href="{{ linkedin_url }}">LinkedIn</a>
         <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>
       </p>
     </div>

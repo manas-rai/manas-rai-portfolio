@@ -8,6 +8,7 @@
     cycle from days to hours.
   tech: [Python, LangGraph, GitHub Actions, Claude Code, Jira]
   github: https://github.com/manas-rai/devflow-kit
+  demo: https://manas-rai.github.io/devflow-kit-site/
   featured: true
 
 - title: RegLens
@@ -20,6 +21,7 @@
     harness.
   tech: [Python, LangGraph, Google ADK, RAGAS, pgvector]
   github: https://github.com/manas-rai/reglens
+  demo: https://manas-rai.github.io/reglens/
   featured: true
 
 - title: CostTracker
