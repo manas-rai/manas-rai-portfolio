@@ -189,9 +189,11 @@ Cloudflare's problem.)
 - **Cloudflare Pages** (free plan): unlimited static bandwidth/requests, 500
   builds/month (we build in GitHub Actions, so this is irrelevant), custom domains
   with automatic TLS.
-- **CI/deploy**: GitHub Actions on push to `main` — ruff + pytest + build, then
-  `wrangler pages deploy dist`. PRs run the test/build job as a check. Needs two
-  repo secrets: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`.
+- **CI/deploy**: Cloudflare Pages Git integration builds and publishes on every
+  push to `main` (build command `python -m app.build`, deps from
+  `requirements.txt`, Python pinned by `.python-version`) and gives each PR a
+  preview URL. GitHub Actions runs ruff + pytest + build as the merge gate — no
+  Cloudflare credentials in GitHub at all.
 - **Domain**: add the domain in Pages → Custom domains; with DNS on Cloudflare the
   CNAME + certificate are automatic.
 - **Availability (supersedes v1.2 §7.1):** static files from the edge have **zero
