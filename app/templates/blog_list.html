@@ -4,7 +4,11 @@
 
 {% block content %}
 <section class="section">
-  <h1>Blog</h1>
+  <div class="section-head">
+    <span class="section-eyebrow">//</span>
+    <h1>Blog</h1>
+  </div>
+  <p class="page-intro">Notes on building software — written as I go.</p>
 
   {% if filters | length > 1 %}
   <p class="filters">
@@ -18,9 +22,11 @@
   <ul class="post-list">
     {% for post in posts %}
     <li class="post-summary">
-      <a href="{{ path_for('blog_post', slug=post.slug) }}">{{ post.title }}</a>
+      <div>
+        <a class="post-title" href="{{ path_for('blog_post', slug=post.slug) }}">{{ post.title }}</a>
+        <p>{{ post.summary }}</p>
+      </div>
       <span class="date">{{ post.date.strftime('%b %d, %Y') }}</span>
-      <p>{{ post.summary }}</p>
     </li>
     {% endfor %}
   </ul>

@@ -3,27 +3,52 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{% block title %}{{ site_name }}{% endblock %}</title>
+  <title>{% block title %}{{ site_name }} — {{ site_tagline }}{% endblock %}</title>
   <meta name="description" content="{% block description %}{{ site_tagline }}{% endblock %}" />
+  <meta name="theme-color" content="#0b0b12" />
+  <link rel="canonical" href="{{ site_url }}{{ page_url }}" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="{{ site_name }}" />
+  <meta property="og:title" content="{{ self.title() }}" />
+  <meta property="og:description" content="{{ self.description() }}" />
+  <meta property="og:url" content="{{ site_url }}{{ page_url }}" />
+  <meta name="twitter:card" content="summary" />
+  <link rel="icon" type="image/svg+xml" href="{{ path_for('static', path='images/favicon.svg') }}" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+        href="{{ path_for('static', path='fonts/space-grotesk-700.woff2') }}" />
   <link rel="stylesheet" href="{{ path_for('static', path='css/style.css') }}" />
 </head>
 <body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
   <header class="site-header">
-    <a class="brand" href="{{ path_for('home') }}">{{ site_name }}</a>
-    <nav class="site-nav">
-      <a href="{{ path_for('projects') }}">Projects</a>
-      <a href="{{ path_for('blog_list') }}">Blog</a>
-      <a href="{{ path_for('resume') }}">Resume</a>
-      <a href="{{ path_for('contact_form') }}">Contact</a>
-    </nav>
+    <div class="header-inner">
+      <a class="brand" href="{{ path_for('home') }}">{{ site_name }}<span class="accent-dot">.</span></a>
+      <nav class="site-nav" aria-label="Main">
+        <a href="{{ path_for('projects') }}" class="{{ 'active' if active_nav == 'projects' }}"
+           {% if active_nav == 'projects' %}aria-current="page"{% endif %}>Projects</a>
+        <a href="{{ path_for('blog_list') }}" class="{{ 'active' if active_nav == 'blog' }}"
+           {% if active_nav == 'blog' %}aria-current="page"{% endif %}>Blog</a>
+        <a href="{{ path_for('resume') }}" class="{{ 'active' if active_nav == 'resume' }}"
+           {% if active_nav == 'resume' %}aria-current="page"{% endif %}>Resume</a>
+        <a href="{{ path_for('contact_form') }}" class="{{ 'active' if active_nav == 'contact' }}"
+           {% if active_nav == 'contact' %}aria-current="page"{% endif %}>Contact</a>
+      </nav>
+    </div>
   </header>
 
-  <main class="site-main">
+  <main id="main" class="site-main">
     {% block content %}{% endblock %}
   </main>
 
   <footer class="site-footer">
-    <p>&copy; {{ site_name }} — <a href="mailto:{{ contact_email }}">{{ contact_email }}</a></p>
+    <div class="footer-inner">
+      <p>&copy; {{ site_name }}</p>
+      <p class="footer-links">
+        <a href="{{ github_url }}">GitHub</a>
+        <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>
+      </p>
+    </div>
   </footer>
   {% block scripts %}{% endblock %}
 </body>
