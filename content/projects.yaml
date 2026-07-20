@@ -1,37 +1,43 @@
+# Ordered as on the resume; `featured` entries surface on the home page.
+
+- title: DevFlow Kit
+  summary: >
+    Multi-agent SDLC automation that turns Jira tickets into production PRs with
+    zero added infrastructure. Refinement, implementation, and Jira-sync agents
+    decompose complex tickets into parallel subtasks and cut the ticket-to-PR
+    cycle from days to hours.
+  tech: [Python, LangGraph, GitHub Actions, Claude Code, Jira]
+  github: https://github.com/manas-rai/devflow-kit
+  featured: true
+
 - title: RegLens
   summary: >
     Multi-agent regulatory compliance automation. Feed it a regulatory PDF and
-    your control matrix — it extracts every obligation, checks each against your
-    policies via RAG, scores the gaps by risk, and produces an audit report with
-    a human-in-the-loop approval gate.
-  tech: [Python, FastAPI, LangGraph, pgvector]
+    your control matrix — a compliance research agent extracts every obligation,
+    a gap analyzer checks each against your policies via RAG and scores the
+    risk, and a report generator produces an audit report with a
+    human-in-the-loop approval gate. Includes a drift-detection evaluation
+    harness.
+  tech: [Python, LangGraph, Google ADK, RAGAS, pgvector]
   github: https://github.com/manas-rai/reglens
-  featured: true
-
-- title: Cloud Waste Hunter
-  summary: >
-    Automated AWS cost optimization with ML-powered waste detection. Flags idle
-    EC2 instances, unattached EBS volumes, and stale snapshots — then eliminates
-    them safely with dry-run previews, manual approval, and 7-day rollback.
-  tech: [Python, FastAPI, scikit-learn, Next.js]
-  github: https://github.com/manas-rai/cloud-waste-hunter
   featured: true
 
 - title: CostTracker
   summary: >
-    Open-source, self-hosted LLM cost tracking. A drop-in SDK wraps OpenAI,
-    Anthropic, Groq, and Bedrock clients to record usage and cost straight to
-    ClickHouse or PostgreSQL, with a bundled analytics dashboard.
+    Open-source, self-hosted LLM cost tracking SDK. A drop-in instrumentation
+    layer wraps OpenAI, Anthropic, Groq, and Bedrock clients to record usage
+    straight to ClickHouse or PostgreSQL — real-time token metering,
+    per-request cost attribution, and a bundled analytics dashboard.
   tech: [Python, ClickHouse, PostgreSQL]
   github: https://github.com/manas-rai/costtracker
   featured: false
 
-- title: DevFlow Kit
+- title: Cloud Waste Hunter
   summary: >
-    AI agents that turn Jira tickets into pull requests with zero infrastructure.
-    Agents refine specs, decompose complex tickets into parallel subtasks, and
-    open GitHub issues that the Claude Code app implements — target repos stay
-    untouched.
-  tech: [Python, Jira, GitHub, Claude]
-  github: https://github.com/manas-rai/devflow-kit
+    Cloud-agnostic resource monitor with ML-powered waste detection. Flags idle
+    instances, unattached volumes, and stale snapshots across providers in a
+    unified cost-optimization dashboard — then eliminates them safely with
+    dry-run previews, human-in-the-loop approval, and 7-day rollback.
+  tech: [Python, FastAPI, scikit-learn, Next.js]
+  github: https://github.com/manas-rai/cloud-waste-hunter
   featured: false

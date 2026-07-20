@@ -10,7 +10,10 @@ TEMPLATES_DIR = BASE_DIR / "app" / "templates"
 DIST_DIR = BASE_DIR / "dist"
 
 SITE_NAME = "Manas Rai"
-SITE_TAGLINE = "Engineer — building useful software."
+SITE_TAGLINE = (
+    "I build production backend systems and GenAI platforms — RAG pipelines, "
+    "multi-agent systems, and the cloud infrastructure behind them."
+)
 CONTACT_EMAIL = "rai.manas12@gmail.com"
 SITE_URL = "https://manas-rai-portfolio.pages.dev"
 GITHUB_URL = "https://github.com/manas-rai"

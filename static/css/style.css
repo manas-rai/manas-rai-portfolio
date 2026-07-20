@@ -479,6 +479,9 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .resume-entry ul { margin: 0.5rem 0 0; padding-left: 1.2rem; }
 .resume-entry li { margin-bottom: 0.3rem; }
 
+.resume-list { margin: 0; padding-left: 1.2rem; }
+.resume-list li { margin-bottom: 0.4rem; }
+
 .resume-projects { list-style: none; padding: 0; margin: 0; }
 .resume-projects li { margin-bottom: 1.2rem; }
 .resume-projects p { margin: 0.2rem 0 0; color: var(--muted); }
