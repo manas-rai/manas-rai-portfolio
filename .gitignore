@@ -219,3 +219,7 @@ __marimo__/
 
 # AWS SAM build artifacts
 .aws-sam/
+
+# Cloudflare (local dev)
+.dev.vars
+.wrangler/

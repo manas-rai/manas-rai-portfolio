@@ -8,26 +8,25 @@
 
   {% if sent %}
   <p class="flash flash-success">Thanks — your message is on its way. I'll be in touch.</p>
+  <p><a href="{{ path_for('home') }}">← Back home</a></p>
   {% else %}
-    {% if flash %}<p class="flash flash-error">{{ flash }}</p>{% endif %}
+    <p class="flash flash-error" id="contact-status" hidden></p>
 
-    <form method="post" action="{{ path_for('contact_submit') }}" class="contact-form">
+    <form method="post" action="{{ path_for('contact_submit') }}" class="contact-form"
+          data-fallback="Something went wrong sending your message — you can also reach me directly at {{ contact_email }}.">
       <label>
         Name
-        <input type="text" name="name" value="{{ values.name or '' }}" required />
-        {% if errors.name %}<span class="field-error">{{ errors.name }}</span>{% endif %}
+        <input type="text" name="name" maxlength="200" required />
       </label>
 
       <label>
         Email
-        <input type="email" name="email" value="{{ values.email or '' }}" required />
-        {% if errors.email %}<span class="field-error">{{ errors.email }}</span>{% endif %}
+        <input type="email" name="email" maxlength="254" required />
       </label>
 
       <label>
         Message
-        <textarea name="message" rows="6" required>{{ values.message or '' }}</textarea>
-        {% if errors.message %}<span class="field-error">{{ errors.message }}</span>{% endif %}
+        <textarea name="message" rows="6" maxlength="5000" required></textarea>
       </label>
 
       {# Honeypot: hidden from real users, tempting to bots. #}
@@ -39,4 +38,8 @@
     </form>
   {% endif %}
 </section>
+{% endblock %}
+
+{% block scripts %}
+{% if not sent %}<script src="{{ path_for('static', path='js/contact.js') }}" defer></script>{% endif %}
 {% endblock %}

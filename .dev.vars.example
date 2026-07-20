@@ -1,0 +1,6 @@
+# Local secrets for `npx wrangler pages dev dist` (contact-form Function).
+# Copy to .dev.vars — never commit the real values. In production these are
+# set in the Cloudflare Pages project settings (Environment variables).
+RESEND_API_KEY=
+EMAIL_FROM=portfolio@manasrai.dev
+EMAIL_TO=rai.manas12@gmail.com
