@@ -58,7 +58,7 @@ def test_static_assets_copied(site: Path) -> None:
 
 def test_pages_carry_canonical_and_og_meta(site: Path) -> None:
     html = (site / "blog" / "2026-07-16-hello-world" / "index.html").read_text()
-    assert '<link rel="canonical" href="https://manas-rai-portfolio.pages.dev/blog/2026-07-16-hello-world/"' in html
+    assert '<link rel="canonical" href="https://manasrai.is-a.dev/blog/2026-07-16-hello-world/"' in html
     assert 'property="og:title"' in html
 
 
