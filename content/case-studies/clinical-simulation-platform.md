@@ -1,56 +1,77 @@
 ---
 title: "Clinical Simulation Platform"
-subtitle: "An LLM-powered platform that role-plays realistic patients for physician training — prompt-engineered personas grounded with RAG, load-tested for 2,000 concurrent sessions at sub-second latency."
-tech: [Python, FastAPI, RAG, Prompt engineering, LLM]
+subtitle: "An LLM-powered platform that role-plays realistic patients for physician training — real-time text and voice, plus an automated feedback report that scores the trainee. Load-tested for 2,000 concurrent sessions at sub-second latency."
+tech: [Python, Go, AWS, EKS, OpenAI, Realtime voice, WebSockets, PostgreSQL, LangChain, LIT]
 diagram: clinical-sim-architecture.svg
-diagram_caption: "Each turn, the simulation service assembles a prompt-engineered patient persona, context retrieved via RAG, and the conversation history, then calls the LLM to produce an in-character patient reply — a closed loop the physician converses with."
+diagram_caption: "Two halves. Authoring (top): illness scripts become case content via an authoring service, validated by a human, stored in a CMS, and delivered over a CDN. Runtime (bottom): a physician converses — text or voice — with a simulation service that injects the case into the system prompt and calls a config-driven LLM; at the end, a feedback report scores their questions and investigations."
 ---
 
 *Professional work delivered for a healthcare product. This write-up describes
 the architecture and engineering at a high level; it names no client and
-includes no proprietary detail.*
+includes no proprietary detail. The patient cases are **authored** — there is no
+real patient data.*
 
 ## The problem
 
-Physicians train on patient interactions, but real standardized patients are
-expensive, scarce, and hard to schedule at scale. The goal was a platform where
-a physician-in-training could hold a realistic clinical conversation with a
-simulated patient — one that stays *in character*, stays *medically consistent*,
-and can be spun up on demand, for many trainees at once.
+Medical students and physicians train on patient encounters, but real
+standardized patients are expensive, scarce, and hard to schedule at scale. The
+goal was a platform where a trainee could hold a realistic clinical conversation
+with a simulated patient — one that stays *in character*, is *medically
+consistent*, works over **text or voice**, and can be spun up on demand for many
+trainees at once. And critically, it had to *assess* the trainee afterward, not
+just chat.
 
-That combination is harder than it sounds. A generic chatbot breaks character,
-contradicts its own history, or drifts into medically implausible territory —
-all of which are training-destroying in this context.
+## Authoring: turning illness scripts into cases
 
-## The approach
+The content is built, not retrieved. An **authoring service** turns clinical
+*illness scripts* into structured case content, which a **human reviewer
+validates** before it's committed to a **CMS**. From there cases are published
+to **S3** and served through **CloudFront**, so the runtime pulls case content
+from a CDN edge rather than a live database. Human-in-the-loop validation is
+non-negotiable here — a medically wrong case teaches the wrong thing.
 
-The platform is a **conversation loop** built on two techniques working together:
+## Runtime: the simulation loop
 
-- **Prompt engineering** defines the patient **persona** — the condition,
-  history, personality, and emotional state the LLM must inhabit and hold
-  consistently across a multi-turn conversation. This is what keeps the
-  simulated patient *in character*.
-- **RAG** grounds each reply in **case and clinical knowledge**, so the patient's
-  answers stay medically consistent with their presented condition rather than
-  being invented on the fly. This is what keeps the simulation *plausible*.
+The front end is built in **LIT** and talks to the backend over **WebSockets**,
+supporting both **text and voice**. The **simulation service** runs on **AWS
+EKS**, written in **Python and Go**, with **Cognito** handling authentication.
 
-For each turn, the **simulation service** assembles the persona, the retrieved
-context, and the running **conversation history**, then calls the LLM to produce
-an in-character reply. Maintaining that history is what lets the patient
-"remember" what they said three turns ago — the difference between a believable
-encounter and a goldfish.
+The design decision worth calling out: **there is no RAG.** A case is a compact
+**JSON** that's injected directly into the **system prompt**, together with the
+prompt-engineered **persona** (condition, history, personality) that keeps the
+patient in character. The whole case fits in context, so retrieval would add
+latency and non-determinism for no benefit — injecting the case wholesale is
+simpler, fully reproducible, and easier to validate. Guardrails in the prompt
+keep the patient from breaking role.
+
+Model selection is **config-driven**: text conversations run on **GPT-4o /
+5.4 / 5.6-sol**, and voice runs on **GPT Realtime** — swapping models is a config
+change, not a code change. **LangChain** abstracts across the models and
+**LangSmith** manages and versions the prompts. Each interaction is persisted
+per session in **PostgreSQL**.
+
+## Assessment: the feedback report
+
+The feature that makes it a *training* tool, not just a chatbot: during an
+encounter the trainee **selects the questions to ask and the investigations to
+order**, and at the end the platform generates a **feedback report** evaluating
+those choices — a complete picture of how they approached the case. Simulation
+and evaluation quality are checked against a **gold dataset**.
 
 ## Production readiness
 
-Like the RAG platform it sits alongside, this was built to hold under real load:
-**load-tested for 2,000 concurrent sessions at sub-second response latency**.
-Conversational simulation is unforgiving of lag — a training encounter that
-stalls between turns breaks immersion — so keeping per-turn latency low under
-concurrency was a first-class engineering goal, not a nice-to-have.
+Built to hold under real load — **2,000 concurrent sessions at sub-second
+latency**. Conversational simulation, especially voice, is unforgiving of lag,
+so that came from **async I/O, connection pooling, and an in-memory cache**, with
+**per-session and per-user rate limiting** to protect capacity. It's covered by
+**k6** for load and integration testing and **Playwright** for end-to-end, and
+observed with **Datadog** (logs) and **New Relic** (monitoring).
 
 ## The outcome
 
-The platform gives trainees realistic, on-demand patient encounters without the
-logistics of standardized patients — and it's a second production GenAI system I
-took from prompt design through load-tested launch, alongside the multi-tenant
-[Healthcare RAG Platform](/projects/healthcare-rag-platform/).
+The platform gives trainees realistic, on-demand patient encounters — in text
+and voice — plus an automated assessment of their clinical reasoning, without the
+logistics of standardized patients. It's a second production GenAI system I took
+from design through load-tested launch, alongside the multi-tenant
+[Healthcare RAG Platform](/projects/healthcare-rag-platform/) — and a deliberately
+*different* architecture, because this problem didn't need retrieval.
