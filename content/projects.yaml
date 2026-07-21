@@ -8,7 +8,7 @@
     product — tenant-isolated vector stores, secure authentication, and strict
     data partitioning, taken from zero to production and load-tested for 2,000+
     concurrent sessions at sub-second latency.
-  tech: [Python, FastAPI, RAG, Azure OpenAI, Vector search, Multi-tenant]
+  tech: [Python, FastAPI, Azure AI Search, Azure OpenAI, Azure AD B2C, Document Intelligence, LangChain, Multi-tenant]
   featured: true
 
 - title: DevFlow Kit
