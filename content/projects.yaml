@@ -1,4 +1,15 @@
 # Ordered as on the resume; `featured` entries surface on the home page.
+# Professional (client) work has no public repo/site — it's shown via its
+# deep dive only.
+
+- title: Healthcare RAG Platform
+  summary: >
+    A multi-tenant Retrieval-Augmented Generation platform for a healthcare
+    product — tenant-isolated vector stores, secure authentication, and strict
+    data partitioning, taken from zero to production and load-tested for 2,000+
+    concurrent sessions at sub-second latency.
+  tech: [Python, FastAPI, RAG, Azure OpenAI, Vector search, Multi-tenant]
+  featured: true
 
 - title: DevFlow Kit
   summary: >
