@@ -246,6 +246,37 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 }
 .btn-ghost:hover { border-color: var(--violet); }
 
+/* ---------- stats strip ---------- */
+
+.stats { margin-top: 1rem; }
+.stat-grid {
+  list-style: none;
+  margin: 0;
+  padding: 1.6rem 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+.stat { display: flex; flex-direction: column; gap: 0.35rem; }
+.stat-num {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.9rem, 4vw, 2.6rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.stat-label { color: var(--muted); font-size: 0.92rem; line-height: 1.4; }
+
+@media (max-width: 720px) {
+  .stat-grid { grid-template-columns: repeat(2, 1fr); gap: 1.6rem 1.2rem; }
+}
+
 /* ---------- sections ---------- */
 
 .section { margin-top: 4.5rem; }
