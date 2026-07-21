@@ -459,6 +459,26 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 
 .back { margin-top: 3rem; font-family: var(--font-display); font-weight: 500; }
 
+/* ---------- case study ---------- */
+
+.case-study .chip-row { margin-top: 1.4rem; }
+.case-study .card-links { margin-top: 1rem; }
+
+.diagram { margin: 2.5rem 0 0.5rem; }
+.diagram img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+.diagram figcaption {
+  margin-top: 0.8rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
 /* ---------- resume ---------- */
 
 .resume-header {

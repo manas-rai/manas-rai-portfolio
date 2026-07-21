@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 500" role="img"
+     aria-label="DevFlow Kit pipeline: a Jira ticket flows through a Refinement agent, an Implementation agent that decomposes work into parallel subtasks, and out to a Pull Request with GitHub issues. A Jira-sync agent keeps the board updated. The whole graph is orchestrated by LangGraph and runs on GitHub Actions with a model-agnostic layer.">
+  <defs>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#22d3ee"/>
+      <stop offset="0.55" stop-color="#a78bfa"/>
+      <stop offset="1" stop-color="#f472b6"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#6b6b8a"/>
+    </marker>
+    <style>
+      .bg   { fill: #0f0f18; stroke: #26263a; stroke-width: 1.5; }
+      .node { fill: #1a1a29; stroke: #33334d; stroke-width: 1.5; }
+      .agent{ fill: #171727; stroke: url(#accent); stroke-width: 2; }
+      .lbl  { fill: #ecedf3; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 19px; font-weight: 600; }
+      .sub  { fill: #a0a1b5; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px; }
+      .tag  { fill: #22d3ee; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px; letter-spacing: 0.12em; }
+      .edge { fill: #8a8aa8; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px; }
+      .flow { stroke: #6b6b8a; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .sync { stroke: #6b6b8a; stroke-width: 1.75; fill: none; stroke-dasharray: 5 4; marker-end: url(#arrow); }
+      .band { fill: #a0a1b5; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 14px; }
+    </style>
+  </defs>
+
+  <rect class="bg" x="1" y="1" width="1038" height="498" rx="18"/>
+  <text class="tag" x="34" y="44">TICKET → PR PIPELINE</text>
+
+  <!-- main pipeline -->
+  <rect class="node"  x="30"  y="115" width="160" height="80" rx="12"/>
+  <text class="lbl"  x="110" y="150" text-anchor="middle">Jira Ticket</text>
+  <text class="sub"  x="110" y="173" text-anchor="middle">raw, ambiguous</text>
+
+  <rect class="agent" x="270" y="115" width="180" height="80" rx="12"/>
+  <text class="lbl"  x="360" y="150" text-anchor="middle">Refinement</text>
+  <text class="sub"  x="360" y="173" text-anchor="middle">→ sprint-ready spec</text>
+
+  <rect class="agent" x="530" y="115" width="200" height="80" rx="12"/>
+  <text class="lbl"  x="630" y="150" text-anchor="middle">Implementation</text>
+  <text class="sub"  x="630" y="173" text-anchor="middle">parallel subtasks</text>
+
+  <rect class="node"  x="810" y="115" width="200" height="80" rx="12"/>
+  <text class="lbl"  x="910" y="150" text-anchor="middle">Pull Request</text>
+  <text class="sub"  x="910" y="173" text-anchor="middle">+ GitHub issues</text>
+
+  <path class="flow" d="M190 155 L262 155"/>
+  <path class="flow" d="M450 155 L522 155"/>
+  <path class="flow" d="M730 155 L802 155"/>
+
+  <!-- jira-sync agent + feedback loop -->
+  <rect class="agent" x="390" y="320" width="200" height="72" rx="12"/>
+  <text class="lbl"  x="490" y="352" text-anchor="middle">Jira-sync</text>
+  <text class="sub"  x="490" y="374" text-anchor="middle">keeps the board honest</text>
+
+  <path class="sync" d="M910 195 C 910 265, 700 356, 596 356"/>
+  <text class="edge" x="756" y="286" text-anchor="middle">PR status</text>
+
+  <path class="sync" d="M388 356 C 210 356, 110 265, 110 199"/>
+  <text class="edge" x="196" y="286" text-anchor="middle">updates board</text>
+
+  <!-- foundation band -->
+  <text class="band" x="34" y="456">LangGraph orchestration</text>
+  <text class="band" x="322" y="456">·  runs on GitHub Actions</text>
+  <text class="band" x="620" y="456">·  model-agnostic: Anthropic / OpenAI / Google</text>
+</svg>

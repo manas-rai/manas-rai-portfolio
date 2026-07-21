@@ -144,8 +144,10 @@ portfolio/
 ├── content/
 │   ├── projects.yaml
 │   ├── resume.yaml
-│   └── posts/
-│       └── 2026-07-16-hello-world.md
+│   ├── posts/
+│   │   └── 2026-07-16-hello-world.md
+│   └── case-studies/                  # rich per-project write-ups (Markdown
+│       └── devflow-kit.md             # + an inline build-time SVG diagram)
 ├── static/
 │   ├── css/  fonts/  images/  resume.pdf
 ├── dist/                          # build output (gitignored, deployed)

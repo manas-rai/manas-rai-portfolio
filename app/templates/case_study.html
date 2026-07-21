@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}{{ case.title }} — Case study — {{ site_name }}{% endblock %}
+{% block description %}{{ case.subtitle }}{% endblock %}
+
+{% block content %}
+<article class="case-study prose">
+  <p class="hero-eyebrow">case study</p>
+  <h1>{{ case.title }}</h1>
+  <p class="page-intro">{{ case.subtitle }}</p>
+
+  <ul class="chip-row">
+    {% for tech in case.tech %}<li class="chip">{{ tech }}</li>{% endfor %}
+  </ul>
+  <div class="card-links">
+    {% if case.github %}<a href="{{ case.github }}">GitHub ↗</a>{% endif %}
+    {% if case.demo %}<a href="{{ case.demo }}">Live site ↗</a>{% endif %}
+  </div>
+
+  {% if case.diagram %}
+  <figure class="diagram">
+    <img src="{{ path_for('static', path='images/' + case.diagram) }}"
+         alt="{{ case.diagram_caption }}" loading="lazy" />
+    {% if case.diagram_caption %}<figcaption>{{ case.diagram_caption }}</figcaption>{% endif %}
+  </figure>
+  {% endif %}
+
+  {# case.html is sanitized at build time via nh3 (content_loader.py) #}
+  <div class="post-body">{{ case.html | safe }}</div>
+
+  <p class="back"><a href="{{ path_for('projects') }}">← All projects</a></p>
+</article>
+{% endblock %}
