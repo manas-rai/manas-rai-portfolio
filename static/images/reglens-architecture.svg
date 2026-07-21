@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 660" role="img"
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 660" role="img"
      aria-label="RegLens multi-agent compliance pipeline. A regulatory PDF and a control matrix enter through a FastAPI surface that streams progress over SSE. A LangGraph supervisor, checkpointed in Postgres, orchestrates the pipeline: ingest, retrieve policies, gap analysis, score risks, generate report, then a human-in-the-loop gate. It delegates to A2A agents over JSON-RPC — an ingestion agent using Gemini multimodal and a risk-scorer agent using Gemini plus a rubric — retrieves policies from pgvector, and runs structured gap analysis with Claude. Cross-cutting: A2A/JSON-RPC 2.0, an evals harness (RAGAS, DeepEval, behavioral tests), Presidio PII guards, OpenTelemetry and LangSmith observability, and a Next.js UI.">
   <defs>
     <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
@@ -27,7 +27,7 @@
     </style>
   </defs>
 
-  <rect class="bg" x="1" y="1" width="1118" height="658" rx="18"/>
+  <rect class="bg" x="1" y="1" width="1158" height="658" rx="18"/>
 
   <!-- entry -->
   <rect class="node" x="30"  y="52" width="205" height="60" rx="12"/>
@@ -74,7 +74,7 @@
   <text class="sub"  x="980" y="369" text-anchor="middle">edits / rejects</text>
 
   <path class="flow" d="M132 246 L132 298"/>
-  <text class="edge" x="150" y="272" text-anchor="start">A2A</text>
+  <text class="edge" x="170" y="268" text-anchor="start">A2A</text>
   <path class="flow" d="M337 246 L337 298"/>
   <path class="flow" d="M530 246 L530 298"/>
   <path class="flow" d="M745 246 L745 298"/>
@@ -82,8 +82,8 @@
   <path class="flow" d="M980 246 L980 298"/>
 
   <!-- postgres -->
-  <rect class="node" x="255" y="410" width="595" height="46" rx="10"/>
-  <text class="plbl" x="552" y="438" text-anchor="middle">PostgreSQL  ·  LangGraph checkpoints · pgvector embeddings · run state · audit log</text>
+  <rect class="node" x="235" y="410" width="660" height="46" rx="10"/>
+  <text class="plbl" x="565" y="438" text-anchor="middle">PostgreSQL  ·  LangGraph checkpoints · pgvector embeddings · run state · audit log</text>
   <path class="flow2" d="M337 408 L337 382"/>
 
   <!-- CROSS-CUTTING -->
@@ -91,12 +91,12 @@
 
   <rect class="pill" x="30"  y="526" width="200" height="34" rx="17"/>
   <text class="plbl" x="130" y="548" text-anchor="middle">A2A · JSON-RPC 2.0</text>
-  <rect class="pill" x="245" y="526" width="320" height="34" rx="17"/>
-  <text class="plbl" x="405" y="548" text-anchor="middle">evals · RAGAS · DeepEval · behavioral suite</text>
-  <rect class="pill" x="580" y="526" width="205" height="34" rx="17"/>
-  <text class="plbl" x="682" y="548" text-anchor="middle">Presidio · PII guards</text>
-  <rect class="pill" x="800" y="526" width="290" height="34" rx="17"/>
-  <text class="plbl" x="945" y="548" text-anchor="middle">OpenTelemetry · LangSmith · structlog</text>
+  <rect class="pill" x="245" y="526" width="350" height="34" rx="17"/>
+  <text class="plbl" x="420" y="548" text-anchor="middle">evals · RAGAS · DeepEval · behavioral suite</text>
+  <rect class="pill" x="610" y="526" width="210" height="34" rx="17"/>
+  <text class="plbl" x="715" y="548" text-anchor="middle">Presidio · PII guards</text>
+  <rect class="pill" x="835" y="526" width="300" height="34" rx="17"/>
+  <text class="plbl" x="985" y="548" text-anchor="middle">OpenTelemetry · LangSmith · structlog</text>
 
   <!-- foundation band -->
   <text class="band" x="30" y="608">Multi-agent · multi-model (Gemini + Claude) · human-in-the-loop · durable &amp; resumable · Next.js UI · Docker / Terraform</text>

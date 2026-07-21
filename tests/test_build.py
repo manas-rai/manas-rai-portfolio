@@ -42,10 +42,16 @@ def test_case_study_page_renders_with_diagram(site: Path) -> None:
 
 def test_project_cards_link_to_existing_case_studies(site: Path) -> None:
     projects = (site / "projects" / "index.html").read_text()
-    # DevFlow Kit has a deep-dive page; its card links to it.
-    assert 'href="/projects/devflow-kit/">Deep dive' in projects
-    # A project without one gets no such link.
-    assert 'href="/projects/costtracker/"' not in projects
+    # Every project now has a deep-dive page; each card links to its own.
+    for slug in (
+        "healthcare-rag-platform",
+        "clinical-simulation-platform",
+        "devflow-kit",
+        "reglens",
+        "costtracker",
+        "cloud-waste-hunter",
+    ):
+        assert f'href="/projects/{slug}/">Deep dive' in projects, slug
 
 
 def test_blog_post_and_tag_pages_render(site: Path) -> None:

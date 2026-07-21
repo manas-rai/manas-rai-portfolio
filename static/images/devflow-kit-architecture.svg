@@ -53,10 +53,10 @@
   <text class="sub"  x="490" y="374" text-anchor="middle">keeps the board honest</text>
 
   <path class="sync" d="M910 195 C 910 265, 700 356, 596 356"/>
-  <text class="edge" x="756" y="286" text-anchor="middle">PR status</text>
+  <text class="edge" x="775" y="272" text-anchor="middle">PR status</text>
 
   <path class="sync" d="M388 356 C 210 356, 110 265, 110 199"/>
-  <text class="edge" x="196" y="286" text-anchor="middle">updates board</text>
+  <text class="edge" x="178" y="272" text-anchor="middle">updates board</text>
 
   <!-- foundation band -->
   <text class="band" x="34" y="456">LangGraph orchestration</text>

@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1060 560" role="img"
+     aria-label="Cloud Waste Hunter architecture. Scanners read EC2, EBS, and snapshot inventory plus CloudWatch metrics from an AWS account via boto3. A detection layer flags waste: an Isolation Forest model finds idle EC2 instances, and rule-based detectors find unattached EBS volumes and old snapshots without AMIs. Findings land in PostgreSQL and surface in a Next.js dashboard. Remediation runs through a safety pipeline: dry-run preview, manual approval, execution with audit logging, and a 7-day rollback window.">
+  <defs>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#22d3ee"/>
+      <stop offset="0.55" stop-color="#a78bfa"/>
+      <stop offset="1" stop-color="#f472b6"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#6b6b8a"/>
+    </marker>
+    <style>
+      .bg   { fill: #0f0f18; stroke: #26263a; stroke-width: 1.5; }
+      .node { fill: #1a1a29; stroke: #33334d; stroke-width: 1.5; }
+      .agent{ fill: #171727; stroke: url(#accent); stroke-width: 2; }
+      .lbl  { fill: #ecedf3; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 16.5px; font-weight: 600; }
+      .sub  { fill: #a0a1b5; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 11.5px; }
+      .tag  { fill: #22d3ee; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px; letter-spacing: 0.12em; }
+      .tag3 { fill: #f472b6; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px; letter-spacing: 0.12em; }
+      .edge { fill: #8a8aa8; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 11.5px; }
+      .flow { stroke: #6b6b8a; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .band { fill: #a0a1b5; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13.5px; }
+    </style>
+  </defs>
+
+  <rect class="bg" x="1" y="1" width="1058" height="558" rx="18"/>
+  <text class="tag" x="34" y="44">DETECT</text>
+
+  <rect class="node" x="30"  y="66" width="190" height="80" rx="12"/>
+  <text class="lbl"  x="125" y="98"  text-anchor="middle">AWS account</text>
+  <text class="sub"  x="125" y="118" text-anchor="middle">EC2 · EBS · snapshots</text>
+  <text class="sub"  x="125" y="134" text-anchor="middle">CloudWatch metrics</text>
+
+  <rect class="node" x="300" y="66" width="170" height="80" rx="12"/>
+  <text class="lbl"  x="385" y="98"  text-anchor="middle">Scanners</text>
+  <text class="sub"  x="385" y="120" text-anchor="middle">boto3 inventory</text>
+
+  <rect class="agent" x="550" y="56" width="260" height="100" rx="12"/>
+  <text class="lbl"  x="680" y="86"  text-anchor="middle">Detection layer</text>
+  <text class="sub"  x="680" y="108" text-anchor="middle">Isolation Forest → idle EC2</text>
+  <text class="sub"  x="680" y="124" text-anchor="middle">rules → unattached EBS,</text>
+  <text class="sub"  x="680" y="140" text-anchor="middle">old snapshots (no AMI)</text>
+
+  <rect class="node" x="880" y="66" width="150" height="80" rx="12"/>
+  <text class="lbl"  x="955" y="98"  text-anchor="middle">PostgreSQL</text>
+  <text class="sub"  x="955" y="120" text-anchor="middle">findings</text>
+
+  <path class="flow" d="M220 106 L296 106"/>
+  <path class="flow" d="M470 106 L546 106"/>
+  <path class="flow" d="M810 106 L876 106"/>
+
+  <!-- ACT lane -->
+  <text class="tag3" x="34" y="248">ACT · safety-first</text>
+
+  <rect class="node" x="30" y="270" width="220" height="80" rx="12"/>
+  <text class="lbl"  x="140" y="302" text-anchor="middle">Dashboard</text>
+  <text class="sub"  x="140" y="324" text-anchor="middle">Next.js · review findings</text>
+
+  <rect class="node" x="330" y="270" width="180" height="80" rx="12"/>
+  <text class="lbl"  x="420" y="302" text-anchor="middle">Dry-run</text>
+  <text class="sub"  x="420" y="324" text-anchor="middle">preview the change</text>
+
+  <rect class="node" x="590" y="270" width="190" height="80" rx="12"/>
+  <text class="lbl"  x="685" y="302" text-anchor="middle">Approval</text>
+  <text class="sub"  x="685" y="324" text-anchor="middle">human in the loop</text>
+
+  <rect class="agent" x="860" y="270" width="170" height="80" rx="12"/>
+  <text class="lbl"  x="945" y="302" text-anchor="middle">Execute</text>
+  <text class="sub"  x="945" y="324" text-anchor="middle">audit-logged</text>
+
+  <path class="flow" d="M955 150 C 955 200, 500 220, 190 266"/>
+  <path class="flow" d="M250 310 L326 310"/>
+  <path class="flow" d="M510 310 L586 310"/>
+  <path class="flow" d="M780 310 L856 310"/>
+
+  <!-- rollback -->
+  <rect class="node" x="590" y="420" width="440" height="60" rx="12"/>
+  <text class="lbl"  x="810" y="446" text-anchor="middle">7-day rollback window</text>
+  <text class="sub"  x="810" y="466" text-anchor="middle">every action reversible before it's final</text>
+  <path class="flow" d="M945 354 L945 416"/>
+
+  <text class="band" x="34" y="528">FastAPI · scikit-learn · boto3 · Next.js · Terraform · self-hosted, open source</text>
+</svg>
