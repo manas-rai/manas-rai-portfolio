@@ -1,10 +1,8 @@
 # CI checks on every push/PR, plus the GitHub Pages deploy on main. The same
 # push also triggers Cloudflare Pages' own Git-integration build, so the site
-# publishes to two hosts independently:
-#   - GitHub Pages  -> manas-rai.github.io/manas-rai-portfolio/  (subpath build)
-#   - Cloudflare    -> manas-rai-portfolio.pages.dev             (root build)
-# When manasrai.is-a.dev DNS flips to GitHub, drop this job's env overrides and
-# re-set the Pages cname.
+# publishes to two hosts, both root builds:
+#   - GitHub Pages (primary) -> https://manasrai.is-a.dev
+#   - Cloudflare (mirror)    -> https://manas-rai-portfolio.pages.dev
 name: ci
 
 on:
@@ -42,9 +40,6 @@ jobs:
       - uses: astral-sh/setup-uv@v5
       - run: uv sync --locked
       - run: uv run python -m app.build
-        env:
-          BASE_PATH: /manas-rai-portfolio
-          SITE_URL: https://manas-rai.github.io/manas-rai-portfolio
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
