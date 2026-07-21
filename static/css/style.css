@@ -487,55 +487,16 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 
 /* ---------- contact ---------- */
 
-.contact-form {
-  display: grid;
-  gap: 1.2rem;
-  max-width: 30rem;
-  margin-top: 1.5rem;
+.contact-actions {
+  display: flex;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+  margin: 1.8rem 0;
 }
-.contact-form label {
-  display: grid;
-  gap: 0.4rem;
-  font-weight: 600;
-  font-family: var(--font-display);
-  font-size: 0.95rem;
-}
-.contact-form input,
-.contact-form textarea {
-  padding: 0.7rem 0.85rem;
-  background: var(--surface);
-  color: var(--fg);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  font: inherit;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-.contact-form input:focus,
-.contact-form textarea:focus {
-  outline: none;
-  border-color: var(--cyan);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cyan) 22%, transparent);
-}
-.contact-form .btn { justify-self: start; cursor: pointer; }
 
-.honeypot { position: absolute; left: -9999px; }
-
-.flash {
-  padding: 0.9rem 1.1rem;
-  border-radius: 10px;
-  border: 1px solid transparent;
-  max-width: 34rem;
-}
-.flash-success {
-  background: color-mix(in srgb, #34d399 12%, transparent);
-  border-color: color-mix(in srgb, #34d399 35%, transparent);
-  color: #34d399;
-}
-.flash-error {
-  background: color-mix(in srgb, var(--pink) 12%, transparent);
-  border-color: color-mix(in srgb, var(--pink) 35%, transparent);
-  color: var(--pink);
-}
+.contact-channels { list-style: none; padding: 0; margin: 2rem 0 0; }
+.contact-channels li { margin-bottom: 0.6rem; }
+.contact-channels .skill-label { display: inline-block; min-width: 5.5rem; }
 
 /* ---------- misc ---------- */
 

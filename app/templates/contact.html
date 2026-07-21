@@ -8,43 +8,20 @@
     <h1>Contact</h1>
   </div>
 
-  {% if sent %}
-  <p class="flash flash-success">Thanks — your message is on its way. I'll be in touch.</p>
-  <p class="back"><a href="{{ path_for('home') }}">← Back home</a></p>
-  {% else %}
-    <p class="page-intro">
-      Have a role, a project, or a question? Drop me a line — I read everything.
-    </p>
-    <p class="flash flash-error" id="contact-status" hidden></p>
+  <p class="page-intro">
+    Have a role, a project, or a question? Email is the fastest way to reach
+    me — I read everything.
+  </p>
 
-    <form method="post" action="{{ path_for('contact_submit') }}" class="contact-form"
-          data-fallback="Something went wrong sending your message — you can also reach me directly at {{ contact_email }}.">
-      <label>
-        Name
-        <input type="text" name="name" maxlength="200" required />
-      </label>
+  <p class="contact-actions">
+    <a class="btn btn-primary" href="mailto:{{ contact_email }}">Email me →</a>
+    <a class="btn btn-ghost" href="{{ linkedin_url }}">Message on LinkedIn</a>
+  </p>
 
-      <label>
-        Email
-        <input type="email" name="email" maxlength="254" required />
-      </label>
-
-      <label>
-        Message
-        <textarea name="message" rows="6" maxlength="5000" required></textarea>
-      </label>
-
-      {# Honeypot: hidden from real users, tempting to bots. #}
-      <div class="honeypot" aria-hidden="true">
-        <label>Website<input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
-      </div>
-
-      <button type="submit" class="btn btn-primary">Send message →</button>
-    </form>
-  {% endif %}
+  <ul class="contact-channels">
+    <li><span class="skill-label">Email</span> <a href="mailto:{{ contact_email }}">{{ contact_email }}</a></li>
+    <li><span class="skill-label">LinkedIn</span> <a href="{{ linkedin_url }}">linkedin.com/in/manas-rai-a84179213</a></li>
+    <li><span class="skill-label">GitHub</span> <a href="{{ github_url }}">github.com/manas-rai</a></li>
+  </ul>
 </section>
-{% endblock %}
-
-{% block scripts %}
-{% if not sent %}<script src="{{ path_for('static', path='js/contact.js') }}" defer></script>{% endif %}
 {% endblock %}

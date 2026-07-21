@@ -6,6 +6,10 @@
   <title>{% block title %}{{ site_name }} — {{ site_tagline }}{% endblock %}</title>
   <meta name="description" content="{% block description %}{{ site_tagline }}{% endblock %}" />
   <meta name="theme-color" content="#0b0b12" />
+  {# GitHub Pages cannot set response headers, so the CSP ships as a meta tag;
+     the Cloudflare mirror also sends it (plus header-only directives) via
+     _headers. #}
+  <meta http-equiv="Content-Security-Policy" content="{{ csp }}" />
   <link rel="canonical" href="{{ site_url }}{{ page_url }}" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="{{ site_name }}" />
