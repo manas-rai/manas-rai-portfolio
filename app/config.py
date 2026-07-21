@@ -18,11 +18,12 @@ SITE_TAGLINE = (
     "multi-agent systems, and the cloud infrastructure behind them."
 )
 CONTACT_EMAIL = "rai.manas12@gmail.com"
-# The site deploys to two hosts from the same build: Cloudflare Pages (served
-# at the domain root, the defaults below) and GitHub Pages (served under the
-# /manas-rai-portfolio/ project subpath — its deploy job overrides both vars).
-# When manasrai.is-a.dev goes live, SITE_URL's default flips to it.
-SITE_URL = os.environ.get("SITE_URL", "https://manas-rai-portfolio.pages.dev").rstrip("/")
+# Primary host is GitHub Pages at the custom domain, served at the root. The
+# Cloudflare Pages mirror (manas-rai-portfolio.pages.dev) builds from the same
+# defaults; its canonical/OG URLs therefore point at the primary domain, which
+# is the correct SEO signal. SITE_URL/BASE_PATH remain env-overridable for any
+# future subpath host.
+SITE_URL = os.environ.get("SITE_URL", "https://manasrai.is-a.dev").rstrip("/")
 BASE_PATH = os.environ.get("BASE_PATH", "").rstrip("/")
 GITHUB_URL = "https://github.com/manas-rai"
 LINKEDIN_URL = "https://www.linkedin.com/in/manasrai12"
