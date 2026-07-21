@@ -69,8 +69,9 @@
   <text class="sub"  x="402" y="356" text-anchor="middle">Python / Go · injects case</text>
 
   <rect class="agent" x="590" y="302" width="230" height="80" rx="12"/>
-  <text class="lbl"  x="705" y="334" text-anchor="middle">LLM</text>
-  <text class="sub"  x="705" y="356" text-anchor="middle">config-driven: 4o · 5.4 · realtime</text>
+  <text class="lbl"  x="705" y="330" text-anchor="middle">LLM · multi-provider</text>
+  <text class="sub"  x="705" y="351" text-anchor="middle">OpenAI + Anthropic</text>
+  <text class="sub"  x="705" y="369" text-anchor="middle">config-driven · text + voice</text>
 
   <rect class="node"  x="880" y="302" width="200" height="80" rx="12"/>
   <text class="lbl"  x="980" y="334" text-anchor="middle">Feedback report</text>

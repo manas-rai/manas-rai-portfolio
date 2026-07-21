@@ -1,9 +1,9 @@
 ---
 title: "Clinical Simulation Platform"
 subtitle: "An LLM-powered platform that role-plays realistic patients for physician training — real-time text and voice, plus an automated feedback report that scores the trainee. Load-tested for 2,000 concurrent sessions at sub-second latency."
-tech: [Python, Go, AWS, EKS, OpenAI, Realtime voice, WebSockets, PostgreSQL, LangChain, LIT]
+tech: [Python, Go, AWS, EKS, OpenAI, Anthropic, Realtime voice, WebSockets, PostgreSQL, LIT]
 diagram: clinical-sim-architecture.svg
-diagram_caption: "Two halves. Authoring (top): illness scripts become case content via an authoring service, validated by a human, stored in a CMS, and delivered over a CDN. Runtime (bottom): a physician converses — text or voice — with a simulation service that injects the case into the system prompt and calls a config-driven LLM; at the end, a feedback report scores their questions and investigations."
+diagram_caption: "Two halves. Authoring (top): illness scripts become case content via an authoring service, validated by a human, stored in a CMS, and delivered over a CDN. Runtime (bottom): a physician converses — text or voice — with a simulation service that injects the case into the system prompt and calls a config-driven, multi-provider LLM; at the end, a feedback report scores their questions and investigations."
 ---
 
 *Professional work delivered for a healthcare product. This write-up describes
@@ -44,11 +44,13 @@ latency and non-determinism for no benefit — injecting the case wholesale is
 simpler, fully reproducible, and easier to validate. Guardrails in the prompt
 keep the patient from breaking role.
 
-Model selection is **config-driven**: text conversations run on **GPT-4o /
-5.4 / 5.6-sol**, and voice runs on **GPT Realtime** — swapping models is a config
-change, not a code change. **LangChain** abstracts across the models and
-**LangSmith** manages and versions the prompts. Each interaction is persisted
-per session in **PostgreSQL**.
+Model selection is **config-driven and provider-agnostic**: text conversations
+can run on **OpenAI** (GPT-4o / 5.4 / 5.6-sol) or **Anthropic** (Claude Sonnet 5
+/ Haiku 4.5 / Opus 4.7), and voice runs on **GPT Realtime** — switching model or
+provider is a config change, not a code change. That keeps the platform off any
+single vendor's roadmap and pricing. **LangChain** abstracts across providers,
+**LangSmith** manages and versions the prompts, and each interaction is
+persisted per session in **PostgreSQL**.
 
 ## Assessment: the feedback report
 
