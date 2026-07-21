@@ -1,93 +1,110 @@
-# On-page resume content — the canonical source for the /resume page (design §4.4).
-# Keep static/resume.pdf in sync when you edit this file.
+# On-page resume content — the canonical source for the /resume page AND the
+# downloadable PDF (regenerate with scripts/build_resume_pdf.sh after editing).
+# **bold** markers reproduce the original PDF's bold lead phrases.
 
 name: Manas Rai
 title: Software Engineer · GenAI Engineer
 location: Bengaluru, India
 email: rai.manas12@gmail.com
+# Shown only on the downloadable PDF, to match the original layout — not on the
+# public web resume page.
+phone: "+91 8860190239"
 links:
-  - label: GitHub
-    url: https://github.com/manas-rai
   - label: LinkedIn
     url: https://www.linkedin.com/in/manasrai12
+  - label: GitHub
+    url: https://github.com/manas-rai
 
 summary: >
-  Software engineer with ~5 years building production backend systems, the last
-  ~2 focused on Generative AI — LLM applications, RAG pipelines, and multi-agent
-  systems — on a foundation of async Python microservices, distributed data
-  pipelines, and semantic search. Owns systems end-to-end: architecture, backend
-  services, cloud infrastructure, and production launch, including a
+  Software Engineer with ~5 years building production backend systems, the
+  last ~2 focused on Generative AI — Large Language Model (LLM) applications,
+  Retrieval-Augmented Generation (RAG) pipelines, and multi-agent systems —
+  built on an earlier foundation in async Python microservices, distributed
+  data pipelines, and semantic search. Owns systems end-to-end: architecture,
+  backend services, cloud infrastructure, and production launch, including a
   multi-tenant healthcare RAG platform load-tested for 2,000+ concurrent
-  sessions at sub-second latency.
+  sessions at sub-second latency. Comfortable operating on either track — core
+  backend/API engineering in Python and FastAPI, or agentic/LLM system design
+  — with hands-on depth in vector databases, prompt engineering, and
+  cloud-native deployment on AWS and Azure. Certified across Anthropic's
+  Claude ecosystem: API development, Model Context Protocol (MCP), and Claude
+  Code.
 
 skills:
-  - group: Backend & languages
-    items: [Python, Go, FastAPI, Flask, Django, REST APIs, Microservices,
-            WebSockets, Async programming, SQLAlchemy, Alembic, System design]
+  - group: Backend & Languages
+    items: [Python, Go (Golang), FastAPI, Flask, Django, REST APIs,
+            Microservices Architecture, WebSockets, Async Programming,
+            SQLAlchemy (ORM), Alembic (DB Migrations), System Design,
+            Software Architecture]
   - group: Generative AI & LLMs
-    items: [LLMs, RAG, AI agents, Multi-agent orchestration, Prompt engineering,
-            LangChain, LangGraph, LangSmith, OpenAI API, Anthropic Claude API,
-            Model Context Protocol (MCP), Google ADK, A2A Protocol, Embeddings,
-            Vector databases, LLM evaluation (RAGAS), LLM observability & cost monitoring]
-  - group: Data science & ML
-    items: [pandas, numpy, scikit-learn, EDA, Feature engineering, Hugging Face]
+    items: [Large Language Models (LLMs), Retrieval-Augmented Generation (RAG),
+            AI Agents, Agentic Architecture, Multi-Agent Orchestration,
+            Prompt Engineering, LangChain, LangGraph, LangSmith, OpenAI API,
+            Anthropic Claude API, Model Context Protocol (MCP),
+            Google Agent Development Kit (ADK), Agent-to-Agent (A2A) Protocol,
+            Embeddings, Vector Databases, NLP, LLM Evaluation, RAGAS,
+            LLM Observability, LLM Cost Monitoring]
+  - group: Data Science & ML
+    items: [pandas, numpy, scikit-learn, Exploratory Data Analysis (EDA),
+            Feature Engineering, Hugging Face (embedding models)]
   - group: Frontend
     items: [React, JavaScript, HTML5]
-  - group: Databases & vector stores
-    items: [PostgreSQL, MySQL, MongoDB, Neo4j, Snowflake, Aurora, Redis,
-            Pinecone, pgvector, FAISS, MongoDB Atlas Vector Search]
+  - group: Databases & Vector Stores
+    items: [PostgreSQL, MySQL, MongoDB, Neo4j, Snowflake, Aurora, Redis, SQL,
+            NoSQL, Pinecone, pgvector, FAISS, MongoDB Atlas Vector Search]
   - group: Cloud & DevOps
     items: ["AWS (EC2, RDS, ECS, S3, SQS, Lambda, Bedrock, Cognito)",
-            Azure OpenAI, Docker, Kubernetes, Jenkins, CI/CD, Datadog, MLOps]
-  - group: Tools & practices
+            Azure (Azure OpenAI), Docker, Kubernetes, Jenkins, CI/CD, Git,
+            Datadog, MLOps, Cloud Deployment]
+  - group: Tools & Practices
     items: [Claude Code, VS Code, Jira, GitHub, Agile, Scrum]
 
 experience:
   - role: Tech Lead
     company: Tricon Infotech
-    period: "Jul 2024 – Present · Bengaluru"
+    period: "Jul 2024 – Present · Bengaluru, India"
     highlights:
-      - Launched a healthcare chatbot from zero to production by architecting a
-        multi-tenant RAG pipeline on Azure with tenant-isolated vector stores,
-        secure authentication, and data partitioning — directly enabling the
-        product's first paying customers.
-      - Engineered an LLM-powered clinical simulation platform (AWS/EKS,
+      - "**Launched a healthcare chatbot from zero to production** by
+        architecting a multi-tenant RAG pipeline on Azure with tenant-isolated
+        vector stores, secure authentication, and data partitioning — directly
+        enabling the product's first paying customers."
+      - "**Engineered an LLM-powered clinical simulation platform** (AWS/EKS,
         multi-provider, real-time text + voice) that role-plays authored patient
         cases for physician training, with an automated feedback report scoring
         each trainee's questions and investigations; load-tested for 3,000
-        concurrent sessions at sub-second response latency.
-      - Built a multi-tenant VS Code agent platform with a meta "maker" agent
-        that generates governed agents, skills, hooks, and prompts — interviewing
-        the developer, planning, and checking new instructions against the
-        existing set before implementing.
-      - Reduced manual developer workflow time by ~60% by automating multi-step
-        SDLC tasks (code-review scaffolding, test generation, documentation)
-        through agentic orchestration patterns.
-      - Shipped a multi-tenant lead-generation data pipeline with SQLAlchemy and
-        AWS Cognito, enforcing per-account data isolation across 5+ client
-        accounts.
-      - Built an automated NLP-powered web crawler that extracts and structures
-        institutional data, powering a qualification-matching recommendation
-        engine — cutting 15+ hours/week of manual research.
+        concurrent sessions at sub-second response latency."
+      - "**Built a multi-tenant VS Code agent platform** with a meta \"maker\"
+        agent that generates governed agents, skills, hooks, and prompts —
+        interviewing the developer, planning, and checking new instructions
+        against the existing set before implementing."
+      - "**Reduced manual developer workflow time by ~60%** by automating
+        multi-step SDLC tasks (code-review scaffolding, test generation,
+        documentation) through agentic orchestration patterns."
+      - "**Shipped a multi-tenant lead-generation data pipeline** with
+        SQLAlchemy and AWS Cognito, enforcing per-account data isolation across
+        5+ client accounts."
+      - "**Built an automated NLP-powered web crawler** that extracts and
+        structures institutional data, powering a qualification-matching
+        recommendation engine — cutting 15+ hours/week of manual research."
   - role: Solution Leader
     company: Brane Enterprises
-    period: "Oct 2021 – Jul 2024 · Hyderabad"
+    period: "Oct 2021 – Jul 2024 · Hyderabad, India"
     highlights:
-      - Promoted 3 times in 3 years (Trainee → Developer → Senior Developer →
-        Solution Leader), the fastest progression in the engineering org at the
-        time.
-      - Cut data retrieval time by 75% (4x faster) by implementing semantic
+      - "**Promoted 3 times in 3 years** (Trainee → Developer → Senior Developer
+        → Solution Leader), the fastest progression in the engineering org at
+        the time."
+      - "**Cut data retrieval time by 75% (4x faster)** by implementing semantic
         search with Neo4j graph traversal and MongoDB vector indexing across
-        500K+ embeddings and data points.
-      - Improved real-time audio transmission stability by 35% by engineering
-        bidirectional WebSocket streaming with adaptive buffering and error
-        recovery for NLP voice applications.
-      - Designed and deployed async Python microservices for non-blocking
+        500K+ embeddings and data points."
+      - "**Improved real-time audio transmission stability by 35%** by
+        engineering bidirectional WebSocket streaming with adaptive buffering
+        and error recovery for NLP voice applications."
+      - "**Designed and deployed async Python microservices** for non-blocking
         concurrent request handling, increasing API throughput and resolving
-        request-timeout failures seen under production load.
-      - Built a FastAPI persistence service with JWT authentication serving as
-        the data backbone for multiple product interfaces, with zero-downtime
-        deployments and CI/CD integration.
+        request-timeout failures seen under production load."
+      - "**Built a FastAPI persistence service with JWT authentication** serving
+        as the data backbone for multiple product interfaces, with zero-downtime
+        deployments and CI/CD integration."
 
 certifications:
   - Building with the Claude API — Anthropic Academy
@@ -95,15 +112,18 @@ certifications:
   - Claude Code in Action — Anthropic Academy
 
 awards:
-  - Outstanding Performer Award — Tricon Infotech (Dec 2025), for delivering
-    2 end-to-end AI products in a single year.
-  - Spot Award — Tricon Infotech, for shipping the healthcare chatbot from
-    architecture to production launch.
+  - "**Outstanding Performer Award — Tricon Infotech** (Dec 2025). Recognized
+    for delivering 2 end-to-end AI products in a single year."
+  - "**Spot Award — Tricon Infotech.** For shipping the healthcare chatbot from
+    architecture to production launch."
 
 education:
   - qualification: B.Tech., Mechanical Engineering
     institution: UPTU, Uttar Pradesh, India
     period: "2014"
-  - qualification: Competitive Examination Preparation & Career Transition (UPSC ESE)
-    institution: Self-directed
+  - qualification: Competitive Examination Preparation & Career Transition
     period: "2014 – 2021"
+    note: >
+      Full-time preparation for India's UPSC Engineering Services Examination,
+      followed by a self-directed transition into software engineering and
+      applied AI.

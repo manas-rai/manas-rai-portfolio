@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="robots" content="noindex" />
+<title>{{ resume.name }} — Résumé</title>
+<style>
+  /* Replicates the original resume PDF: Calibri (via bundled Carlito, its
+     metric-compatible twin), navy + blue palette, uppercase centered header,
+     ruled section headings, square blue bullets, bold lead phrases. */
+  @font-face { font-family: Carlito; src: url("../../static/fonts/Carlito-Regular.ttf"); font-weight: 400; font-style: normal; }
+  @font-face { font-family: Carlito; src: url("../../static/fonts/Carlito-Bold.ttf"); font-weight: 700; font-style: normal; }
+  @font-face { font-family: Carlito; src: url("../../static/fonts/Carlito-Italic.ttf"); font-weight: 400; font-style: italic; }
+  @font-face { font-family: Carlito; src: url("../../static/fonts/Carlito-BoldItalic.ttf"); font-weight: 700; font-style: italic; }
+  @page { size: A4; margin: 13mm 17mm; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: Calibri, Carlito, "Segoe UI", Arial, sans-serif;
+    font-size: 10.2pt;
+    line-height: 1.26;
+    color: #1a1a1a;
+    background: #fff;
+  }
+  a { color: #2e74b5; }
+  strong { font-weight: 700; }
+
+  header { text-align: center; margin-bottom: 4px; }
+  h1 {
+    font-size: 20pt; font-weight: 700; color: #1f3864;
+    margin: 0; text-transform: uppercase; letter-spacing: 0.03em;
+  }
+  .role {
+    font-size: 10pt; font-weight: 700; color: #2e74b5;
+    letter-spacing: 0.18em; text-transform: uppercase; margin: 2px 0 4px;
+  }
+  .contact { font-size: 9.4pt; color: #333; margin: 0; }
+  .contact a { color: #2e74b5; }
+  .contact a.quiet { color: #333; text-decoration: none; }
+  .sep { color: #888; padding: 0 3px; }
+
+  h2 {
+    font-size: 11pt; font-weight: 700; color: #1f3864;
+    text-transform: uppercase; letter-spacing: 0.03em;
+    border-bottom: 1px solid #2e74b5;
+    padding-bottom: 2px; margin: 11px 0 5px;
+  }
+  p { margin: 0 0 3px; }
+  .skill-line { margin: 0 0 3.5px; }
+  .skill-label { font-weight: 700; color: #1f3864; }
+
+  .entry { margin-bottom: 7px; }
+  .entry-head {
+    display: flex; justify-content: space-between;
+    align-items: baseline; gap: 12px;
+  }
+  .entry-role { font-weight: 700; }
+  .entry-role .co { color: #2e74b5; }
+  .period { color: #555; font-style: italic; font-size: 9.2pt; white-space: nowrap; }
+
+  ul { list-style: none; margin: 2px 0 0; padding: 0; }
+  li { position: relative; padding-left: 14px; margin-bottom: 2px; }
+  li::before {
+    content: "\25AA"; position: absolute; left: 1px; top: -0.5px;
+    color: #2e74b5; font-size: 8.5pt;
+  }
+
+  .proj { margin-bottom: 5px; }
+  .proj-head { font-weight: 700; }
+  .proj-head .desc { font-weight: 400; font-style: italic; color: #555; }
+  .edu-note { font-style: italic; color: #444; margin-top: 2px; }
+</style>
+</head>
+<body>
+  <header>
+    <h1>{{ resume.name }}</h1>
+    <p class="role">{{ resume.title | replace('·', '|') }}</p>
+    <p class="contact">
+      <a class="quiet" href="mailto:{{ resume.email }}">{{ resume.email }}</a>
+      {% if resume.phone %}<span class="sep">|</span>{{ resume.phone }}{% endif %}
+      {% if resume.location %}<span class="sep">|</span>{{ resume.location }}{% endif %}
+      {% for link in resume.links %}<span class="sep">|</span><a href="{{ link.url }}">{{ link.label }}</a>{% endfor %}
+    </p>
+  </header>
+
+  <h2>Professional Summary</h2>
+  <p>{{ resume.summary }}</p>
+
+  {% if resume.skills %}
+  <h2>Technical Skills</h2>
+  {% for group in resume.skills %}
+  <p class="skill-line"><span class="skill-label">{{ group.group }}:</span> {{ group.items | join(', ') }}</p>
+  {% endfor %}
+  {% endif %}
+
+  {% if resume.experience %}
+  <h2>Professional Experience</h2>
+  {% for job in resume.experience %}
+  <div class="entry">
+    <div class="entry-head">
+      <span class="entry-role">{{ job.role }}{% if job.company %} | <span class="co">{{ job.company }}</span>{% endif %}</span>
+      <span class="period">{{ job.period }}</span>
+    </div>
+    {% if job.highlights %}
+    <ul>{% for point in job.highlights %}<li>{{ point | emph }}</li>{% endfor %}</ul>
+    {% endif %}
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  {% set oss = projects | selectattr('github') | list %}
+  {% if oss %}
+  <h2>Projects</h2>
+  {% for project in oss %}
+  <div class="proj">
+    <div class="proj-head">
+      {{ project.title }}
+      {% if project.descriptor %}<span class="desc">— {{ project.descriptor }}</span>{% endif %}
+      {% if project.demo %} <a href="{{ project.demo }}">Project Site</a>{% elif project.github %} <a href="{{ project.github }}">GitHub</a>{% endif %}
+    </div>
+    <ul><li><strong>{{ project.tech | join(', ') }} —</strong> {{ project.summary }}</li></ul>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  {% if resume.certifications %}
+  <h2>Certifications</h2>
+  <ul>{% for c in resume.certifications %}<li>{{ c }}</li>{% endfor %}</ul>
+  {% endif %}
+
+  {% if resume.education %}
+  <h2>Education</h2>
+  {% for ed in resume.education %}
+  <div class="entry-head">
+    <span class="entry-role">{{ ed.qualification }}{% if ed.institution %} <span style="font-weight:400">— {{ ed.institution }}</span>{% endif %}</span>
+    <span class="period">{{ ed.period }}</span>
+  </div>
+  {% if ed.note %}<p class="edu-note">{{ ed.note }}</p>{% endif %}
+  {% endfor %}
+  {% endif %}
+
+  {% if resume.awards %}
+  <h2>Awards</h2>
+  <ul>{% for a in resume.awards %}<li>{{ a | emph }}</li>{% endfor %}</ul>
+  {% endif %}
+</body>
+</html>

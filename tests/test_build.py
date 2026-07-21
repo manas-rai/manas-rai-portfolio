@@ -86,9 +86,21 @@ def test_nav_marks_current_section(site: Path) -> None:
 
 def test_every_page_ships_csp_meta_tag(site: Path) -> None:
     """GitHub Pages cannot set response headers, so the CSP must be in the
-    HTML itself."""
+    HTML itself. The printable resume is a deliberate standalone document
+    (inline styles, meant for PDF export) and is exempt."""
     for page in site.rglob("*.html"):
+        if page.parent.name == "print":
+            continue
         assert 'http-equiv="Content-Security-Policy"' in page.read_text(), page
+
+
+def test_seo_artifacts_generated(site: Path) -> None:
+    assert (site / "robots.txt").exists()
+    sitemap = (site / "sitemap.xml").read_text()
+    assert "https://manasrai.is-a.dev/projects/reglens/" in sitemap
+    assert "/resume/print/" not in sitemap  # noindex print page stays out
+    feed = (site / "feed.xml").read_text()
+    assert "<rss" in feed and "devflow-kit" in feed
 
 
 def test_no_query_param_links_remain(site: Path) -> None:

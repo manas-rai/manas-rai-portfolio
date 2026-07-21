@@ -26,6 +26,7 @@
     zero added infrastructure. Refinement, implementation, and Jira-sync agents
     decompose complex tickets into parallel subtasks and cut the ticket-to-PR
     cycle from days to hours.
+  descriptor: Multi-Agent SDLC Automation
   tech: [Python, LangGraph, GitHub Actions, Claude Code, Jira]
   github: https://github.com/manas-rai/devflow-kit
   demo: https://manas-rai.github.io/devflow-kit-site/
@@ -39,6 +40,7 @@
     risk, and a report generator produces an audit report with a
     human-in-the-loop approval gate. Includes a drift-detection evaluation
     harness.
+  descriptor: Multi-Agent Regulatory Compliance Automation
   tech: [Python, LangGraph, Google ADK, A2A / JSON-RPC, Gemini, Claude, pgvector, FastAPI, RAGAS, Next.js]
   github: https://github.com/manas-rai/reglens
   demo: https://manas-rai.github.io/reglens/
@@ -50,6 +52,7 @@
     layer wraps OpenAI, Anthropic, Groq, and Bedrock clients to record usage
     straight to ClickHouse or PostgreSQL — real-time token metering,
     per-request cost attribution, and a bundled analytics dashboard.
+  descriptor: Open Source
   tech: [Python, ClickHouse, PostgreSQL]
   github: https://github.com/manas-rai/costtracker
   featured: false
@@ -60,6 +63,7 @@
     instances, unattached volumes, and stale snapshots across providers in a
     unified cost-optimization dashboard — then eliminates them safely with
     dry-run previews, human-in-the-loop approval, and 7-day rollback.
+  descriptor: Open Source
   tech: [Python, FastAPI, scikit-learn, Next.js]
   github: https://github.com/manas-rai/cloud-waste-hunter
   featured: false
