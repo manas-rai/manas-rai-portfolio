@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 500" role="img"
+     aria-label="LLM-powered clinical simulation platform. A physician-in-training exchanges messages with a simulation service, which for each turn assembles a prompt-engineered patient persona, context retrieved via RAG from case and clinical knowledge, and the conversation history, then calls the LLM to produce an in-character patient reply. Load-tested for 2,000 concurrent sessions at sub-second latency.">
+  <defs>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#22d3ee"/>
+      <stop offset="0.55" stop-color="#a78bfa"/>
+      <stop offset="1" stop-color="#f472b6"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#6b6b8a"/>
+    </marker>
+    <style>
+      .bg   { fill: #0f0f18; stroke: #26263a; stroke-width: 1.5; }
+      .node { fill: #1a1a29; stroke: #33334d; stroke-width: 1.5; }
+      .agent{ fill: #171727; stroke: url(#accent); stroke-width: 2; }
+      .lbl  { fill: #ecedf3; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 17px; font-weight: 600; }
+      .sub  { fill: #a0a1b5; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px; }
+      .tag  { fill: #22d3ee; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px; letter-spacing: 0.12em; }
+      .edge { fill: #8a8aa8; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 11.5px; }
+      .flow { stroke: #6b6b8a; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .band { fill: #a0a1b5; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13.5px; }
+    </style>
+  </defs>
+
+  <rect class="bg" x="1" y="1" width="1038" height="498" rx="18"/>
+  <text class="tag" x="34" y="44">PATIENT SIMULATION LOOP</text>
+
+  <!-- top row: physician <-> sim service -> LLM -->
+  <rect class="node"  x="40"  y="92" width="160" height="78" rx="12"/>
+  <text class="lbl"  x="120" y="126" text-anchor="middle">Physician</text>
+  <text class="sub"  x="120" y="148" text-anchor="middle">in training</text>
+
+  <rect class="agent" x="300" y="92" width="220" height="78" rx="12"/>
+  <text class="lbl"  x="410" y="126" text-anchor="middle">Simulation service</text>
+  <text class="sub"  x="410" y="148" text-anchor="middle">assembles the turn</text>
+
+  <rect class="agent" x="640" y="92" width="180" height="78" rx="12"/>
+  <text class="lbl"  x="730" y="126" text-anchor="middle">LLM</text>
+  <text class="sub"  x="730" y="148" text-anchor="middle">in-character reply</text>
+
+  <path class="flow" d="M200 124 L296 124"/>
+  <text class="edge" x="248" y="112" text-anchor="middle">message</text>
+  <path class="flow" d="M520 124 L636 124"/>
+  <text class="edge" x="578" y="112" text-anchor="middle">assembled prompt</text>
+  <path class="flow" d="M640 156 C 470 210, 250 210, 122 174"/>
+  <text class="edge" x="410" y="205" text-anchor="middle">in-character patient reply</text>
+
+  <!-- inputs feeding the assembly -->
+  <rect class="node" x="170" y="320" width="200" height="76" rx="12"/>
+  <text class="lbl"  x="270" y="352" text-anchor="middle">Patient persona</text>
+  <text class="sub"  x="270" y="374" text-anchor="middle">prompt-engineered</text>
+
+  <rect class="node" x="410" y="320" width="200" height="76" rx="12"/>
+  <text class="lbl"  x="510" y="352" text-anchor="middle">Case knowledge</text>
+  <text class="sub"  x="510" y="374" text-anchor="middle">RAG retrieval</text>
+
+  <rect class="node" x="650" y="320" width="200" height="76" rx="12"/>
+  <text class="lbl"  x="750" y="352" text-anchor="middle">Conversation state</text>
+  <text class="sub"  x="750" y="374" text-anchor="middle">multi-turn history</text>
+
+  <path class="flow" d="M300 322 C 320 290, 360 200, 388 174"/>
+  <path class="flow" d="M500 318 C 480 260, 445 200, 425 174"/>
+  <path class="flow" d="M720 318 C 640 260, 520 190, 462 168"/>
+
+  <!-- foundation band -->
+  <text class="band" x="34"  y="456">Prompt engineering + RAG</text>
+  <text class="band" x="330" y="456">·  2,000 concurrent sessions  ·  sub-second latency</text>
+</svg>

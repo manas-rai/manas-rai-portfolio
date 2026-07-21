@@ -11,6 +11,15 @@
   tech: [Python, FastAPI, Azure AI Search, Azure OpenAI, Azure AD B2C, Document Intelligence, LangChain, Cosmos DB, RAGAS, Multi-tenant]
   featured: true
 
+- title: Clinical Simulation Platform
+  summary: >
+    An LLM-powered clinical simulation platform for physician training —
+    prompt-engineered patient personas grounded with RAG to replicate real
+    patient interactions, load-tested for 2,000 concurrent sessions at
+    sub-second response latency.
+  tech: [Python, FastAPI, RAG, Prompt engineering, LLM]
+  featured: true
+
 - title: DevFlow Kit
   summary: >
     Multi-agent SDLC automation that turns Jira tickets into production PRs with
