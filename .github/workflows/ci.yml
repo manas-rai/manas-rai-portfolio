@@ -27,6 +27,12 @@ jobs:
   deploy-pages:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: test
+    # Pages allows one deployment at a time; without this, back-to-back merges
+    # race inside actions/deploy-pages and one hangs until its 10-min timeout.
+    # Queue them instead (never cancel an in-flight deployment).
+    concurrency:
+      group: github-pages-deploy
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     permissions:
       contents: read
