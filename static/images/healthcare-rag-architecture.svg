@@ -78,7 +78,7 @@
   <path class="flow" d="M150 327 L196 327"/>
   <path class="flow" d="M350 327 L396 327"/>
   <path class="flow" d="M615 320 C 710 315, 720 240, 786 210"/>
-  <text class="edge" x="700" y="288" text-anchor="middle">rewrite + hybrid</text>
+  <text class="edge" x="672" y="272" text-anchor="middle">rewrite + hybrid</text>
   <path class="flow" d="M920 216 L920 288"/>
   <text class="edge" x="978" y="255" text-anchor="middle">context</text>
   <path class="flow" d="M790 348 C 700 372, 600 372, 510 372 L510 366"/>

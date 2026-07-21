@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1060 540" role="img"
+     aria-label="CostTracker architecture. Application code calls drop-in client wrappers for OpenAI, Anthropic, Groq, and Bedrock. Each wrapper forwards the call to the provider API, meters tokens from the response, prices the call against a pricing table synced from LiteLLM's public data for 1,800+ models, and writes the usage record with customer and feature attribution directly to ClickHouse or PostgreSQL — no ingestion server. An analytics dashboard reads the same database.">
+  <defs>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#22d3ee"/>
+      <stop offset="0.55" stop-color="#a78bfa"/>
+      <stop offset="1" stop-color="#f472b6"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#6b6b8a"/>
+    </marker>
+    <style>
+      .bg   { fill: #0f0f18; stroke: #26263a; stroke-width: 1.5; }
+      .node { fill: #1a1a29; stroke: #33334d; stroke-width: 1.5; }
+      .agent{ fill: #171727; stroke: url(#accent); stroke-width: 2; }
+      .lbl  { fill: #ecedf3; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 17px; font-weight: 600; }
+      .sub  { fill: #a0a1b5; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px; }
+      .tag  { fill: #22d3ee; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px; letter-spacing: 0.12em; }
+      .edge { fill: #8a8aa8; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 11.5px; }
+      .flow { stroke: #6b6b8a; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .flow2{ stroke: #6b6b8a; stroke-width: 2; fill: none; marker-start: url(#arrow); marker-end: url(#arrow); }
+      .band { fill: #a0a1b5; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13.5px; }
+    </style>
+  </defs>
+
+  <rect class="bg" x="1" y="1" width="1058" height="538" rx="18"/>
+  <text class="tag" x="34" y="44">DROP-IN COST TRACKING · NO INGESTION SERVER</text>
+
+  <rect class="node"  x="30"  y="92" width="170" height="76" rx="12"/>
+  <text class="lbl"  x="115" y="124" text-anchor="middle">Your app</text>
+  <text class="sub"  x="115" y="146" text-anchor="middle">unchanged call sites</text>
+
+  <rect class="agent" x="280" y="80" width="280" height="100" rx="12"/>
+  <text class="lbl"  x="420" y="112" text-anchor="middle">SDK client wrappers</text>
+  <text class="sub"  x="420" y="134" text-anchor="middle">OpenAI · Anthropic · Groq · Bedrock</text>
+  <text class="sub"  x="420" y="152" text-anchor="middle">meter tokens · price the call</text>
+
+  <rect class="node"  x="820" y="92" width="210" height="76" rx="12"/>
+  <text class="lbl"  x="925" y="124" text-anchor="middle">Provider API</text>
+  <text class="sub"  x="925" y="146" text-anchor="middle">response passes through</text>
+
+  <path class="flow2" d="M200 130 L286 130"/>
+  <path class="flow2" d="M560 130 L816 130"/>
+
+  <!-- pricing feed -->
+  <rect class="node" x="30" y="260" width="230" height="76" rx="12"/>
+  <text class="lbl"  x="145" y="292" text-anchor="middle">Pricing sync</text>
+  <text class="sub"  x="145" y="314" text-anchor="middle">LiteLLM data · 1,800+ models</text>
+  <path class="flow" d="M262 288 C 330 280, 350 220, 380 184"/>
+
+  <!-- direct write -->
+  <rect class="agent" x="380" y="380" width="300" height="80" rx="12"/>
+  <text class="lbl"  x="530" y="412" text-anchor="middle">ClickHouse / PostgreSQL</text>
+  <text class="sub"  x="530" y="434" text-anchor="middle">usage + cost, per request</text>
+  <path class="flow" d="M430 184 C 445 250, 480 330, 510 376"/>
+  <text class="edge" x="415" y="290" text-anchor="middle">direct write</text>
+  <text class="edge" x="428" y="308" text-anchor="middle">customer_id · feature</text>
+
+  <!-- dashboard -->
+  <rect class="node" x="760" y="382" width="270" height="76" rx="12"/>
+  <text class="lbl"  x="895" y="414" text-anchor="middle">Analytics dashboard</text>
+  <text class="sub"  x="895" y="436" text-anchor="middle">spend by model · customer · feature</text>
+  <path class="flow" d="M756 420 L684 420"/>
+
+  <text class="band" x="34" y="508">Python SDK · dual database · per-request cost attribution · self-hosted, open source</text>
+</svg>

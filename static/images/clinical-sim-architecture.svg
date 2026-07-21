@@ -80,12 +80,12 @@
   <path class="flow2" d="M215 342 L291 342"/>
   <text class="edge" x="253" y="330" text-anchor="middle">WebSockets</text>
   <path class="flow2" d="M510 342 L586 342"/>
-  <text class="edge" x="548" y="330" text-anchor="middle">system prompt</text>
+  <text class="edge" x="548" y="308" text-anchor="middle">prompt</text>
   <path class="flow" d="M820 366 C 845 380, 862 366, 878 352"/>
 
   <!-- case JSON feed from CDN into sim service -->
   <path class="flow" d="M830 122 C 700 180, 470 250, 405 298"/>
-  <text class="edge" x="610" y="210" text-anchor="middle">case JSON</text>
+  <text class="edge" x="850" y="158" text-anchor="start">case JSON</text>
 
   <!-- runtime prompt + state sources -->
   <rect class="node" x="250" y="412" width="200" height="46" rx="10"/>
@@ -102,10 +102,10 @@
   <text class="plbl" x="112" y="550" text-anchor="middle">Cognito · auth</text>
   <rect class="pill" x="210" y="528" width="165" height="34" rx="17"/>
   <text class="plbl" x="292" y="550" text-anchor="middle">in-memory cache</text>
-  <rect class="pill" x="390" y="528" width="240" height="34" rx="17"/>
-  <text class="plbl" x="510" y="550" text-anchor="middle">per-session + per-user rate limit</text>
-  <rect class="pill" x="645" y="528" width="240" height="34" rx="17"/>
-  <text class="plbl" x="765" y="550" text-anchor="middle">LangChain · provider abstraction</text>
+  <rect class="pill" x="390" y="528" width="275" height="34" rx="17"/>
+  <text class="plbl" x="527" y="550" text-anchor="middle">per-session + per-user rate limit</text>
+  <rect class="pill" x="680" y="528" width="265" height="34" rx="17"/>
+  <text class="plbl" x="812" y="550" text-anchor="middle">LangChain · provider abstraction</text>
 
   <rect class="pill" x="30"  y="572" width="200" height="34" rx="17"/>
   <text class="plbl" x="130" y="594" text-anchor="middle">Datadog · New Relic</text>
