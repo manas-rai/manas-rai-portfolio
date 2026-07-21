@@ -32,7 +32,7 @@
 
   <header class="site-header">
     <div class="header-inner">
-      <a class="brand" href="{{ path_for('home') }}">{{ site_name }}</a>
+      <a class="brand" href="{{ path_for('home') }}" aria-label="{{ site_name }} — home">MR</a>
       <nav class="site-nav" aria-label="Main">
         <a href="{{ path_for('projects') }}" class="{{ 'active' if active_nav == 'projects' }}"
            {% if active_nav == 'projects' %}aria-current="page"{% endif %}>Projects</a>

@@ -120,12 +120,16 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   flex-wrap: wrap;
 }
 
+/* Monogram mark (mirrors the favicon) — the full name lives in the hero. */
 .brand {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 1.15rem;
-  color: var(--fg);
-  letter-spacing: -0.02em;
+  font-size: 1.35rem;
+  letter-spacing: 0.02em;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 .brand:hover { text-decoration: none; }
 
@@ -187,8 +191,10 @@ body { position: relative; }
 
 .hero-eyebrow {
   font-family: var(--font-mono);
-  font-size: 0.9rem;
+  font-size: 0.82rem;
   color: var(--cyan);
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
   margin: 0 0 0.75rem;
 }
 
