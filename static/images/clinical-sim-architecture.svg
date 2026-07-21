@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 690" role="img"
-     aria-label="LLM-powered clinical simulation platform on AWS. Authoring pipeline: illness scripts are turned into case content by an authoring service, validated by a human in the loop, stored in a CMS, and delivered via S3 and CloudFront. Runtime: a physician-in-training interacts through a LIT front end over WebSockets (text and voice) with a simulation service on EKS, which injects the case JSON and persona into the system prompt and calls a config-driven LLM. Interactions are stored per session in PostgreSQL, and at the end a feedback report scores the trainee's chosen questions and investigations against a gold dataset. Load-tested for 2,000 concurrent sessions at sub-second latency.">
+     aria-label="LLM-powered clinical simulation platform on AWS. Authoring pipeline: illness scripts are turned into case content by an authoring service, validated by a human in the loop, stored in a CMS, and delivered via S3 and CloudFront. Runtime: a physician-in-training interacts through a LIT front end over WebSockets (text and voice) with a simulation service on EKS, which injects the case JSON and persona into the system prompt and calls a config-driven LLM. Interactions are stored per session in PostgreSQL, and at the end a feedback report scores the trainee's chosen questions and investigations against a gold dataset. Load-tested for 3,000 concurrent sessions at sub-second latency.">
   <defs>
     <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#22d3ee"/>
@@ -116,5 +116,5 @@
 
   <!-- foundation band -->
   <text class="band" x="30"  y="652">AWS  ·  single-tenant  ·  authored cases (no real patient data)</text>
-  <text class="band" x="620" y="652">·  2,000 concurrent  ·  sub-second</text>
+  <text class="band" x="620" y="652">·  3,000 concurrent  ·  sub-second</text>
 </svg>

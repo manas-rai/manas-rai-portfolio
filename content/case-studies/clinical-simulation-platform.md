@@ -1,6 +1,6 @@
 ---
 title: "Clinical Simulation Platform"
-subtitle: "An LLM-powered platform that role-plays realistic patients for physician training — real-time text and voice, plus an automated feedback report that scores the trainee. Load-tested for 2,000 concurrent sessions at sub-second latency."
+subtitle: "An LLM-powered platform that role-plays realistic patients for physician training — real-time text and voice, plus an automated feedback report that scores the trainee. Load-tested for 3,000 concurrent sessions at sub-second latency."
 tech: [Python, Go, AWS, EKS, OpenAI, Anthropic, Realtime voice, WebSockets, PostgreSQL, LIT]
 diagram: clinical-sim-architecture.svg
 diagram_caption: "Two halves. Authoring (top): illness scripts become case content via an authoring service, validated by a human, stored in a CMS, and delivered over a CDN. Runtime (bottom): a physician converses — text or voice — with a simulation service that fetches the versioned system prompt from LangSmith, injects the case JSON, and calls a config-driven, multi-provider LLM; at the end, a feedback report scores their questions and investigations."
@@ -62,7 +62,7 @@ and evaluation quality are checked against a **gold dataset**.
 
 ## Production readiness
 
-Built to hold under real load — **2,000 concurrent sessions at sub-second
+Built to hold under real load — **3,000 concurrent sessions at sub-second
 latency**. Conversational simulation, especially voice, is unforgiving of lag,
 so that came from **async I/O, connection pooling, and an in-memory cache**, with
 **per-session and per-user rate limiting** to protect capacity. It's covered by

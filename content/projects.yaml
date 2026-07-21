@@ -16,7 +16,7 @@
     An LLM-powered clinical simulation platform for physician training —
     prompt-engineered patient personas driven by authored case content, over
     real-time text and voice, plus an automated feedback report that scores the
-    trainee. Load-tested for 2,000 concurrent sessions at sub-second latency.
+    trainee. Load-tested for 3,000 concurrent sessions at sub-second latency.
   tech: [Python, Go, AWS, EKS, OpenAI, Anthropic, Realtime voice, WebSockets, PostgreSQL, LIT]
   featured: true
 
