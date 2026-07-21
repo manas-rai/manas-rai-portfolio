@@ -167,16 +167,23 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   position: relative;
   padding: 5rem 0 4rem;
 }
-.hero::before {
+/* Full-bleed glow painted at the page level: spans the whole viewport (no
+   boxed edges on wide screens) and sits under the translucent header (no
+   seam). The glow positions track the centered content column. */
+body.home::before {
   content: "";
   position: absolute;
-  inset: -6rem -20rem 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 52rem;
   z-index: -1;
   background:
-    radial-gradient(40rem 22rem at 18% 12%, color-mix(in srgb, var(--violet) 16%, transparent), transparent 68%),
-    radial-gradient(34rem 20rem at 78% 4%, color-mix(in srgb, var(--cyan) 12%, transparent), transparent 66%);
+    radial-gradient(46rem 26rem at calc(50% - 20rem) 10rem, color-mix(in srgb, var(--violet) 16%, transparent), transparent 68%),
+    radial-gradient(40rem 22rem at calc(50% + 22rem) 3rem, color-mix(in srgb, var(--cyan) 12%, transparent), transparent 66%);
   pointer-events: none;
 }
+body { position: relative; }
 
 .hero-eyebrow {
   font-family: var(--font-mono);

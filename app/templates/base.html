@@ -27,7 +27,7 @@
         href="{{ path_for('static', path='fonts/space-grotesk-700.woff2') }}" />
   <link rel="stylesheet" href="{{ path_for('static', path='css/style.css') }}" />
 </head>
-<body>
+<body class="{% block body_class %}{% endblock %}">
   <a class="skip-link" href="#main">Skip to content</a>
 
   <header class="site-header">
