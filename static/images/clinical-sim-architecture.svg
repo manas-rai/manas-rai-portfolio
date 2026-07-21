@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 690" role="img"
+     aria-label="LLM-powered clinical simulation platform on AWS. Authoring pipeline: illness scripts are turned into case content by an authoring service, validated by a human in the loop, stored in a CMS, and delivered via S3 and CloudFront. Runtime: a physician-in-training interacts through a LIT front end over WebSockets (text and voice) with a simulation service on EKS, which injects the case JSON and persona into the system prompt and calls a config-driven LLM. Interactions are stored per session in PostgreSQL, and at the end a feedback report scores the trainee's chosen questions and investigations against a gold dataset. Load-tested for 3,000 concurrent sessions at sub-second latency.">
+  <defs>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#22d3ee"/>
+      <stop offset="0.55" stop-color="#a78bfa"/>
+      <stop offset="1" stop-color="#f472b6"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#6b6b8a"/>
+    </marker>
+    <style>
+      .bg   { fill: #0f0f18; stroke: #26263a; stroke-width: 1.5; }
+      .node { fill: #1a1a29; stroke: #33334d; stroke-width: 1.5; }
+      .agent{ fill: #171727; stroke: url(#accent); stroke-width: 2; }
+      .pill { fill: #14141f; stroke: #33334d; stroke-width: 1.25; }
+      .lbl  { fill: #ecedf3; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 16px; font-weight: 600; }
+      .sub  { fill: #a0a1b5; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 11.5px; }
+      .plbl { fill: #c7c8da; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12.5px; }
+      .tag  { fill: #22d3ee; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 11.5px; letter-spacing: 0.11em; }
+      .tag2 { fill: #a78bfa; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 11.5px; letter-spacing: 0.11em; }
+      .tag3 { fill: #f472b6; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 11.5px; letter-spacing: 0.11em; }
+      .edge { fill: #8a8aa8; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 11px; }
+      .flow { stroke: #6b6b8a; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .flow2{ stroke: #6b6b8a; stroke-width: 2; fill: none; marker-start: url(#arrow); marker-end: url(#arrow); }
+      .band { fill: #a0a1b5; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px; }
+    </style>
+  </defs>
+
+  <rect class="bg" x="1" y="1" width="1098" height="688" rx="18"/>
+
+  <!-- AUTHORING -->
+  <text class="tag" x="30" y="42">AUTHORING  ·  human-in-the-loop</text>
+
+  <rect class="node" x="30"  y="60" width="145" height="62" rx="12"/>
+  <text class="lbl"  x="102" y="87"  text-anchor="middle">Illness scripts</text>
+  <text class="sub"  x="102" y="106" text-anchor="middle">source material</text>
+
+  <rect class="node" x="205" y="60" width="170" height="62" rx="12"/>
+  <text class="lbl"  x="290" y="87"  text-anchor="middle">Authoring service</text>
+  <text class="sub"  x="290" y="106" text-anchor="middle">generate case content</text>
+
+  <rect class="node" x="405" y="60" width="150" height="62" rx="12"/>
+  <text class="lbl"  x="480" y="87"  text-anchor="middle">Human review</text>
+  <text class="sub"  x="480" y="106" text-anchor="middle">validate</text>
+
+  <rect class="node" x="585" y="60" width="110" height="62" rx="12"/>
+  <text class="lbl"  x="640" y="87"  text-anchor="middle">CMS</text>
+  <text class="sub"  x="640" y="106" text-anchor="middle">case store</text>
+
+  <rect class="node" x="725" y="60" width="210" height="62" rx="12"/>
+  <text class="lbl"  x="830" y="87"  text-anchor="middle">S3 + CloudFront</text>
+  <text class="sub"  x="830" y="106" text-anchor="middle">case delivery (CDN)</text>
+
+  <path class="flow" d="M175 91 L201 91"/>
+  <path class="flow" d="M375 91 L401 91"/>
+  <path class="flow" d="M555 91 L581 91"/>
+  <path class="flow" d="M695 91 L721 91"/>
+
+  <!-- RUNTIME -->
+  <text class="tag2" x="30" y="282">RUNTIME  ·  EKS · single-tenant</text>
+
+  <rect class="node"  x="30"  y="302" width="185" height="80" rx="12"/>
+  <text class="lbl"  x="122" y="334" text-anchor="middle">Physician</text>
+  <text class="sub"  x="122" y="356" text-anchor="middle">LIT UI · text + voice</text>
+
+  <rect class="agent" x="295" y="302" width="215" height="80" rx="12"/>
+  <text class="lbl"  x="402" y="334" text-anchor="middle">Simulation service</text>
+  <text class="sub"  x="402" y="356" text-anchor="middle">Python / Go · injects case</text>
+
+  <rect class="agent" x="590" y="302" width="230" height="80" rx="12"/>
+  <text class="lbl"  x="705" y="330" text-anchor="middle">LLM · multi-provider</text>
+  <text class="sub"  x="705" y="351" text-anchor="middle">OpenAI + Anthropic</text>
+  <text class="sub"  x="705" y="369" text-anchor="middle">config-driven · text + voice</text>
+
+  <rect class="node"  x="880" y="302" width="200" height="80" rx="12"/>
+  <text class="lbl"  x="980" y="334" text-anchor="middle">Feedback report</text>
+  <text class="sub"  x="980" y="356" text-anchor="middle">at session end</text>
+
+  <path class="flow2" d="M215 342 L291 342"/>
+  <text class="edge" x="253" y="330" text-anchor="middle">WebSockets</text>
+  <path class="flow2" d="M510 342 L586 342"/>
+  <text class="edge" x="548" y="330" text-anchor="middle">system prompt</text>
+  <path class="flow" d="M820 366 C 845 380, 862 366, 878 352"/>
+
+  <!-- case JSON feed from CDN into sim service -->
+  <path class="flow" d="M830 122 C 700 180, 470 250, 405 298"/>
+  <text class="edge" x="610" y="210" text-anchor="middle">case JSON</text>
+
+  <!-- runtime prompt + state sources -->
+  <rect class="node" x="250" y="412" width="200" height="46" rx="10"/>
+  <text class="plbl" x="350" y="440" text-anchor="middle">LangSmith · system prompt</text>
+  <path class="flow" d="M360 410 L388 384"/>
+  <rect class="node" x="465" y="412" width="180" height="46" rx="10"/>
+  <text class="plbl" x="555" y="440" text-anchor="middle">PostgreSQL · sessions</text>
+  <path class="flow2" d="M520 410 L472 384"/>
+
+  <!-- CROSS-CUTTING -->
+  <text class="tag3" x="30" y="512">CROSS-CUTTING</text>
+
+  <rect class="pill" x="30"  y="528" width="165" height="34" rx="17"/>
+  <text class="plbl" x="112" y="550" text-anchor="middle">Cognito · auth</text>
+  <rect class="pill" x="210" y="528" width="165" height="34" rx="17"/>
+  <text class="plbl" x="292" y="550" text-anchor="middle">in-memory cache</text>
+  <rect class="pill" x="390" y="528" width="240" height="34" rx="17"/>
+  <text class="plbl" x="510" y="550" text-anchor="middle">per-session + per-user rate limit</text>
+  <rect class="pill" x="645" y="528" width="240" height="34" rx="17"/>
+  <text class="plbl" x="765" y="550" text-anchor="middle">LangChain · provider abstraction</text>
+
+  <rect class="pill" x="30"  y="572" width="200" height="34" rx="17"/>
+  <text class="plbl" x="130" y="594" text-anchor="middle">Datadog · New Relic</text>
+  <rect class="pill" x="245" y="572" width="215" height="34" rx="17"/>
+  <text class="plbl" x="352" y="594" text-anchor="middle">gold-dataset quality checks</text>
+  <rect class="pill" x="475" y="572" width="240" height="34" rx="17"/>
+  <text class="plbl" x="595" y="594" text-anchor="middle">k6 (load) · Playwright (E2E)</text>
+
+  <!-- foundation band -->
+  <text class="band" x="30"  y="652">AWS  ·  single-tenant  ·  authored cases (no real patient data)</text>
+  <text class="band" x="620" y="652">·  3,000 concurrent  ·  sub-second</text>
+</svg>

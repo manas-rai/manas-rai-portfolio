@@ -51,10 +51,11 @@ experience:
         multi-tenant RAG pipeline on Azure with tenant-isolated vector stores,
         secure authentication, and data partitioning — directly enabling the
         product's first paying customers.
-      - Engineered an LLM-powered clinical simulation platform using prompt
-        engineering and RAG to replicate real patient interactions for physician
-        training; load-tested for 2,000 concurrent sessions at sub-second
-        response latency.
+      - Engineered an LLM-powered clinical simulation platform (AWS/EKS,
+        multi-provider, real-time text + voice) that role-plays authored patient
+        cases for physician training, with an automated feedback report scoring
+        each trainee's questions and investigations; load-tested for 3,000
+        concurrent sessions at sub-second response latency.
       - Built a multi-tenant VS Code agent platform with a meta "maker" agent
         that generates governed agents, skills, hooks, and prompts — interviewing
         the developer, planning, and checking new instructions against the

@@ -77,9 +77,14 @@ actually run:
   others.
 - **Cosmos DB**, a collection per tenant, holds conversation history — isolation
   extends to memory, not just retrieval.
-- **RAGAS** drives evaluation of answer groundedness and relevance, and a **user
-  feedback loop** (thumbs) feeds back into tuning. **LangSmith** tracks token
-  usage and cost per call, so quality and spend are both observable.
+- **RAGAS** drives offline evaluation across four metrics that measure *both*
+  halves of the system — **faithfulness** (is the answer grounded in the
+  retrieved context) and **answer relevancy** (does it actually address the
+  question) for generation, plus **context precision** (is the right context
+  ranked to the top) and **context recall** (did retrieval find everything it
+  needed) for retrieval. A **user feedback loop** (thumbs) feeds real signal
+  back into tuning, and **LangSmith** tracks token usage and cost per call, so
+  quality and spend are both observable.
 
 ## Production readiness
 
