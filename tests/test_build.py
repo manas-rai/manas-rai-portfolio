@@ -35,16 +35,16 @@ def test_case_study_page_renders_with_diagram(site: Path) -> None:
     page = site / "projects" / "devflow-kit" / "index.html"
     assert page.exists()
     html = page.read_text()
-    assert "case study" in html.lower()
+    assert "deep dive" in html.lower()
     assert "devflow-kit-architecture.svg" in html
     assert (site / "static" / "images" / "devflow-kit-architecture.svg").exists()
 
 
 def test_project_cards_link_to_existing_case_studies(site: Path) -> None:
     projects = (site / "projects" / "index.html").read_text()
-    # DevFlow Kit has a case study; its card links to it.
-    assert 'href="/projects/devflow-kit/">Case study' in projects
-    # A project without a case study gets no such link.
+    # DevFlow Kit has a deep-dive page; its card links to it.
+    assert 'href="/projects/devflow-kit/">Deep dive' in projects
+    # A project without one gets no such link.
     assert 'href="/projects/costtracker/"' not in projects
 
 
