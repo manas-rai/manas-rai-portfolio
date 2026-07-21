@@ -25,4 +25,4 @@ CONTACT_EMAIL = "rai.manas12@gmail.com"
 SITE_URL = os.environ.get("SITE_URL", "https://manas-rai-portfolio.pages.dev").rstrip("/")
 BASE_PATH = os.environ.get("BASE_PATH", "").rstrip("/")
 GITHUB_URL = "https://github.com/manas-rai"
-LINKEDIN_URL = "https://www.linkedin.com/in/manas-rai-a84179213"
+LINKEDIN_URL = "https://www.linkedin.com/in/manasrai12"

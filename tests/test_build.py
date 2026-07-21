@@ -44,7 +44,7 @@ def test_blog_post_and_tag_pages_render(site: Path) -> None:
 def test_contact_page_offers_direct_channels(site: Path) -> None:
     html = (site / "contact" / "index.html").read_text()
     assert 'href="mailto:rai.manas12@gmail.com"' in html
-    assert "linkedin.com/in/manas-rai" in html
+    assert "linkedin.com/in/manasrai12" in html
 
 
 def test_static_assets_copied(site: Path) -> None:
