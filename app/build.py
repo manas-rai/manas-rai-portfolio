@@ -30,20 +30,16 @@ from app.services.content_loader import ContentError, ContentIndex, Post, build_
 
 PAGE_SIZE = 10
 
-# Served by Cloudflare Pages for every static asset. The CSP allows only
-# same-origin resources — no inline scripts/styles, no third-party anything —
-# so an injected tag has nothing it is allowed to load or execute.
-HEADERS_FILE = """\
-/*
-  X-Content-Type-Options: nosniff
-  X-Frame-Options: DENY
-  Referrer-Policy: strict-origin-when-cross-origin
-  Permissions-Policy: camera=(), microphone=(), geolocation=()
-  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
-  Strict-Transport-Security: max-age=31536000; includeSubDomains
-/static/*
-  Cache-Control: public, max-age=14400
-"""
+# The CSP allows only same-origin resources — no third-party anything — so an
+# injected tag has nothing it is allowed to load or execute. GitHub Pages
+# cannot set response headers, so it ships as a <meta> tag in base.html
+# (frame-ancestors and non-CSP headers like X-Frame-Options are not
+# expressible that way — an accepted limitation of static-only hosting).
+CSP = (
+    "default-src 'self'; script-src 'self'; style-src 'self'; "
+    "img-src 'self' data:; font-src 'self'; connect-src 'self'; "
+    "object-src 'none'; base-uri 'self'; form-action 'self'"
+)
 
 ROUTES = {
     "home": "/",
@@ -51,7 +47,6 @@ ROUTES = {
     "blog_list": "/blog/",
     "resume": "/resume/",
     "contact_form": "/contact/",
-    "contact_submit": "/api/contact",
 }
 
 
@@ -163,6 +158,7 @@ def build(dist: Path = DIST_DIR, *, include_drafts: bool = False) -> None:
             "site_url": SITE_URL,
             "github_url": GITHUB_URL,
             "linkedin_url": LINKEDIN_URL,
+            "csp": CSP,
             "path_for": path_for,
         },
     )
@@ -175,12 +171,10 @@ def build(dist: Path = DIST_DIR, *, include_drafts: bool = False) -> None:
         "/resume/",
         {"resume": index.resume, "projects": index.projects, "active_nav": "resume"},
     )
-    writer.page("contact.html", "/contact/", {"sent": False, "active_nav": "contact"})
-    writer.page("contact.html", "/contact/sent/", {"sent": True, "active_nav": "contact"})
+    writer.page("contact.html", "/contact/", {"active_nav": "contact"})
     writer.page("errors/404.html", "/404.html")
 
     shutil.copytree(STATIC_DIR, dist / "static")
-    (dist / "_headers").write_text(HEADERS_FILE)
 
 
 def _write_home(writer: SiteWriter, index: ContentIndex) -> None:

@@ -1,9 +1,17 @@
 # Solution Design: Personal Portfolio Website
 
 **Author:** Manas Rai
-**Version:** 2.0
+**Version:** 2.1
 **Date:** July 2026
 
+> **Changelog — v2.1:** Hosting moved from Cloudflare Pages to **GitHub Pages**
+> at the free custom domain **manasrai.is-a.dev**. Cloudflare cannot attach a
+> subdomain whose parent zone lives in another Cloudflare account (error 1014
+> "CNAME Cross-User Banned"); GitHub Pages attaches it cleanly. The contact
+> form (and its Pages Function) is replaced by a static contact card — direct
+> email/LinkedIn/GitHub links, no backend at all. The CSP now ships as a
+> `<meta>` tag since GitHub Pages cannot set response headers.
+>
 > **Changelog — v2.0:** Replaced the server architecture entirely. The site is now
 > **statically generated at build time** (Jinja2 → HTML) and hosted on **Cloudflare
 > Pages**; the FastAPI/Lambda/CloudFront stack is removed (§3, §7, §8). The contact
@@ -26,8 +34,8 @@
 A personal portfolio site presenting a full personal brand: home/intro, projects,
 blog, resume, and contact. Content is flat files (Markdown + YAML) versioned in git;
 a small Python build script renders it through Jinja2 templates into a fully static
-site. The only server-side code is a ~100-line Cloudflare Pages Function backing the
-contact form. No database, no application server.
+site served by GitHub Pages. No database, no application server, no server-side
+code of any kind.
 
 ## 2. Goals & Non-Goals
 
@@ -50,19 +58,16 @@ contact form. No database, no application server.
 git push to main
    |
    v
-GitHub Actions: ruff + pytest, then `python -m app.build`
+GitHub Actions (ci.yml): ruff + pytest, then `python -m app.build`
    |            (Jinja2 templates + content/ --> dist/ static HTML)
    v
-wrangler pages deploy dist  -->  Cloudflare Pages
-                                    |-- static pages + assets (edge-cached, free bandwidth)
-                                    +-- /api/contact  (Pages Function, JS)
-                                           |
-                                           v
-                                        Resend API --> owner's inbox
+actions/deploy-pages  -->  GitHub Pages
+                              serving https://manasrai.is-a.dev
+                              (is-a.dev CNAME -> manas-rai.github.io, auto-TLS)
 ```
 
-Everything a visitor sees is a pre-rendered file; the Function is invoked only on
-contact-form submission.
+Everything a visitor sees is a pre-rendered file. There is no server-side code
+at all — contact happens over direct email/LinkedIn links.
 
 ## 4. Component Breakdown
 
@@ -94,21 +99,15 @@ template. Widening the allowlist is an explicit, reviewed change. Sanitization n
 happens **once at build time**, so a compromised or careless commit can't ship
 script to visitors.
 
-### 4.3 Contact form — Cloudflare Pages Function (`functions/api/contact.js`)
-- The static `/contact/` page posts to `/api/contact`.
-- **Progressive enhancement:** with JS (`static/js/contact.js`) the form submits via
-  `fetch` and shows inline success/error; without JS the browser posts the form and
-  the Function 303-redirects to the pre-rendered `/contact/sent/` page.
-- The Function validates and length-caps every field, checks the honeypot
-  (accept-and-drop so bots get no signal), rejects cross-origin posts and oversized
-  bodies, and delivers via **Resend's JSON API as plain text** — user input can
-  neither inject email headers nor render as HTML in the inbox.
-- Credentials (`RESEND_API_KEY`, `EMAIL_FROM`, `EMAIL_TO`) live in the Pages project
-  environment, never in the repo.
-- Rate limiting: a Cloudflare rate-limiting rule on `/api/contact` (one rule free)
-  is the durable option; the honeypot plus validation is the baseline. (Replaces the
-  old in-process `slowapi` limiter, which reset on every cold start anyway.)
-- Email-service failure handling is specified in §6.1.
+### 4.3 Contact — static contact card (no backend)
+- `/contact/` is a pre-rendered page offering direct channels: a `mailto:`
+  button, LinkedIn, and GitHub links.
+- There is deliberately **no form**: GitHub Pages runs no server code, and a
+  form would require either a third-party form service or a serverless
+  endpoint elsewhere. Email delivery, credentials, spam mitigation, and
+  failure handling are all eliminated as concerns rather than solved.
+- If a form is ever wanted, a static-form service (e.g. Formspree) can be
+  wired into the page without changing hosts.
 
 ### 4.4 Resume
 - Structured data in `content/resume.yaml` drives the on-page `/resume/` view; the
@@ -142,15 +141,13 @@ portfolio/
 │       ├── resume.html
 │       ├── contact.html
 │       └── errors/404.html
-├── functions/
-│   └── api/contact.js             # Cloudflare Pages Function (contact form)
 ├── content/
 │   ├── projects.yaml
 │   ├── resume.yaml
 │   └── posts/
 │       └── 2026-07-16-hello-world.md
 ├── static/
-│   ├── css/  images/  js/contact.js  resume.pdf
+│   ├── css/  fonts/  images/  resume.pdf
 ├── dist/                          # build output (gitignored, deployed)
 ├── pyproject.toml                 # uv-managed
 └── README.md
@@ -165,41 +162,38 @@ portfolio/
 | `/blog/`, `/blog/tag/<slug>/`, `.../page/N/` | static | Blog list, per-tag + pagination pages |
 | `/blog/<slug>/` | static | Individual blog post |
 | `/resume/` | static | On-page resume + PDF download link |
-| `/contact/`, `/contact/sent/` | static | Contact form, no-JS success page |
-| `/api/contact` | Function | POST-only submission handler |
+| `/contact/` | static | Contact card — email, LinkedIn, GitHub |
 
-(`/healthz` is gone — there is no server to health-check; Pages availability is
-Cloudflare's problem.)
+(`/healthz` is gone — there is no server to health-check; availability is
+GitHub Pages' problem.)
 
 ### 6.1 Error & empty states (fix #4)
-- **Unknown path** → Cloudflare Pages serves the branded `404.html` automatically.
+- **Unknown path** → GitHub Pages serves the branded `404.html` automatically.
 - **Empty blog/project lists** → friendly empty-state copy, rendered at build time.
 - **Malformed content** → fails the CI build; a broken page can never go live.
-- **Contact POST — email service down/unconfigured** → the Function returns a
-  graceful error ("…you can also reach me directly at <email>") shown inline by the
-  JS; never a blank 500. The direct-email fallback ensures a failed send never
-  costs a real contact.
-- **Contact POST — validation error** → per-field messages returned as JSON and
-  shown inline; browser-level `required`/`maxlength` catches most before submit.
+- **Contact** → direct channels only; there is no submission flow to fail. A
+  down email provider is the visitor's mail client's problem, not the site's.
 - **500s** — no server-rendered pages exist, so the class of unhandled template/app
   exceptions at request time is gone by construction.
 
 ## 7. Deployment Architecture
 
-- **Cloudflare Pages** (free plan): unlimited static bandwidth/requests, 500
-  builds/month (we build in GitHub Actions, so this is irrelevant), custom domains
-  with automatic TLS.
-- **CI/deploy**: Cloudflare Pages Git integration builds and publishes on every
-  push to `main` (build command `python -m app.build`, deps from
-  `requirements.txt`, the build image's preinstalled Python — unpinned so no
-  toolchain download runs per build) and gives each PR a preview URL. GitHub Actions runs ruff + pytest + build as the merge gate — no
-  Cloudflare credentials in GitHub at all.
-- **Domain**: add the domain in Pages → Custom domains; with DNS on Cloudflare the
-  CNAME + certificate are automatic.
-- **Availability (supersedes v1.2 §7.1):** static files from the edge have **zero
-  cold start** — the conversion-critical path (recruiter → resume → contact) never
-  waits on a container spin-up or Lambda init. Pages Functions run on Workers
-  isolates (~0 ms cold start) for the form itself.
+- **GitHub Pages** (free for public repos): static hosting with a global CDN,
+  custom domain + automatic Let's Encrypt TLS, soft 100 GB/month bandwidth —
+  far beyond portfolio traffic.
+- **CI/deploy**: the `ci` workflow runs ruff + pytest + build on every push/PR;
+  on `main` the `deploy-pages` job publishes `dist/` via
+  `actions/upload-pages-artifact` + `actions/deploy-pages` (workflow mode — no
+  Jekyll, the artifact is served as-is). No deploy credentials exist anywhere:
+  the workflow's own OIDC token is the auth.
+- **Domain**: `manasrai.is-a.dev` — a free community subdomain from
+  [is-a.dev](https://is-a.dev), defined as a JSON file in the public
+  `is-a-dev/register` repo with `CNAME manas-rai.github.io`; the repo's Pages
+  config sets it as the custom domain. Constraint that forced this design: the
+  subdomain cannot attach to Cloudflare Pages because its parent zone lives in
+  a different Cloudflare account (error 1014, "CNAME Cross-User Banned").
+- **Availability:** static files from a CDN — zero cold start on the
+  conversion-critical path (recruiter → resume → contact).
 
 ## 8. Tech Stack Summary
 
@@ -208,28 +202,27 @@ Cloudflare's problem.)
 | Site generation | Python + Jinja2 (`app/build.py`), run in CI |
 | Content format | Markdown (posts) + YAML (projects/resume) |
 | HTML sanitization | `nh3` (ammonia) at build time |
-| Contact endpoint | Cloudflare Pages Function (JS) |
-| Email | Resend HTTP API |
+| Contact | Static card — mailto / LinkedIn / GitHub links, no backend |
 | Package manager | `uv` (`pyproject.toml` + `uv.lock`) |
-| Hosting | Cloudflare Pages (free plan) — see §7 |
-| Domain/DNS | Cloudflare DNS + Pages custom domain (auto-TLS) |
+| Hosting | GitHub Pages (workflow deploys) — see §7 |
+| Domain/DNS | manasrai.is-a.dev (is-a.dev registry, CNAME → github.io, auto-TLS) |
 
 ## 9. Security Considerations
 
-The static architecture shrinks the attack surface to (a) the CDN, which is
-Cloudflare's responsibility, and (b) one POST endpoint:
+The static architecture shrinks the attack surface to the CDN itself, which is
+GitHub's responsibility:
 
-- **`_headers` on every response:** strict same-origin Content-Security-Policy (no
-  inline script/style, no third-party loads), `X-Frame-Options: DENY`,
-  `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy`, HSTS.
-- **No server, no sessions, no database** — SQLi, session hijacking, dependency
-  RCE-at-request-time, and stack-trace leakage are eliminated by construction.
+- **CSP as a `<meta>` tag on every page:** strict same-origin policy (no inline
+  script/style, no third-party loads), so an injected tag has nothing it is
+  allowed to load or execute. GitHub Pages cannot set response headers, so
+  header-only protections (`X-Frame-Options`/`frame-ancestors`, HSTS,
+  `nosniff`) do not apply — an accepted trade-off of static-only hosting;
+  github.io itself is HSTS-preloaded and Pages enforces HTTPS.
+- **No server, no sessions, no database, no endpoints** — SQLi, session
+  hijacking, dependency RCE-at-request-time, injection via form input, and
+  stack-trace leakage are eliminated by construction.
 - Blog HTML sanitized via `nh3` at build time (§4.2).
-- Contact Function: field validation + length caps, honeypot, same-origin check,
-  body-size limit, plain-text email via JSON API (no header/HTML injection),
-  secrets only in the Pages environment. Optional: Cloudflare rate-limiting rule
-  and/or Turnstile on `/api/contact`.
-- No secrets committed to git; `.dev.vars` (local Function secrets) is gitignored.
+- **No secrets exist anywhere** — not in the repo, not in CI, not in any host.
 
 ## 10. Future Enhancements
 
