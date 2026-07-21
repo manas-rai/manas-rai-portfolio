@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 660" role="img"
+     aria-label="RegLens multi-agent compliance pipeline. A regulatory PDF and a control matrix enter through a FastAPI surface that streams progress over SSE. A LangGraph supervisor, checkpointed in Postgres, orchestrates the pipeline: ingest, retrieve policies, gap analysis, score risks, generate report, then a human-in-the-loop gate. It delegates to A2A agents over JSON-RPC — an ingestion agent using Gemini multimodal and a risk-scorer agent using Gemini plus a rubric — retrieves policies from pgvector, and runs structured gap analysis with Claude. Cross-cutting: A2A/JSON-RPC 2.0, an evals harness (RAGAS, DeepEval, behavioral tests), Presidio PII guards, OpenTelemetry and LangSmith observability, and a Next.js UI.">
+  <defs>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#22d3ee"/>
+      <stop offset="0.55" stop-color="#a78bfa"/>
+      <stop offset="1" stop-color="#f472b6"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#6b6b8a"/>
+    </marker>
+    <style>
+      .bg   { fill: #0f0f18; stroke: #26263a; stroke-width: 1.5; }
+      .node { fill: #1a1a29; stroke: #33334d; stroke-width: 1.5; }
+      .agent{ fill: #171727; stroke: url(#accent); stroke-width: 2; }
+      .a2a  { fill: #171727; stroke: url(#accent); stroke-width: 2; stroke-dasharray: 6 4; }
+      .pill { fill: #14141f; stroke: #33334d; stroke-width: 1.25; }
+      .lbl  { fill: #ecedf3; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 16px; font-weight: 600; }
+      .sub  { fill: #a0a1b5; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 11.5px; }
+      .plbl { fill: #c7c8da; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12.5px; }
+      .tag  { fill: #22d3ee; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 11.5px; letter-spacing: 0.11em; }
+      .tag3 { fill: #f472b6; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 11.5px; letter-spacing: 0.11em; }
+      .edge { fill: #8a8aa8; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 11px; }
+      .flow { stroke: #6b6b8a; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .flow2{ stroke: #6b6b8a; stroke-width: 2; fill: none; marker-start: url(#arrow); marker-end: url(#arrow); }
+      .band { fill: #a0a1b5; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px; }
+    </style>
+  </defs>
+
+  <rect class="bg" x="1" y="1" width="1118" height="658" rx="18"/>
+
+  <!-- entry -->
+  <rect class="node" x="30"  y="52" width="205" height="60" rx="12"/>
+  <text class="lbl"  x="132" y="79"  text-anchor="middle">PDF + control matrix</text>
+  <text class="sub"  x="132" y="98"  text-anchor="middle">a compliance run</text>
+
+  <rect class="node" x="300" y="52" width="215" height="60" rx="12"/>
+  <text class="lbl"  x="407" y="79"  text-anchor="middle">FastAPI</text>
+  <text class="sub"  x="407" y="98"  text-anchor="middle">REST · SSE progress stream</text>
+
+  <path class="flow" d="M235 82 L296 82"/>
+  <path class="flow" d="M407 112 L407 156"/>
+
+  <!-- supervisor -->
+  <rect class="agent" x="30" y="160" width="1060" height="86" rx="14"/>
+  <text class="lbl"  x="60" y="196" text-anchor="start">LangGraph Supervisor</text>
+  <text class="sub"  x="60" y="220" text-anchor="start">ingest → retrieve policies → gap analysis → score risks → generate report → HITL   ·   Postgres-checkpointed, resumable</text>
+
+  <!-- workers -->
+  <text class="tag" x="30" y="286">PIPELINE WORKERS</text>
+
+  <rect class="a2a"  x="30"  y="300" width="205" height="80" rx="12"/>
+  <text class="lbl"  x="132" y="332" text-anchor="middle">Ingestion agent</text>
+  <text class="sub"  x="132" y="353" text-anchor="middle">A2A · Gemini multimodal</text>
+  <text class="sub"  x="132" y="369" text-anchor="middle">PDF → obligations</text>
+
+  <rect class="node" x="255" y="300" width="165" height="80" rx="12"/>
+  <text class="lbl"  x="337" y="332" text-anchor="middle">pgvector RAG</text>
+  <text class="sub"  x="337" y="353" text-anchor="middle">policy retrieval</text>
+
+  <rect class="node" x="440" y="300" width="180" height="80" rx="12"/>
+  <text class="lbl"  x="530" y="332" text-anchor="middle">Claude</text>
+  <text class="sub"  x="530" y="353" text-anchor="middle">gap analysis</text>
+  <text class="sub"  x="530" y="369" text-anchor="middle">structured output</text>
+
+  <rect class="a2a"  x="640" y="300" width="210" height="80" rx="12"/>
+  <text class="lbl"  x="745" y="332" text-anchor="middle">Risk scorer</text>
+  <text class="sub"  x="745" y="353" text-anchor="middle">A2A · Gemini + rubric</text>
+  <text class="sub"  x="745" y="369" text-anchor="middle">gaps → risk levels</text>
+
+  <rect class="node" x="870" y="300" width="220" height="80" rx="12"/>
+  <text class="lbl"  x="980" y="332" text-anchor="middle">HITL gate</text>
+  <text class="sub"  x="980" y="353" text-anchor="middle">reviewer approves /</text>
+  <text class="sub"  x="980" y="369" text-anchor="middle">edits / rejects</text>
+
+  <path class="flow" d="M132 246 L132 298"/>
+  <text class="edge" x="150" y="272" text-anchor="start">A2A</text>
+  <path class="flow" d="M337 246 L337 298"/>
+  <path class="flow" d="M530 246 L530 298"/>
+  <path class="flow" d="M745 246 L745 298"/>
+  <text class="edge" x="763" y="272" text-anchor="start">A2A</text>
+  <path class="flow" d="M980 246 L980 298"/>
+
+  <!-- postgres -->
+  <rect class="node" x="255" y="410" width="595" height="46" rx="10"/>
+  <text class="plbl" x="552" y="438" text-anchor="middle">PostgreSQL  ·  LangGraph checkpoints · pgvector embeddings · run state · audit log</text>
+  <path class="flow2" d="M337 408 L337 382"/>
+
+  <!-- CROSS-CUTTING -->
+  <text class="tag3" x="30" y="510">CROSS-CUTTING</text>
+
+  <rect class="pill" x="30"  y="526" width="200" height="34" rx="17"/>
+  <text class="plbl" x="130" y="548" text-anchor="middle">A2A · JSON-RPC 2.0</text>
+  <rect class="pill" x="245" y="526" width="320" height="34" rx="17"/>
+  <text class="plbl" x="405" y="548" text-anchor="middle">evals · RAGAS · DeepEval · behavioral suite</text>
+  <rect class="pill" x="580" y="526" width="205" height="34" rx="17"/>
+  <text class="plbl" x="682" y="548" text-anchor="middle">Presidio · PII guards</text>
+  <rect class="pill" x="800" y="526" width="290" height="34" rx="17"/>
+  <text class="plbl" x="945" y="548" text-anchor="middle">OpenTelemetry · LangSmith · structlog</text>
+
+  <!-- foundation band -->
+  <text class="band" x="30" y="608">Multi-agent · multi-model (Gemini + Claude) · human-in-the-loop · durable &amp; resumable · Next.js UI · Docker / Terraform</text>
+</svg>

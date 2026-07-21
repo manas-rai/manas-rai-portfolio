@@ -39,7 +39,7 @@
     risk, and a report generator produces an audit report with a
     human-in-the-loop approval gate. Includes a drift-detection evaluation
     harness.
-  tech: [Python, LangGraph, Google ADK, RAGAS, pgvector]
+  tech: [Python, LangGraph, Google ADK, A2A / JSON-RPC, Gemini, Claude, pgvector, FastAPI, RAGAS, Next.js]
   github: https://github.com/manas-rai/reglens
   demo: https://manas-rai.github.io/reglens/
   featured: true
