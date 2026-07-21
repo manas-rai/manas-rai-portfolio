@@ -37,7 +37,9 @@ uv run ruff check .
 - **Projects**: edit `content/projects.yaml`.
 - **Blog posts**: add a Markdown file to `content/posts/` with YAML frontmatter
   (`title`, `date`, `summary`, optional `tags`, `draft`). Commit and push.
-- **Resume**: replace `static/resume.pdf`; keep `content/resume.yaml` in sync.
+- **Resume**: edit `content/resume.yaml`; the downloadable `static/resume.pdf`
+  is generated from it — regenerate with `scripts/build_resume_pdf.sh` (needs
+  Chrome) and commit the result. A printable view lives at `/resume/print/`.
 
 Pushing to `main` rebuilds and publishes the site automatically.
 

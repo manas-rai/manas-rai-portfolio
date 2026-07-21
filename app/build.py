@@ -10,8 +10,10 @@ import argparse
 import re
 import shutil
 from pathlib import Path
+from xml.sax.saxutils import escape as xml_escape
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
+from markupsafe import Markup, escape
 
 from app.config import (
     BASE_PATH,
@@ -57,6 +59,15 @@ ROUTES = {
     "resume": "/resume/",
     "contact_form": "/contact/",
 }
+
+
+_BOLD_RE = re.compile(r"\*\*(.+?)\*\*")
+
+
+def emph(value: str) -> Markup:
+    """Render **bold** spans in plain-text content (resume bullets keep the
+    original PDF's bold lead phrases). Escapes everything else."""
+    return Markup(_BOLD_RE.sub(r"<strong>\1</strong>", str(escape(value))))
 
 
 def slugify(value: str) -> str:
@@ -134,10 +145,14 @@ class SiteWriter:
         self.env = env
         self.dist = dist
         self.base_context = base_context
+        self.urls: list[str] = []
 
-    def page(self, template: str, url: str, context: dict | None = None) -> None:
+    def page(
+        self, template: str, url: str, context: dict | None = None, *, index: bool = True
+    ) -> None:
         """Render template to dist/<url>/index.html (or a literal *.html path).
-        Injects page_url so templates can emit canonical/OG URLs."""
+        Injects page_url so templates can emit canonical/OG URLs. Set index=False
+        to keep the page out of the sitemap (e.g. the printable resume)."""
         html = self.env.get_template(template).render(
             self.base_context | {"page_url": url} | (context or {})
         )
@@ -149,6 +164,8 @@ class SiteWriter:
         )
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(html)
+        if index and not relative.endswith(".html"):
+            self.urls.append(url)
 
 
 def build(dist: Path = DIST_DIR, *, include_drafts: bool = False) -> None:
@@ -178,6 +195,7 @@ def build(dist: Path = DIST_DIR, *, include_drafts: bool = False) -> None:
         loader=FileSystemLoader(str(TEMPLATES_DIR)),
         autoescape=select_autoescape(("html",)),
     )
+    env.filters["emph"] = emph
     writer = SiteWriter(
         env,
         dist,
@@ -207,7 +225,52 @@ def build(dist: Path = DIST_DIR, *, include_drafts: bool = False) -> None:
     writer.page("contact.html", "/contact/", {"active_nav": "contact"})
     writer.page("errors/404.html", "/404.html")
 
+    # Printable resume — standalone (no site chrome), kept out of the sitemap.
+    # The committed static/resume.pdf is generated from this page; regenerate
+    # with `scripts/build_resume_pdf.sh` whenever the resume content changes.
+    writer.page(
+        "resume_print.html",
+        "/resume/print/",
+        {"resume": index.resume, "projects": index.projects},
+        index=False,
+    )
+
     shutil.copytree(STATIC_DIR, dist / "static")
+    _write_seo(writer, index, dist)
+
+
+def _write_seo(writer: SiteWriter, index: ContentIndex, dist: Path) -> None:
+    """Emit sitemap.xml, robots.txt, and an RSS feed for the blog."""
+    locs = sorted(set(writer.urls))
+    sitemap = ['<?xml version="1.0" encoding="UTF-8"?>',
+               '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+    sitemap += [f"  <url><loc>{SITE_URL}{u}</loc></url>" for u in locs]
+    sitemap.append("</urlset>")
+    (dist / "sitemap.xml").write_text("\n".join(sitemap) + "\n")
+
+    (dist / "robots.txt").write_text(
+        f"User-agent: *\nAllow: /\nSitemap: {SITE_URL}/sitemap.xml\n"
+    )
+
+    rss = ['<?xml version="1.0" encoding="UTF-8"?>',
+           '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">',
+           '  <channel>',
+           f"    <title>{xml_escape(SITE_NAME)} — Blog</title>",
+           f"    <link>{SITE_URL}/blog/</link>",
+           f"    <description>{xml_escape(SITE_TAGLINE)}</description>",
+           f'    <atom:link href="{SITE_URL}/feed.xml" rel="self" type="application/rss+xml"/>']
+    for post in index.posts:
+        link = f"{SITE_URL}{route_path('blog_post', slug=post.slug)}"
+        pub = post.date.strftime("%a, %d %b %Y 00:00:00 +0000")
+        rss += ['    <item>',
+                f"      <title>{xml_escape(post.title)}</title>",
+                f"      <link>{link}</link>",
+                f"      <guid>{link}</guid>",
+                f"      <pubDate>{pub}</pubDate>",
+                f"      <description>{xml_escape(post.summary)}</description>",
+                '    </item>']
+    rss += ['  </channel>', '</rss>']
+    (dist / "feed.xml").write_text("\n".join(rss) + "\n")
 
 
 def _write_home(writer: SiteWriter, index: ContentIndex) -> None:

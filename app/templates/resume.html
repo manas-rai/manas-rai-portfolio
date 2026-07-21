@@ -42,7 +42,7 @@
       </div>
       {% if job.highlights %}
       <ul>
-        {% for point in job.highlights %}<li>{{ point }}</li>{% endfor %}
+        {% for point in job.highlights %}<li>{{ point | emph }}</li>{% endfor %}
       </ul>
       {% endif %}
     </div>
@@ -78,7 +78,7 @@
   <div class="resume-block">
     <h2>Awards</h2>
     <ul class="resume-list">
-      {% for award in resume.awards %}<li>{{ award }}</li>{% endfor %}
+      {% for award in resume.awards %}<li>{{ award | emph }}</li>{% endfor %}
     </ul>
   </div>
   {% endif %}
@@ -91,6 +91,7 @@
       <span class="resume-role">{{ ed.qualification }}{% if ed.institution %} · {{ ed.institution }}{% endif %}</span>
       <span class="date">{{ ed.period }}</span>
     </div>
+    {% if ed.note %}<p class="edu-note">{{ ed.note }}</p>{% endif %}
     {% endfor %}
   </div>
   {% endif %}

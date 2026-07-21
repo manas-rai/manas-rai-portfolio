@@ -40,6 +40,9 @@ class Project:
     github: str | None = None
     demo: str | None = None
     featured: bool = False
+    # Short italic descriptor used on the printable resume ("Open Source",
+    # "Multi-Agent SDLC Automation").
+    descriptor: str = ""
 
 
 @dataclass(frozen=True)
@@ -79,6 +82,7 @@ class EducationEntry:
     qualification: str
     institution: str
     period: str
+    note: str = ""
 
 
 @dataclass(frozen=True)
@@ -100,6 +104,7 @@ class Resume:
     education: list[EducationEntry]
     certifications: list[str] = field(default_factory=list)
     awards: list[str] = field(default_factory=list)
+    phone: str = ""
 
 
 @dataclass(frozen=True)
@@ -150,6 +155,7 @@ def _load_projects(projects_file: Path) -> list[Project]:
                 github=item.get("github"),
                 demo=item.get("demo"),
                 featured=bool(item.get("featured", False)),
+                descriptor=str(item.get("descriptor", "")),
             )
         )
     return projects
@@ -253,13 +259,15 @@ def _load_resume(resume_file: Path) -> Resume | None:
             education=[
                 EducationEntry(
                     qualification=ed["qualification"],
-                    institution=ed["institution"],
+                    institution=ed.get("institution", ""),
                     period=ed["period"],
+                    note=str(ed.get("note", "")),
                 )
                 for ed in raw.get("education", [])
             ],
             certifications=[str(c) for c in raw.get("certifications", [])],
             awards=[str(a) for a in raw.get("awards", [])],
+            phone=str(raw.get("phone", "")),
         )
     except (KeyError, TypeError) as exc:
         raise ContentError(f"Invalid entry in {resume_file}: {exc}") from exc
