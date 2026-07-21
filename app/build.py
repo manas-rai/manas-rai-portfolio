@@ -14,6 +14,7 @@ from pathlib import Path
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from app.config import (
+    BASE_PATH,
     CONTACT_EMAIL,
     CONTENT_DIR,
     DIST_DIR,
@@ -57,7 +58,9 @@ def slugify(value: str) -> str:
     return slug
 
 
-def path_for(name: str, **params: object) -> str:
+def route_path(name: str, **params: object) -> str:
+    """Un-prefixed site path — used for file locations in dist/ and as the
+    canonical suffix appended to SITE_URL."""
     if name == "static":
         return f"/static/{params['path']}"
     if name == "blog_post":
@@ -67,6 +70,12 @@ def path_for(name: str, **params: object) -> str:
     if name == "projects_tech":
         return f"/projects/tech/{slugify(str(params['tech']))}/"
     return ROUTES[name]
+
+
+def path_for(name: str, **params: object) -> str:
+    """Href for templates: route_path prefixed with BASE_PATH, so the same
+    build works at a domain root or under a project subpath."""
+    return f"{BASE_PATH}{route_path(name, **params)}"
 
 
 def _unique_slugs(values: list[str], kind: str) -> dict[str, str]:
@@ -194,7 +203,7 @@ def _write_projects(writer: SiteWriter, index: ContentIndex) -> None:
             [p for p in index.projects if active in p.tech] if active else index.projects
         )
         filters = _filter_links(
-            ROUTES["projects"],
+            path_for("projects"),
             all_tech,
             lambda t: path_for("projects_tech", tech=t),
             active,
@@ -207,7 +216,7 @@ def _write_projects(writer: SiteWriter, index: ContentIndex) -> None:
 
     render(ROUTES["projects"], None)
     for tech in all_tech:
-        render(path_for("projects_tech", tech=tech), tech)
+        render(route_path("projects_tech", tech=tech), tech)
 
 
 def _write_blog(writer: SiteWriter, index: ContentIndex) -> None:
@@ -215,7 +224,7 @@ def _write_blog(writer: SiteWriter, index: ContentIndex) -> None:
 
     def render_list(base_url: str, posts: list[Post], active: str | None) -> None:
         filters = _filter_links(
-            ROUTES["blog_list"],
+            path_for("blog_list"),
             index.all_tags,
             lambda t: path_for("blog_tag", tag=t),
             active,
@@ -227,20 +236,20 @@ def _write_blog(writer: SiteWriter, index: ContentIndex) -> None:
                 {
                     "posts": page["posts"],
                     "filters": filters,
-                    "prev_url": page["prev_url"],
-                    "next_url": page["next_url"],
+                    "prev_url": f"{BASE_PATH}{page['prev_url']}" if page["prev_url"] else None,
+                    "next_url": f"{BASE_PATH}{page['next_url']}" if page["next_url"] else None,
                     "active_nav": "blog",
                 },
             )
 
     render_list(ROUTES["blog_list"], index.posts, None)
     for tag in index.all_tags:
-        render_list(path_for("blog_tag", tag=tag), index.posts_for_tag(tag), tag)
+        render_list(route_path("blog_tag", tag=tag), index.posts_for_tag(tag), tag)
 
     for post in index.posts:
         writer.page(
             "blog_post.html",
-            path_for("blog_post", slug=post.slug),
+            route_path("blog_post", slug=post.slug),
             {"post": post, "active_nav": "blog"},
         )
 

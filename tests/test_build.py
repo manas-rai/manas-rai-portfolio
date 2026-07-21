@@ -54,8 +54,10 @@ def test_static_assets_copied(site: Path) -> None:
 
 
 def test_pages_carry_canonical_and_og_meta(site: Path) -> None:
+    from app.config import SITE_URL
+
     html = (site / "blog" / "2026-07-16-hello-world" / "index.html").read_text()
-    assert '<link rel="canonical" href="https://manasrai.is-a.dev/blog/2026-07-16-hello-world/"' in html
+    assert f'<link rel="canonical" href="{SITE_URL}/blog/2026-07-16-hello-world/"' in html
     assert 'property="og:title"' in html
 
 
@@ -85,6 +87,17 @@ def test_path_for_routes() -> None:
     assert path_for("blog_post", slug="a-post") == "/blog/a-post/"
     assert path_for("blog_tag", tag="Python 3") == "/blog/tag/python-3/"
     assert path_for("static", path="css/style.css") == "/static/css/style.css"
+
+
+def test_path_for_honors_base_path(monkeypatch: pytest.MonkeyPatch) -> None:
+    """GitHub Pages serves under /manas-rai-portfolio/ until the custom domain
+    flips; hrefs must carry the prefix while dist/ file paths must not."""
+    import app.build as build_module
+
+    monkeypatch.setattr(build_module, "BASE_PATH", "/manas-rai-portfolio")
+    assert path_for("home") == "/manas-rai-portfolio/"
+    assert path_for("blog_post", slug="x") == "/manas-rai-portfolio/blog/x/"
+    assert build_module.route_path("blog_post", slug="x") == "/blog/x/"
 
 
 def test_slugify_rejects_unusable_values() -> None:
