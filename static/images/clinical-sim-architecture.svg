@@ -85,12 +85,15 @@
 
   <!-- case JSON feed from CDN into sim service -->
   <path class="flow" d="M830 122 C 700 180, 470 250, 405 298"/>
-  <text class="edge" x="605" y="210" text-anchor="middle">case JSON → system prompt</text>
+  <text class="edge" x="610" y="210" text-anchor="middle">case JSON</text>
 
-  <!-- postgres -->
-  <rect class="node" x="295" y="410" width="215" height="48" rx="10"/>
-  <text class="plbl" x="402" y="439" text-anchor="middle">PostgreSQL · session interactions</text>
-  <path class="flow2" d="M402 382 L402 408"/>
+  <!-- runtime prompt + state sources -->
+  <rect class="node" x="250" y="412" width="200" height="46" rx="10"/>
+  <text class="plbl" x="350" y="440" text-anchor="middle">LangSmith · system prompt</text>
+  <path class="flow" d="M360 410 L388 384"/>
+  <rect class="node" x="465" y="412" width="180" height="46" rx="10"/>
+  <text class="plbl" x="555" y="440" text-anchor="middle">PostgreSQL · sessions</text>
+  <path class="flow2" d="M520 410 L472 384"/>
 
   <!-- CROSS-CUTTING -->
   <text class="tag3" x="30" y="512">CROSS-CUTTING</text>
@@ -102,7 +105,7 @@
   <rect class="pill" x="390" y="528" width="240" height="34" rx="17"/>
   <text class="plbl" x="510" y="550" text-anchor="middle">per-session + per-user rate limit</text>
   <rect class="pill" x="645" y="528" width="240" height="34" rx="17"/>
-  <text class="plbl" x="765" y="550" text-anchor="middle">LangChain · LangSmith (prompts)</text>
+  <text class="plbl" x="765" y="550" text-anchor="middle">LangChain · provider abstraction</text>
 
   <rect class="pill" x="30"  y="572" width="200" height="34" rx="17"/>
   <text class="plbl" x="130" y="594" text-anchor="middle">Datadog · New Relic</text>
