@@ -31,6 +31,23 @@ def test_home_contains_site_name(site: Path) -> None:
     assert "Manas Rai" in (site / "index.html").read_text()
 
 
+def test_case_study_page_renders_with_diagram(site: Path) -> None:
+    page = site / "projects" / "devflow-kit" / "index.html"
+    assert page.exists()
+    html = page.read_text()
+    assert "deep dive" in html.lower()
+    assert "devflow-kit-architecture.svg" in html
+    assert (site / "static" / "images" / "devflow-kit-architecture.svg").exists()
+
+
+def test_project_cards_link_to_existing_case_studies(site: Path) -> None:
+    projects = (site / "projects" / "index.html").read_text()
+    # DevFlow Kit has a deep-dive page; its card links to it.
+    assert 'href="/projects/devflow-kit/">Deep dive' in projects
+    # A project without one gets no such link.
+    assert 'href="/projects/costtracker/"' not in projects
+
+
 def test_blog_post_and_tag_pages_render(site: Path) -> None:
     post = site / "blog" / "2026-07-16-hello-world" / "index.html"
     assert post.exists()

@@ -50,8 +50,9 @@
         {% for tech in project.tech %}<li class="chip">{{ tech }}</li>{% endfor %}
       </ul>
       <div class="card-links">
+        {% if case_study_urls.get(project.title) %}<a href="{{ case_study_urls[project.title] }}">Deep dive →</a>{% endif %}
         {% if project.github %}<a href="{{ project.github }}">GitHub ↗</a>{% endif %}
-        {% if project.demo %}<a href="{{ project.demo }}">Live demo ↗</a>{% endif %}
+        {% if project.demo %}<a href="{{ project.demo }}">Live site ↗</a>{% endif %}
       </div>
     </li>
     {% endfor %}

@@ -28,7 +28,14 @@ from app.config import (
     STATIC_DIR,
     TEMPLATES_DIR,
 )
-from app.services.content_loader import ContentError, ContentIndex, Post, build_index
+from app.services.content_loader import (
+    ContentError,
+    ContentIndex,
+    Post,
+    build_index,
+)
+
+CASE_STUDIES_DIR = CONTENT_DIR / "case-studies"
 
 PAGE_SIZE = 10
 
@@ -70,6 +77,8 @@ def route_path(name: str, **params: object) -> str:
         return f"/blog/tag/{slugify(str(params['tag']))}/"
     if name == "projects_tech":
         return f"/projects/tech/{slugify(str(params['tech']))}/"
+    if name == "case_study":
+        return f"/projects/{params['slug']}/"
     return ROUTES[name]
 
 
@@ -148,11 +157,22 @@ def build(dist: Path = DIST_DIR, *, include_drafts: bool = False) -> None:
         POSTS_DIR,
         CONTENT_DIR / "resume.yaml",
         include_drafts=include_drafts,
+        case_studies_dir=CASE_STUDIES_DIR,
     )
 
     if dist.exists():
         shutil.rmtree(dist)
     dist.mkdir(parents=True)
+
+    # Map a project title to its case-study URL (matched by slug) so cards can
+    # link to it. "tech" is reserved by the /projects/tech/ filter subpaths.
+    case_study_urls: dict[str, str] = {}
+    for case in index.case_studies:
+        if case.slug == "tech":
+            raise ContentError("Case-study slug 'tech' collides with filter paths")
+        for project in index.projects:
+            if slugify(project.title) == case.slug:
+                case_study_urls[project.title] = path_for("case_study", slug=case.slug)
 
     env = Environment(
         loader=FileSystemLoader(str(TEMPLATES_DIR)),
@@ -170,12 +190,14 @@ def build(dist: Path = DIST_DIR, *, include_drafts: bool = False) -> None:
             "github_url": GITHUB_URL,
             "linkedin_url": LINKEDIN_URL,
             "csp": CSP,
+            "case_study_urls": case_study_urls,
             "path_for": path_for,
         },
     )
 
     _write_home(writer, index)
     _write_projects(writer, index)
+    _write_case_studies(writer, index)
     _write_blog(writer, index)
     writer.page(
         "resume.html",
@@ -219,6 +241,15 @@ def _write_projects(writer: SiteWriter, index: ContentIndex) -> None:
     render(ROUTES["projects"], None)
     for tech in all_tech:
         render(route_path("projects_tech", tech=tech), tech)
+
+
+def _write_case_studies(writer: SiteWriter, index: ContentIndex) -> None:
+    for case in index.case_studies:
+        writer.page(
+            "case_study.html",
+            route_path("case_study", slug=case.slug),
+            {"case": case, "active_nav": "projects"},
+        )
 
 
 def _write_blog(writer: SiteWriter, index: ContentIndex) -> None:

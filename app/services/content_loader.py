@@ -54,6 +54,19 @@ class Post:
 
 
 @dataclass(frozen=True)
+class CaseStudy:
+    slug: str
+    title: str
+    subtitle: str
+    tech: list[str]
+    html: str
+    github: str | None = None
+    demo: str | None = None
+    diagram: str | None = None
+    diagram_caption: str = ""
+
+
+@dataclass(frozen=True)
 class ExperienceEntry:
     role: str
     company: str
@@ -96,6 +109,7 @@ class ContentIndex:
     projects: list[Project]
     posts: list[Post] = field(default_factory=list)
     resume: Resume | None = None
+    case_studies: list[CaseStudy] = field(default_factory=list)
     _by_slug: dict[str, Post] = field(default_factory=dict)
     _by_tag: dict[str, list[Post]] = field(default_factory=dict)
 
@@ -177,6 +191,29 @@ def _load_post(path: Path) -> Post:
     )
 
 
+def _load_case_study(path: Path) -> CaseStudy:
+    try:
+        fm = frontmatter.load(path)
+    except Exception as exc:
+        raise ContentError(f"Cannot parse frontmatter in {path}: {exc}") from exc
+
+    missing = [k for k in ("title", "subtitle") if k not in fm.metadata]
+    if missing:
+        raise ContentError(f"{path} missing frontmatter keys: {', '.join(missing)}")
+
+    return CaseStudy(
+        slug=path.stem,
+        title=str(fm["title"]),
+        subtitle=str(fm["subtitle"]),
+        tech=list(fm.get("tech", [])),
+        html=_render_markdown(fm.content),
+        github=fm.get("github"),
+        demo=fm.get("demo"),
+        diagram=fm.get("diagram"),
+        diagram_caption=str(fm.get("diagram_caption", "")),
+    )
+
+
 def _load_resume(resume_file: Path) -> Resume | None:
     if not resume_file.exists():
         return None
@@ -234,11 +271,21 @@ def build_index(
     resume_file: Path,
     *,
     include_drafts: bool,
+    case_studies_dir: Path | None = None,
 ) -> ContentIndex:
     """Parse all content once and build lookup structures. Raises ContentError
     on any malformed file so failures happen at boot, not per-request."""
     projects = _load_projects(projects_file)
     resume = _load_resume(resume_file)
+
+    case_studies: list[CaseStudy] = []
+    if case_studies_dir and case_studies_dir.exists():
+        case_studies = [
+            _load_case_study(p) for p in sorted(case_studies_dir.glob("*.md"))
+        ]
+        slugs = [c.slug for c in case_studies]
+        if len(set(slugs)) != len(slugs):
+            raise ContentError("Duplicate case-study slug detected")
 
     posts: list[Post] = []
     if posts_dir.exists():
@@ -263,6 +310,7 @@ def build_index(
         projects=projects,
         posts=posts,
         resume=resume,
+        case_studies=case_studies,
         _by_slug=by_slug,
         _by_tag=by_tag,
     )
