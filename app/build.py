@@ -22,6 +22,7 @@ from app.config import (
     LINKEDIN_URL,
     POSTS_DIR,
     SITE_NAME,
+    SITE_ROLE,
     SITE_TAGLINE,
     SITE_URL,
     STATIC_DIR,
@@ -162,6 +163,7 @@ def build(dist: Path = DIST_DIR, *, include_drafts: bool = False) -> None:
         dist,
         {
             "site_name": SITE_NAME,
+            "site_role": SITE_ROLE,
             "site_tagline": SITE_TAGLINE,
             "contact_email": CONTACT_EMAIL,
             "site_url": SITE_URL,

@@ -11,6 +11,8 @@ TEMPLATES_DIR = BASE_DIR / "app" / "templates"
 DIST_DIR = BASE_DIR / "dist"
 
 SITE_NAME = "Manas Rai"
+# Short role for the <title>/og:title; the long tagline is the meta description.
+SITE_ROLE = "Software Engineer · GenAI Engineer"
 SITE_TAGLINE = (
     "I build production backend systems and GenAI platforms — RAG pipelines, "
     "multi-agent systems, and the cloud infrastructure behind them."
