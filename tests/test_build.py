@@ -31,6 +31,15 @@ def test_home_contains_site_name(site: Path) -> None:
     assert "Manas Rai" in (site / "index.html").read_text()
 
 
+def test_mechanism_components_render(site: Path) -> None:
+    """Odometer stats, driven gear, and the plate title-block footer are the
+    mechanism design language — assert they reach the built home page."""
+    html = (site / "index.html").read_text()
+    assert "digit-strip d2" in html  # odometer for 2000+
+    assert 'class="gear"' in html  # driven gear
+    assert 'class="plate"' in html and "Drawn by" in html  # title-block footer
+
+
 def test_case_study_page_renders_with_diagram(site: Path) -> None:
     page = site / "projects" / "devflow-kit" / "index.html"
     assert page.exists()
@@ -72,7 +81,9 @@ def test_contact_page_offers_direct_channels(site: Path) -> None:
 
 def test_static_assets_copied(site: Path) -> None:
     assert (site / "static" / "css" / "style.css").exists()
-    assert (site / "static" / "fonts" / "space-grotesk-700.woff2").exists()
+    assert (site / "static" / "fonts" / "oswald-700.woff2").exists()
+    assert (site / "static" / "fonts" / "plex-mono-500.woff2").exists()
+    assert (site / "static" / "fonts" / "inter-400.woff2").exists()
     assert (site / "static" / "images" / "favicon.svg").exists()
 
 

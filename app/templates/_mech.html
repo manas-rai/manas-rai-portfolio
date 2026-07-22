@@ -1,0 +1,35 @@
+{# Mechanism components — reusable across pages.
+   Keep the design language in one place so every surface inherits it. #}
+
+{# Odometer: a value's digits become digit-wheels that spin to land on the
+   number (via the .d0–.d9 animation classes in style.css). `digits` is a
+   string of 0–9 chars; `suffix` is the unit (+, %, yrs). #}
+{%- macro odometer(digits, suffix='') -%}
+<span class="odometer" role="img" aria-label="{{ digits }}{{ suffix }}">
+  {%- for d in digits -%}
+  <span class="digit-wheel" aria-hidden="true"><span class="digit-strip d{{ d }}"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span></span></span>
+  {%- endfor -%}
+  {%- if suffix %}<span class="suffix" aria-hidden="true">{{ suffix }}</span>{% endif -%}
+</span>
+{%- endmacro -%}
+
+{# Driven gear on a rack — the single continuously-moving element per view. #}
+{%- macro rack_gear() -%}
+<div class="rack-row" aria-hidden="true">
+  <div class="rack"></div>
+  <svg class="gear" viewBox="0 0 34 34">
+    <g class="gear-tooth">
+      <rect x="15" y="1" width="4" height="6" transform="rotate(0 17 17)"/>
+      <rect x="15" y="1" width="4" height="6" transform="rotate(45 17 17)"/>
+      <rect x="15" y="1" width="4" height="6" transform="rotate(90 17 17)"/>
+      <rect x="15" y="1" width="4" height="6" transform="rotate(135 17 17)"/>
+      <rect x="15" y="1" width="4" height="6" transform="rotate(180 17 17)"/>
+      <rect x="15" y="1" width="4" height="6" transform="rotate(225 17 17)"/>
+      <rect x="15" y="1" width="4" height="6" transform="rotate(270 17 17)"/>
+      <rect x="15" y="1" width="4" height="6" transform="rotate(315 17 17)"/>
+    </g>
+    <circle class="gear-body" cx="17" cy="17" r="12"/>
+    <circle class="gear-hub" cx="17" cy="17" r="5"/>
+  </svg>
+</div>
+{%- endmacro -%}

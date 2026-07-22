@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{% block title %}{{ site_name }} — {{ site_role }}{% endblock %}</title>
   <meta name="description" content="{% block description %}{{ site_tagline }}{% endblock %}" />
-  <meta name="theme-color" content="#0b0b12" />
+  <meta name="theme-color" content="#25292c" />
   {# GitHub Pages cannot set response headers, so the CSP ships as a meta tag;
      the Cloudflare mirror also sends it (plus header-only directives) via
      _headers. #}
@@ -24,7 +24,9 @@
   <link rel="icon" type="image/svg+xml" href="{{ path_for('static', path='images/favicon.svg') }}" />
   <link rel="alternate" type="application/rss+xml" title="{{ site_name }} — Blog" href="{{ site_url }}/feed.xml" />
   <link rel="preload" as="font" type="font/woff2" crossorigin
-        href="{{ path_for('static', path='fonts/space-grotesk-700.woff2') }}" />
+        href="{{ path_for('static', path='fonts/oswald-700.woff2') }}" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+        href="{{ path_for('static', path='fonts/inter-400.woff2') }}" />
   <link rel="stylesheet" href="{{ path_for('static', path='css/style.css') }}" />
 </head>
 <body class="{% block body_class %}{% endblock %}">
@@ -51,13 +53,12 @@
   </main>
 
   <footer class="site-footer">
-    <div class="footer-inner">
-      <p>&copy; {{ site_name }}</p>
-      <p class="footer-links">
-        <a href="{{ github_url }}">GitHub</a>
-        <a href="{{ linkedin_url }}">LinkedIn</a>
-        <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>
-      </p>
+    <div class="plate">
+      <div class="tb-cell"><div class="tb-label">Drawn by</div><div class="tb-value">{{ site_name }}</div></div>
+      <div class="tb-cell"><div class="tb-label">Location</div><div class="tb-value">Bengaluru, IN</div></div>
+      <div class="tb-cell"><div class="tb-label">Source</div><div class="tb-value"><a href="{{ github_url }}">GitHub</a></div></div>
+      <div class="tb-cell"><div class="tb-label">Network</div><div class="tb-value"><a href="{{ linkedin_url }}">LinkedIn</a></div></div>
+      <div class="tb-cell"><div class="tb-label">Contact</div><div class="tb-value"><a href="mailto:{{ contact_email }}">Email</a></div></div>
     </div>
   </footer>
   {% block scripts %}{% endblock %}
