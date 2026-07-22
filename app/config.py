@@ -17,6 +17,13 @@ SITE_TAGLINE = (
     "I build production backend systems and GenAI platforms — RAG pipelines, "
     "multi-agent systems, and the cloud infrastructure behind them."
 )
+# Hero-only lede — the mechanism voice. SITE_TAGLINE stays keyword-rich for
+# meta/OG; this carries personality on the homepage.
+SITE_LEDE = (
+    "Mechanical engineer by training, systems engineer by trade — I build GenAI "
+    "platforms with the same discipline as a tolerance stack-up: nothing ships "
+    "until it's measured."
+)
 CONTACT_EMAIL = "rai.manas12@gmail.com"
 # Primary host is GitHub Pages at the custom domain, served at the root. The
 # Cloudflare Pages mirror (manas-rai-portfolio.pages.dev) builds from the same

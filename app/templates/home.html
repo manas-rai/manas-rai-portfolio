@@ -1,40 +1,64 @@
 {% extends "base.html" %}
+{% from "_mech.html" import odometer, rack_gear, project_card, social_links %}
 
 {% block body_class %}home{% endblock %}
 
 {% block content %}
 <section class="hero">
-  <p class="hero-eyebrow">software engineer · genai engineer</p>
+  <p class="hero-eyebrow">Software Engineer · GenAI Engineer</p>
   <h1 class="hero-name">{{ site_name }}</h1>
-  <p class="tagline">{{ site_tagline }}</p>
+  <p class="lede">{{ site_lede }}</p>
   <div class="hero-actions">
-    <a class="btn btn-primary" href="{{ path_for('projects') }}">See my work →</a>
+    <a class="btn btn-primary" href="{{ path_for('projects') }}">See the work</a>
     <a class="btn btn-ghost" href="{{ path_for('contact_form') }}">Get in touch</a>
   </div>
-  <p class="hero-links">
-    <a href="{{ github_url }}">github</a> · <a href="{{ linkedin_url }}">linkedin</a> · <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>
-  </p>
+  {{ social_links(github_url, linkedin_url, contact_email) }}
 </section>
 
 <section class="stats" aria-label="Impact at a glance">
   <ul class="stat-grid">
-    <li class="stat">
-      <span class="stat-num">2,000+</span>
-      <span class="stat-label">concurrent sessions at sub-second latency</span>
+    <li class="stat-box">
+      {{ odometer('5', 'yrs') }}
+      <div class="stat-label">Experience</div>
     </li>
-    <li class="stat">
-      <span class="stat-num">~60%</span>
-      <span class="stat-label">manual dev workflow automated</span>
+    <li class="stat-box">
+      {{ odometer('2000', '+') }}
+      <div class="stat-label">Concurrent sessions</div>
     </li>
-    <li class="stat">
-      <span class="stat-num">75%</span>
-      <span class="stat-label">faster data retrieval (4× speedup)</span>
-    </li>
-    <li class="stat">
-      <span class="stat-num">5 yrs</span>
-      <span class="stat-label">production backend + GenAI systems</span>
+    <li class="stat-box">
+      {{ odometer('75', '%') }}
+      <div class="stat-label">Faster retrieval</div>
     </li>
   </ul>
+</section>
+
+{{ rack_gear() }}
+
+<section class="assembly" aria-label="Career, in three parts">
+  <div class="part">
+    <div class="fastener"><div class="bolt-head"></div><div class="shaft"></div><div class="washer"></div></div>
+    <div class="part-card">
+      <p class="part-num">PART 01</p>
+      <p class="part-title">Mechanical foundation</p>
+      <p class="part-desc">B.Tech, Mechanical Engineering — the tolerance-stack discipline that still runs everything I build.</p>
+    </div>
+  </div>
+  <div class="part">
+    <div class="fastener"><div class="bolt-head"></div><div class="shaft"></div><div class="washer"></div></div>
+    <div class="part-card">
+      <p class="part-num">PART 02</p>
+      <p class="part-title">Production systems</p>
+      <p class="part-desc">5 yrs backend &amp; cloud — async Python, distributed pipelines, load-tested at scale.</p>
+    </div>
+  </div>
+  <div class="part">
+    <div class="fastener"><div class="bolt-head"></div><div class="shaft"></div><div class="washer"></div></div>
+    <div class="part-card">
+      <p class="part-num">PART 03</p>
+      <p class="part-title">GenAI specialist</p>
+      <p class="part-desc">Multi-agent systems, RAG pipelines, and MCP tooling — shipped to production.</p>
+    </div>
+  </div>
 </section>
 
 <section class="section">
@@ -45,18 +69,7 @@
   {% if featured_projects %}
   <ul class="card-grid">
     {% for project in featured_projects %}
-    <li class="card">
-      <h3>{{ project.title }}</h3>
-      <p>{{ project.summary }}</p>
-      <ul class="chip-row">
-        {% for tech in project.tech %}<li class="chip">{{ tech }}</li>{% endfor %}
-      </ul>
-      <div class="card-links">
-        {% if case_study_urls.get(project.title) %}<a href="{{ case_study_urls[project.title] }}">Deep dive →</a>{% endif %}
-        {% if project.github %}<a href="{{ project.github }}">GitHub ↗</a>{% endif %}
-        {% if project.demo %}<a href="{{ project.demo }}">Live site ↗</a>{% endif %}
-      </div>
-    </li>
+    {{ project_card(project, loop.index, case_study_urls.get(project.title)) }}
     {% endfor %}
   </ul>
   {% else %}
