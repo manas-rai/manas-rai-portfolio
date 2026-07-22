@@ -236,14 +236,34 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   margin: 0 0 1.6rem;
 }
 
-.hero-links {
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  color: var(--ink-soft);
+/* Social links as machined icon buttons. */
+.social {
+  display: flex;
+  justify-content: center;
+  gap: 0.7rem;
   margin: 0 0 2.2rem;
 }
-.hero-links a { color: var(--ink-soft); }
-.hero-links a:hover { color: var(--brass-hi); }
+.social-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  color: var(--ink-soft);
+  background: var(--panel-2);
+  border-radius: 7px;
+  box-shadow: inset 0 1px 0 var(--edge-hi), inset 0 -1px 0 var(--edge-lo);
+  transition: color .18s var(--snap), transform .18s var(--snap), box-shadow .18s var(--snap);
+}
+.social-btn svg { width: 19px; height: 19px; }
+.social-btn:hover {
+  color: var(--brass-hi);
+  text-decoration: none;
+  transform: translateY(1px);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,.45);
+}
+.social.sm .social-btn { width: 34px; height: 34px; border-radius: 6px; }
+.social.sm .social-btn svg { width: 16px; height: 16px; }
 
 /* ---------- buttons (machined) ---------- */
 

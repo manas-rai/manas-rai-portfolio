@@ -46,8 +46,6 @@ def test_interaction_layer_present(site: Path) -> None:
     assert (site / "static" / "js" / "mech.js").exists()
     home = (site / "index.html").read_text()
     assert "static/js/mech.js" in home
-    # Build-time commit odometer (four wheels) with its label.
-    assert "Commits shipped" in home
 
 
 def test_project_card_reveals_spec_sheet(site: Path) -> None:

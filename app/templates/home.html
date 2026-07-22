@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_mech.html" import odometer, rack_gear, project_card %}
+{% from "_mech.html" import odometer, rack_gear, project_card, social_links %}
 
 {% block body_class %}home{% endblock %}
 
@@ -12,9 +12,7 @@
     <a class="btn btn-primary" href="{{ path_for('projects') }}">See the work</a>
     <a class="btn btn-ghost" href="{{ path_for('contact_form') }}">Get in touch</a>
   </div>
-  <p class="hero-links">
-    <a href="{{ github_url }}">github</a> · <a href="{{ linkedin_url }}">linkedin</a> · <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>
-  </p>
+  {{ social_links(github_url, linkedin_url, contact_email) }}
 </section>
 
 <section class="stats" aria-label="Impact at a glance">
@@ -30,10 +28,6 @@
     <li class="stat-box">
       {{ odometer('75', '%') }}
       <div class="stat-label">Faster retrieval</div>
-    </li>
-    <li class="stat-box">
-      {{ odometer('%04d' % commit_count) }}
-      <div class="stat-label">Commits shipped</div>
     </li>
   </ul>
 </section>
