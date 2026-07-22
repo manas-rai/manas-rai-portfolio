@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import re
 import shutil
+import subprocess
 from pathlib import Path
 from xml.sax.saxutils import escape as xml_escape
 
@@ -69,6 +70,20 @@ def emph(value: str) -> Markup:
     """Render **bold** spans in plain-text content (resume bullets keep the
     original PDF's bold lead phrases). Escapes everything else."""
     return Markup(_BOLD_RE.sub(r"<strong>\1</strong>", str(escape(value))))
+
+
+def commit_count() -> int:
+    """Total commits on HEAD — a real, honest number baked in at build time so
+    the hero odometer ticks up on every deploy without any runtime backend.
+    CI must checkout with fetch-depth: 0 or this reads 1 on a shallow clone."""
+    try:
+        out = subprocess.run(
+            ["git", "rev-list", "--count", "HEAD"],
+            capture_output=True, text=True, check=True,
+        )
+        return int(out.stdout.strip())
+    except (subprocess.CalledProcessError, FileNotFoundError, ValueError):
+        return 0
 
 
 def slugify(value: str) -> str:
@@ -197,6 +212,7 @@ def build(dist: Path = DIST_DIR, *, include_drafts: bool = False) -> None:
         autoescape=select_autoescape(("html",)),
     )
     env.filters["emph"] = emph
+    env.filters["slug"] = slugify
     writer = SiteWriter(
         env,
         dist,
@@ -211,6 +227,7 @@ def build(dist: Path = DIST_DIR, *, include_drafts: bool = False) -> None:
             "linkedin_url": LINKEDIN_URL,
             "csp": CSP,
             "case_study_urls": case_study_urls,
+            "commit_count": commit_count(),
             "path_for": path_for,
         },
     )

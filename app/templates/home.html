@@ -37,6 +37,10 @@
       {{ odometer('75', '%') }}
       <div class="stat-label">Faster retrieval</div>
     </li>
+    <li class="stat-box">
+      {{ odometer('%04d' % commit_count) }}
+      <div class="stat-label">Commits shipped</div>
+    </li>
   </ul>
 </section>
 

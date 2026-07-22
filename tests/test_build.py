@@ -40,6 +40,26 @@ def test_mechanism_components_render(site: Path) -> None:
     assert 'class="plate"' in html and "Drawn by" in html  # title-block footer
 
 
+def test_interaction_layer_present(site: Path) -> None:
+    """The unscrew-reveal + specular JS ships and is wired; the enhancement
+    script is same-origin (CSP-safe) and referenced with defer."""
+    assert (site / "static" / "js" / "mech.js").exists()
+    home = (site / "index.html").read_text()
+    assert "static/js/mech.js" in home
+    # Build-time commit odometer (four wheels) with its label.
+    assert "Commits shipped" in home
+
+
+def test_project_card_reveals_spec_sheet(site: Path) -> None:
+    """Cards carry a collapsible spec sheet with real, comma-safe values that
+    the bolt reveals — the interaction has actual content behind it."""
+    projects = (site / "projects" / "index.html").read_text()
+    assert 'class="spec-sheet"' in projects
+    assert "unscrew for spec" in projects
+    assert "2,000+ concurrent · sub-second" in projects  # comma survived YAML
+    assert "Isolation Forest (idle EC2) + rules" in projects
+
+
 def test_case_study_page_renders_with_diagram(site: Path) -> None:
     page = site / "projects" / "devflow-kit" / "index.html"
     assert page.exists()

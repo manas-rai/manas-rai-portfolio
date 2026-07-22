@@ -43,6 +43,9 @@ class Project:
     # Short italic descriptor used on the printable resume ("Open Source",
     # "Multi-Agent SDLC Automation").
     descriptor: str = ""
+    # Spec-sheet rows revealed when a project card is unscrewed on the site:
+    # a list of {label, value} facts. Optional.
+    specs: list[dict[str, str]] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -156,6 +159,10 @@ def _load_projects(projects_file: Path) -> list[Project]:
                 demo=item.get("demo"),
                 featured=bool(item.get("featured", False)),
                 descriptor=str(item.get("descriptor", "")),
+                specs=[
+                    {"label": str(s["label"]), "value": str(s["value"])}
+                    for s in item.get("specs", [])
+                ],
             )
         )
     return projects

@@ -265,7 +265,7 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   gap: 0.8rem;
 }
 .stat-box {
@@ -448,6 +448,8 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .mech-card { display: flex; flex-direction: column; }
 
 .mech-card-body {
+  position: relative;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -457,8 +459,32 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   box-shadow: inset 0 1px 0 var(--edge-hi), inset 0 -1px 0 var(--edge-lo);
   transition: transform .18s var(--snap), box-shadow .18s var(--snap);
 }
-.mech-card:hover .fastener { transform: translateY(3px); }
-.mech-card:hover .bolt-head { transform: rotate(50deg); }
+/* #2 — specular highlight tracks the cursor across the brushed panel. */
+.mech-card-body::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(220px circle at var(--mx, 50%) var(--my, -30%),
+              rgba(255,255,255,.07), transparent 60%);
+  opacity: 0;
+  transition: opacity .25s ease;
+}
+body.fine .mech-card-body:hover::after { opacity: 1; }
+
+/* #1 — unscrew-to-reveal. The fastener is the interaction, not decoration. */
+body.js .mech-card .fastener { cursor: pointer; }
+.mech-card .fastener:focus-visible {
+  outline: 2px solid var(--brass-hi);
+  outline-offset: 4px;
+  border-radius: 3px;
+}
+.mech-card .bolt-head { transition: transform .5s var(--cam); }
+.mech-card:hover:not(.is-open) .fastener { transform: translateY(3px); }
+.mech-card:hover:not(.is-open) .bolt-head { transform: rotate(50deg); }
+.mech-card.is-open .fastener { transform: translateY(-3px); }
+.mech-card.is-open .bolt-head { transform: translateY(-9px) rotate(1080deg); }
 .mech-card:hover .mech-card-body {
   transform: translateY(1px);
   box-shadow: inset 0 2px 4px rgba(0,0,0,.5), inset 0 -1px 0 var(--edge-lo);
@@ -470,6 +496,8 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   color: var(--brass-hi);
   margin: 0 0 0.5rem;
 }
+.unscrew-hint { display: none; color: var(--ink-soft); font-weight: 400; }
+body.js .unscrew-hint { display: inline; }
 .mech-card-body h3 {
   margin: 0 0 0.5rem;
   font-size: 1.04rem;
@@ -478,9 +506,18 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 }
 .card-desc { margin: 0 0 1rem; color: var(--ink-soft); font-size: 0.88rem; }
 
+/* Collapsible spec sheet — animates open/closed via grid-rows (0fr↔1fr). */
+.spec-sheet {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows .4s var(--cam);
+}
+.spec-sheet-inner { min-height: 0; overflow: hidden; }
+body.js .mech-card:not(.is-open) .spec-sheet { grid-template-rows: 0fr; }
+
 /* Spec datasheet — the tech stack as one title-block field, not a pill soup. */
 .spec {
-  margin: 0 0 1.1rem;
+  margin: 0 0 0.9rem;
   padding-top: 0.6rem;
   border-top: 1px solid var(--edge-lo);
 }
@@ -499,6 +536,18 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   line-height: 1.7;
   color: var(--ink-soft);
 }
+.spec-rows { margin: 0 0 1rem; display: grid; }
+.spec-row {
+  display: grid;
+  grid-template-columns: 38% 1fr;
+  gap: 0.7rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  padding: 0.3rem 0;
+  border-top: 1px dotted var(--edge-lo);
+}
+.sr-label { color: var(--brass-hi); letter-spacing: 0.03em; }
+.sr-value { color: var(--ink-soft); }
 
 .chip-row {
   display: flex;

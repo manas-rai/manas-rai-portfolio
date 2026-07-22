@@ -1,6 +1,6 @@
 # Ordered as on the resume; `featured` entries surface on the home page.
 # Professional (client) work has no public repo/site — it's shown via its
-# deep dive only.
+# deep dive only. `specs` rows are revealed when a card is unscrewed on the site.
 
 - title: Healthcare RAG Platform
   summary: >
@@ -10,6 +10,15 @@
     concurrent sessions at sub-second latency.
   tech: [Python, FastAPI, Azure AI Search, Azure OpenAI, Azure AD B2C, Document Intelligence, LangChain, Cosmos DB, RAGAS, Multi-tenant]
   featured: true
+  specs:
+    - label: Scale
+      value: "2,000+ concurrent · sub-second"
+    - label: Isolation
+      value: "Per-tenant vector · blob · B2C claims"
+    - label: Retrieval
+      value: "Hybrid search + semantic reranker"
+    - label: Eval
+      value: "RAGAS — 4 metrics"
 
 - title: Clinical Simulation Platform
   summary: >
@@ -19,6 +28,15 @@
     trainee. Load-tested for 3,000 concurrent sessions at sub-second latency.
   tech: [Python, Go, AWS, EKS, OpenAI, Anthropic, Realtime voice, WebSockets, PostgreSQL, LIT]
   featured: true
+  specs:
+    - label: Scale
+      value: "3,000 concurrent · sub-second"
+    - label: Modality
+      value: "Real-time text + voice (GPT Realtime)"
+    - label: Models
+      value: "OpenAI + Anthropic, config-driven"
+    - label: Assessment
+      value: "Automated per-session feedback report"
 
 - title: DevFlow Kit
   summary: >
@@ -31,6 +49,15 @@
   github: https://github.com/manas-rai/devflow-kit
   demo: https://manas-rai.github.io/devflow-kit-site/
   featured: true
+  specs:
+    - label: Infra
+      value: "Zero added — runs on GitHub Actions"
+    - label: Agents
+      value: "Refinement · implementation · Jira-sync"
+    - label: Cycle
+      value: "Ticket-to-PR from days to hours"
+    - label: Models
+      value: "Provider-agnostic (Anthropic / OpenAI / Google)"
 
 - title: RegLens
   summary: >
@@ -45,6 +72,15 @@
   github: https://github.com/manas-rai/reglens
   demo: https://manas-rai.github.io/reglens/
   featured: true
+  specs:
+    - label: Orchestration
+      value: "LangGraph supervisor + A2A/JSON-RPC agents"
+    - label: Models
+      value: "Gemini (multimodal) + Claude (structured)"
+    - label: State
+      value: "pgvector + Postgres-checkpointed, resumable"
+    - label: Eval
+      value: "RAGAS · DeepEval · behavioral suite · Presidio"
 
 - title: CostTracker
   summary: >
@@ -56,6 +92,15 @@
   tech: [Python, ClickHouse, PostgreSQL]
   github: https://github.com/manas-rai/costtracker
   featured: false
+  specs:
+    - label: Providers
+      value: "OpenAI · Anthropic · Groq · Bedrock"
+    - label: Store
+      value: "ClickHouse (prod) / PostgreSQL (dev)"
+    - label: Pricing
+      value: "1,800+ models, synced from LiteLLM"
+    - label: Design
+      value: "Direct-to-DB — no ingestion server"
 
 - title: Cloud Waste Hunter
   summary: >
@@ -67,3 +112,12 @@
   tech: [Python, FastAPI, scikit-learn, Next.js]
   github: https://github.com/manas-rai/cloud-waste-hunter
   featured: false
+  specs:
+    - label: Detection
+      value: "Isolation Forest (idle EC2) + rules"
+    - label: Targets
+      value: "Idle EC2 · unattached EBS · old snapshots"
+    - label: Safety
+      value: "Dry-run · approval · audit · 7-day rollback"
+    - label: Stack
+      value: "FastAPI · scikit-learn · boto3 · Next.js"

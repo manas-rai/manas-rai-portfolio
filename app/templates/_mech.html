@@ -17,16 +17,23 @@
    tech stack as a single datasheet field (not a soup of equal-weight pills).
    `index` drives the part number; `deep_dive_url` is optional. #}
 {%- macro project_card(project, index, deep_dive_url=None) -%}
+{%- set sid = 'spec-' ~ (project.title | slug) -%}
 <li class="mech-card">
-  <div class="fastener" aria-hidden="true"><div class="bolt-head"></div><div class="shaft"></div><div class="washer"></div></div>
+  <div class="fastener"><div class="bolt-head"></div><div class="shaft"></div><div class="washer"></div></div>
   <div class="mech-card-body">
-    <p class="card-ref">PART № {{ '%02d' % index }}</p>
+    <p class="card-ref">PART № {{ '%02d' % index }}<span class="unscrew-hint"> · unscrew for spec ⟳</span></p>
     <h3>{{ project.title }}</h3>
     <p class="card-desc">{{ project.summary }}</p>
-    <dl class="spec">
-      <dt>Stack</dt>
-      <dd>{{ project.tech | join('  ·  ') }}</dd>
-    </dl>
+    <div class="spec-sheet" id="{{ sid }}"><div class="spec-sheet-inner">
+      <dl class="spec"><dt>Stack</dt><dd>{{ project.tech | join('  ·  ') }}</dd></dl>
+      {%- if project.specs %}
+      <div class="spec-rows">
+        {%- for s in project.specs %}
+        <div class="spec-row"><span class="sr-label">{{ s.label }}</span><span class="sr-value">{{ s.value }}</span></div>
+        {%- endfor %}
+      </div>
+      {%- endif %}
+    </div></div>
     <div class="card-links">
       {% if deep_dive_url %}<a href="{{ deep_dive_url }}">Deep dive →</a>{% endif %}
       {% if project.github %}<a href="{{ project.github }}">GitHub ↗</a>{% endif %}
