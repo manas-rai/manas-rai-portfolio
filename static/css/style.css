@@ -165,19 +165,38 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   padding: 1.9rem 1.5rem 2.6rem;
 }
 
-.meta-row {
+/* Full-bleed instrument strip under the nav — spans the whole viewport, with a
+   live status LED as an ambient moving part. */
+.meta-bar {
+  background: linear-gradient(var(--panel-2), var(--panel));
+  box-shadow: inset 0 1px 0 var(--edge-hi), inset 0 -1px 0 var(--edge-lo);
+}
+.meta-bar-inner {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 0.55rem 1.5rem;
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: 1rem;
   font-family: var(--font-mono);
-  font-size: 0.69rem;
-  letter-spacing: 0.05em;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--ink-soft);
-  padding: 0 0.4rem 0.9rem;
-  margin-bottom: 1.6rem;
-  border-bottom: 1px solid var(--edge-lo);
 }
+.mb-status { display: inline-flex; align-items: center; gap: 0.45rem; color: var(--ink); }
+.led {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #7bd88f;
+  box-shadow: 0 0 6px #7bd88f, 0 0 2px #7bd88f;
+  animation: led-blink 2.4s ease-in-out infinite;
+}
+@keyframes led-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.28; } }
+
+@media (max-width: 680px) { .mb-center { display: none; } }
 
 .prose { max-width: var(--prose); }
 
@@ -443,6 +462,9 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1.25rem 1rem;
+  /* each card is its own natural height — unscrewing one must not stretch its
+     row-mates to match. */
+  align-items: start;
 }
 
 .mech-card { display: flex; flex-direction: column; }
@@ -474,12 +496,39 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 body.fine .mech-card-body:hover::after { opacity: 1; }
 
 /* #1 — unscrew-to-reveal. The fastener is the interaction, not decoration. */
-body.js .mech-card .fastener { cursor: pointer; }
+body.js .mech-card .fastener { cursor: pointer; position: relative; }
 .mech-card .fastener:focus-visible {
   outline: 2px solid var(--brass-hi);
   outline-offset: 4px;
   border-radius: 3px;
 }
+/* hover tooltip on the bolt — tells you the tile unscrews. */
+body.js .mech-card .fastener::after {
+  content: "UNSCREW ⟳";
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  color: var(--brass-hi);
+  background: var(--panel);
+  border: 1px solid var(--edge-lo);
+  box-shadow: 0 4px 10px rgba(0,0,0,.4);
+  padding: 3px 7px;
+  border-radius: 3px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .18s var(--snap), transform .18s var(--snap);
+}
+body.js .mech-card:hover .fastener::after,
+body.js .mech-card .fastener:focus-visible::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+body.js .mech-card.is-open .fastener::after { content: "SCREW IN ⟲"; }
 .mech-card .bolt-head { transition: transform .5s var(--cam); }
 .mech-card:hover:not(.is-open) .fastener { transform: translateY(3px); }
 .mech-card:hover:not(.is-open) .bolt-head { transform: rotate(50deg); }
@@ -496,8 +545,9 @@ body.js .mech-card .fastener { cursor: pointer; }
   color: var(--brass-hi);
   margin: 0 0 0.5rem;
 }
-.unscrew-hint { display: none; color: var(--ink-soft); font-weight: 400; }
-body.js .unscrew-hint { display: inline; }
+/* Discoverability now lives in the bolt's hover tooltip; the inline hint stays
+   hidden to keep the card-ref line clean. */
+.unscrew-hint { display: none; }
 .mech-card-body h3 {
   margin: 0 0 0.5rem;
   font-size: 1.04rem;
@@ -915,6 +965,7 @@ body.js .mech-card:not(.is-open) .spec-sheet { grid-template-rows: 0fr; }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
   .gear { animation: none !important; }
+  .led { animation: none !important; opacity: 1; }
   .d0, .d1, .d2, .d3, .d4, .d5, .d6, .d7, .d8, .d9 { animation: none !important; }
   .d0 { transform: translateY(0) !important; }
   .d1 { transform: translateY(-26px) !important; }

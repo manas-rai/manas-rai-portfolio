@@ -55,6 +55,14 @@
     </div>
   </header>
 
+  <div class="meta-bar">
+    <div class="meta-bar-inner">
+      <span class="mb-unit">UNIT MR-2026-01</span>
+      <span class="mb-center">{% block metabar %}MECHANISM SHEET{% endblock %}</span>
+      <span class="mb-status"><span class="led" aria-hidden="true"></span> OPERATIONAL</span>
+    </div>
+  </div>
+
   <main id="main" class="site-main">
     <div class="sheet">
       {% block content %}{% endblock %}
