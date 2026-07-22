@@ -111,8 +111,11 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   flex-wrap: wrap;
 }
 
-/* Monogram — stamped brass tag. */
+/* Monogram — a stamped brass hex-nut tag. */
 .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   font-family: var(--font-head);
   font-weight: 700;
   font-size: 1.25rem;
@@ -121,6 +124,13 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   text-shadow: 0 1px 0 rgba(0,0,0,.6);
 }
 .brand:hover { text-decoration: none; }
+.brand-mark {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  transition: transform .5s var(--snap);
+}
+.brand:hover .brand-mark { transform: rotate(60deg); }  /* a turn of the nut */
 
 .site-nav { display: flex; gap: 1.5rem; flex-wrap: wrap; }
 .site-nav a {
@@ -424,37 +434,71 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 
 .page-intro { color: var(--ink-soft); max-width: 40rem; margin: 0 0 1.6rem; }
 
-/* ---------- cards (bolted panels) ---------- */
+/* ---------- project cards (bolted parts) ---------- */
 
 .card-grid {
   list-style: none;
   padding: 0;
   margin: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.25rem 1rem;
 }
 
-.card {
+.mech-card { display: flex; flex-direction: column; }
+
+.mech-card-body {
   display: flex;
   flex-direction: column;
+  flex: 1;
   background: var(--panel-2);
   border-radius: 6px;
-  padding: 1.15rem 1.25rem;
+  padding: 1.1rem 1.25rem 1.25rem;
   box-shadow: inset 0 1px 0 var(--edge-hi), inset 0 -1px 0 var(--edge-lo);
   transition: transform .18s var(--snap), box-shadow .18s var(--snap);
 }
-.card:hover {
+.mech-card:hover .fastener { transform: translateY(3px); }
+.mech-card:hover .bolt-head { transform: rotate(50deg); }
+.mech-card:hover .mech-card-body {
   transform: translateY(1px);
   box-shadow: inset 0 2px 4px rgba(0,0,0,.5), inset 0 -1px 0 var(--edge-lo);
 }
-.card h3 {
+.card-ref {
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.1em;
+  color: var(--brass-hi);
   margin: 0 0 0.5rem;
-  font-size: 1.02rem;
+}
+.mech-card-body h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.04rem;
   font-weight: 500;
   letter-spacing: 0.02em;
 }
-.card p { margin: 0 0 0.9rem; color: var(--ink-soft); font-size: 0.88rem; }
+.card-desc { margin: 0 0 1rem; color: var(--ink-soft); font-size: 0.88rem; }
+
+/* Spec datasheet — the tech stack as one title-block field, not a pill soup. */
+.spec {
+  margin: 0 0 1.1rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--edge-lo);
+}
+.spec dt {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--brass-hi);
+  margin-bottom: 0.35rem;
+}
+.spec dd {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  line-height: 1.7;
+  color: var(--ink-soft);
+}
 
 .chip-row {
   display: flex;
@@ -519,7 +563,9 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   background: var(--brass-hi);
   border-color: transparent;
   font-weight: 500;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.25), inset 0 -2px 0 rgba(0,0,0,.3);
+  /* seated/pressed-in — an engaged switch, tying it to the part-card press. */
+  transform: translateY(1px);
+  box-shadow: inset 0 2px 3px rgba(0,0,0,.4);
 }
 
 /* ---------- blog list ---------- */
@@ -650,11 +696,96 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   margin: 0 0 1rem;
 }
 
-.skill-groups { list-style: none; padding: 0; margin: 0; }
-.skill-groups li { margin-bottom: 0.5rem; font-size: 0.9rem; }
-.skill-label { font-weight: 500; font-family: var(--font-body); color: var(--ink); }
+.resume-role { font-weight: 500; font-family: var(--font-head); text-transform: uppercase; letter-spacing: 0.02em; }
+.edu-note { color: var(--ink-soft); font-style: italic; font-size: 0.85rem; margin: 0.3rem 0 0; }
 
-.resume-entry { margin-bottom: 1.5rem; }
+/* Skills / selected projects — bolted panel sections (a bill of materials). */
+.skill-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 0.9rem;
+}
+.skill-panel {
+  background: var(--panel-2);
+  border-radius: 6px;
+  padding: 0.95rem 1.1rem;
+  box-shadow: inset 0 1px 0 var(--edge-hi), inset 0 -1px 0 var(--edge-lo);
+}
+.skill-panel-label {
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--brass-hi);
+  margin: 0 0 0.45rem;
+}
+.skill-panel-items {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  line-height: 1.75;
+  color: var(--ink-soft);
+}
+.skill-panel .card-desc { margin: 0 0 0.55rem; font-size: 0.85rem; }
+
+/* Experience — an exploded assembly: numbered bolted parts down a shaft. */
+.asm-line { display: flex; flex-direction: column; }
+.asm-node { display: flex; gap: 1rem; }
+.asm-rail {
+  position: relative;
+  flex: 0 0 20px;
+  display: flex;
+  justify-content: center;
+}
+.asm-rail::before {           /* the shaft, connecting every part */
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 6px;
+  height: calc(100% + 1.5rem);
+  width: 3px;
+  transform: translateX(-50%);
+  background: linear-gradient(var(--edge-hi), var(--metal-dark));
+  box-shadow: 0 0 0 1px var(--edge-lo);
+  border-radius: 2px;
+}
+.asm-node:last-child .asm-rail::before { height: 16px; }  /* shaft ends at the last bolt */
+.asm-bolt {
+  position: relative;
+  z-index: 1;
+  margin-top: 4px;
+  width: 16px;
+  height: 16px;
+  background: var(--brass);
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+  box-shadow: 0 0 0 3px var(--panel);   /* seat the nut over the shaft */
+}
+.asm-part {
+  flex: 1;
+  min-width: 0;
+  background: var(--panel-2);
+  border-radius: 6px;
+  padding: 1rem 1.2rem;
+  margin-bottom: 1.5rem;
+  box-shadow: inset 0 1px 0 var(--edge-hi), inset 0 -1px 0 var(--edge-lo);
+}
+.asm-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.6rem;
+}
+.asm-num {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  color: var(--brass-hi);
+}
+.asm-head .date { margin-left: auto; }
+.asm-part ul { margin: 0; padding-left: 1.2rem; font-size: 0.9rem; }
+.asm-part li { margin-bottom: 0.3rem; }
+
 .resume-entry-head {
   display: flex;
   justify-content: space-between;
@@ -662,10 +793,6 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   gap: 1rem;
   flex-wrap: wrap;
 }
-.resume-role { font-weight: 500; font-family: var(--font-head); text-transform: uppercase; letter-spacing: 0.02em; }
-.resume-entry ul { margin: 0.5rem 0 0; padding-left: 1.2rem; font-size: 0.9rem; }
-.resume-entry li { margin-bottom: 0.3rem; }
-.edu-note { color: var(--ink-soft); font-style: italic; font-size: 0.85rem; margin: 0.3rem 0 0; }
 
 .resume-list { margin: 0; padding-left: 1.2rem; font-size: 0.9rem; }
 .resume-list li { margin-bottom: 0.4rem; }

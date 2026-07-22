@@ -3,14 +3,14 @@
 {% block title %}Resume — {{ site_name }}{% endblock %}
 
 {% block content %}
-<section class="section resume prose">
+<section class="section resume">
   <div class="resume-header">
     <h1>Resume</h1>
     <a class="btn btn-primary" href="{{ path_for('static', path='resume.pdf') }}" download>Download PDF ↓</a>
   </div>
 
   {% if resume %}
-  <header class="resume-intro">
+  <header class="resume-intro prose">
     <p class="resume-name">{{ resume.name }} — {{ resume.title }}</p>
     <p class="resume-contact">
       {% if resume.location %}{{ resume.location }} · {% endif %}
@@ -22,46 +22,53 @@
 
   {% if resume.skills %}
   <div class="resume-block">
-    <h2>Skills</h2>
-    <ul class="skill-groups">
+    <h2>Skills — bill of materials</h2>
+    <div class="skill-grid">
       {% for group in resume.skills %}
-      <li><span class="skill-label">{{ group.group }}:</span> {{ group.items | join(', ') }}</li>
+      <div class="skill-panel">
+        <p class="skill-panel-label">{{ group.group }}</p>
+        <p class="skill-panel-items">{{ group.items | join('  ·  ') }}</p>
+      </div>
       {% endfor %}
-    </ul>
+    </div>
   </div>
   {% endif %}
 
   {% if resume.experience %}
   <div class="resume-block">
-    <h2>Experience</h2>
-    {% for job in resume.experience %}
-    <div class="resume-entry">
-      <div class="resume-entry-head">
-        <span class="resume-role">{{ job.role }}{% if job.company %} · {{ job.company }}{% endif %}</span>
-        <span class="date">{{ job.period }}</span>
+    <h2>Experience — assembly</h2>
+    <div class="asm-line">
+      {% for job in resume.experience %}
+      <div class="asm-node">
+        <div class="asm-rail" aria-hidden="true"><span class="asm-bolt"></span></div>
+        <div class="asm-part">
+          <div class="asm-head">
+            <span class="asm-num">№ {{ '%02d' % loop.index }}</span>
+            <span class="resume-role">{{ job.role }}{% if job.company %} · {{ job.company }}{% endif %}</span>
+            <span class="date">{{ job.period }}</span>
+          </div>
+          {% if job.highlights %}
+          <ul>{% for point in job.highlights %}<li>{{ point | emph }}</li>{% endfor %}</ul>
+          {% endif %}
+        </div>
       </div>
-      {% if job.highlights %}
-      <ul>
-        {% for point in job.highlights %}<li>{{ point | emph }}</li>{% endfor %}
-      </ul>
-      {% endif %}
+      {% endfor %}
     </div>
-    {% endfor %}
   </div>
   {% endif %}
 
   {% if projects %}
   <div class="resume-block">
     <h2>Selected projects</h2>
-    <ul class="resume-projects">
+    <div class="skill-grid">
       {% for project in projects %}
-      <li>
-        <span class="resume-role">{{ project.title }}</span>
-        <span class="tech">{{ project.tech | join(' · ') }}</span>
-        <p>{{ project.summary }}</p>
-      </li>
+      <div class="skill-panel">
+        <p class="skill-panel-label">{{ project.title }}</p>
+        <p class="card-desc">{{ project.summary }}</p>
+        <p class="skill-panel-items">{{ project.tech | join('  ·  ') }}</p>
+      </div>
       {% endfor %}
-    </ul>
+    </div>
   </div>
   {% endif %}
 

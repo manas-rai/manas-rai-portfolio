@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_mech.html" import odometer, rack_gear %}
+{% from "_mech.html" import odometer, rack_gear, project_card %}
 
 {% block body_class %}home{% endblock %}
 
@@ -77,18 +77,7 @@
   {% if featured_projects %}
   <ul class="card-grid">
     {% for project in featured_projects %}
-    <li class="card">
-      <h3>{{ project.title }}</h3>
-      <p>{{ project.summary }}</p>
-      <ul class="chip-row">
-        {% for tech in project.tech %}<li class="chip">{{ tech }}</li>{% endfor %}
-      </ul>
-      <div class="card-links">
-        {% if case_study_urls.get(project.title) %}<a href="{{ case_study_urls[project.title] }}">Deep dive →</a>{% endif %}
-        {% if project.github %}<a href="{{ project.github }}">GitHub ↗</a>{% endif %}
-        {% if project.demo %}<a href="{{ project.demo }}">Live site ↗</a>{% endif %}
-      </div>
-    </li>
+    {{ project_card(project, loop.index, case_study_urls.get(project.title)) }}
     {% endfor %}
   </ul>
   {% else %}

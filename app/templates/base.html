@@ -34,7 +34,14 @@
 
   <header class="site-header">
     <div class="header-inner">
-      <a class="brand" href="{{ path_for('home') }}" aria-label="{{ site_name }} — home">MR</a>
+      <a class="brand" href="{{ path_for('home') }}" aria-label="{{ site_name }} — home">
+        <svg class="brand-mark" viewBox="0 0 20 20" aria-hidden="true">
+          <path d="M10 1 L17.8 5.5 L17.8 14.5 L10 19 L2.2 14.5 L2.2 5.5 Z"
+                fill="none" stroke="currentColor" stroke-width="1.6"/>
+          <circle cx="10" cy="10" r="3.4" fill="none" stroke="currentColor" stroke-width="1.6"/>
+        </svg>
+        <span>MR</span>
+      </a>
       <nav class="site-nav" aria-label="Main">
         <a href="{{ path_for('projects') }}" class="{{ 'active' if active_nav == 'projects' }}"
            {% if active_nav == 'projects' %}aria-current="page"{% endif %}>Projects</a>

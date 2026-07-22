@@ -13,6 +13,29 @@
 </span>
 {%- endmacro -%}
 
+{# Project card — a bolted part: fastener stack on top, panel body, and the
+   tech stack as a single datasheet field (not a soup of equal-weight pills).
+   `index` drives the part number; `deep_dive_url` is optional. #}
+{%- macro project_card(project, index, deep_dive_url=None) -%}
+<li class="mech-card">
+  <div class="fastener" aria-hidden="true"><div class="bolt-head"></div><div class="shaft"></div><div class="washer"></div></div>
+  <div class="mech-card-body">
+    <p class="card-ref">PART № {{ '%02d' % index }}</p>
+    <h3>{{ project.title }}</h3>
+    <p class="card-desc">{{ project.summary }}</p>
+    <dl class="spec">
+      <dt>Stack</dt>
+      <dd>{{ project.tech | join('  ·  ') }}</dd>
+    </dl>
+    <div class="card-links">
+      {% if deep_dive_url %}<a href="{{ deep_dive_url }}">Deep dive →</a>{% endif %}
+      {% if project.github %}<a href="{{ project.github }}">GitHub ↗</a>{% endif %}
+      {% if project.demo %}<a href="{{ project.demo }}">Live site ↗</a>{% endif %}
+    </div>
+  </div>
+</li>
+{%- endmacro -%}
+
 {# Driven gear on a rack — the single continuously-moving element per view. #}
 {%- macro rack_gear() -%}
 <div class="rack-row" aria-hidden="true">
