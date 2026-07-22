@@ -35,18 +35,22 @@
   --font-head: Oswald, "Arial Narrow", sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   --font-body: Inter, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --max: 1060px;
+  --max: 1200px;
   --prose: 46rem;
   color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
 
+/* Full-bleed machined surface — the graphite sheet IS the screen, not a card
+   floating on a workbench. Content sits in a centered column (.sheet) for
+   readable line length while the material fills the whole viewport. */
 body {
   margin: 0;
+  min-height: 100vh;
   background:
-    repeating-linear-gradient(115deg, rgba(255,255,255,0.015) 0 2px, transparent 2px 4px),
-    linear-gradient(160deg, var(--steel-1), var(--steel-2));
+    repeating-linear-gradient(115deg, rgba(255,255,255,0.012) 0 2px, transparent 2px 4px),
+    linear-gradient(168deg, #202327, var(--panel) 60%, #191c1f);
   background-attachment: fixed;
   font-family: var(--font-body);
   font-size: 1rem;
@@ -142,18 +146,13 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   background: var(--brass-hi);
 }
 
-/* ---------- the mechanism sheet (page panel) ---------- */
+/* ---------- content column ---------- */
 
-.site-main {
+.site-main { width: 100%; }
+.sheet {
   max-width: var(--max);
-  margin: 2rem auto 1.25rem;
-  padding: 1.65rem 1.65rem 2.4rem;
-  background: var(--panel);
-  border-radius: 6px;
-  box-shadow:
-    inset 0 1px 0 var(--edge-hi),
-    inset 0 -2px 0 var(--edge-lo),
-    0 20px 40px rgba(0,0,0,0.35);
+  margin: 0 auto;
+  padding: 1.9rem 1.5rem 2.6rem;
 }
 
 .meta-row {
@@ -707,7 +706,7 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 
 /* ---------- plate footer (title block) ---------- */
 
-.site-footer { max-width: var(--max); margin: 0 auto; padding: 0 0 3rem; }
+.site-footer { max-width: var(--max); margin: 0 auto; padding: 0 1.5rem 3rem; }
 .plate {
   border-radius: 4px;
   background: var(--panel-2);
