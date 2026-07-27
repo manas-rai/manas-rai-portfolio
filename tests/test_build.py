@@ -137,6 +137,49 @@ def test_diagram_flow_arrows_are_drawable(site: Path) -> None:
     assert 'class="sync" pathLength' not in html  # dashed edges stay dashed
 
 
+def test_drawable_matching_survives_reexported_markup() -> None:
+    """A diagram re-exported from a design tool may use single quotes, stack
+    several classes on one element, or close the tag separately. The old matcher
+    silently marked none of those — the arrows just never animated."""
+    from app.services.diagrams import prepare
+
+    reexported = (
+        "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'>"
+        "<defs><style>.flow { stroke: #000; } .sync { stroke-dasharray: 4 4; }</style></defs>"
+        "<path class='flow' d='M0,0 L5,5'></path>"  # single quotes, separate close
+        "<path class=\"edge flow2\" d='M1,1 L6,6'/>"  # several classes
+        "<path class='sync' d='M2,2 L7,7'/>"  # dashed: must stay untouched
+        "</svg>"
+    )
+    tmp = Path(__file__).parent / "_reexported.svg"
+    tmp.write_text(reexported)
+    try:
+        svg, _ = prepare(tmp, "sample")
+    finally:
+        tmp.unlink()
+
+    assert svg.count("data-draw") == 2  # .flow and .flow2, not .sync
+    assert svg.count('pathLength="1"') == 2
+    assert "class='sync' d='M2,2 L7,7'/>" in svg  # dashed edge left alone
+
+
+def test_unmarkable_diagram_fails_the_build() -> None:
+    """The guard that turns a silent miss into a loud failure."""
+    from app.services import diagrams
+    from app.services.content_loader import ContentError
+
+    tmp = Path(__file__).parent / "_broken.svg"
+    tmp.write_text(
+        "<svg><defs><style>.flow { stroke: #000; }</style></defs>"
+        "<line class='flow' x1='0' y1='0' x2='5' y2='5'/></svg>"  # <line>, not <path>
+    )
+    try:
+        with pytest.raises(ContentError, match="drawable flow paths"):
+            diagrams.prepare(tmp, "broken")
+    finally:
+        tmp.unlink()
+
+
 def test_diagram_slugs_are_namespaced(site: Path) -> None:
     """Every source SVG defines the same `accent`/`arrow` ids; inlined, two on
     one page would collide."""
@@ -214,7 +257,9 @@ def test_pages_carry_canonical_and_og_meta(site: Path) -> None:
     from app.config import SITE_URL
 
     html = (site / "blog" / "2026-07-16-hello-world" / "index.html").read_text()
-    assert f'<link rel="canonical" href="{SITE_URL}/blog/2026-07-16-hello-world/"' in html
+    assert (
+        f'<link rel="canonical" href="{SITE_URL}/blog/2026-07-16-hello-world/"' in html
+    )
     assert 'property="og:title"' in html
 
 
