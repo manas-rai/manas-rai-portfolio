@@ -1056,7 +1056,17 @@ body.js .mech-card:not(.is-open) .spec-sheet { grid-template-rows: 0fr; }
 
 /* ---------- blog post / deep-dive body ---------- */
 
-.post-header h1 { font-size: clamp(1.7rem, 4.5vw, 2.3rem); margin: 0 0 0.6rem; }
+.post {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+.post-header {
+  border-bottom: 1px solid var(--edge-lo);
+  padding-bottom: 1.5rem;
+  margin-bottom: 2rem;
+}
+.post-header h1 { font-size: clamp(2rem, 5vw, 3.2rem); margin: 0 0 0.8rem; color: var(--ink); }
 .post-meta { display: flex; gap: 1rem; align-items: baseline; flex-wrap: wrap; }
 .post-meta .tags a {
   font-family: var(--font-mono);
@@ -1065,7 +1075,7 @@ body.js .mech-card:not(.is-open) .spec-sheet { grid-template-rows: 0fr; }
   margin-right: 0.6rem;
 }
 
-.post-body { margin-top: 1.8rem; }
+.post-body { margin-top: 2rem; font-size: 1.05rem; line-height: 1.75; color: var(--ink); }
 .post-body h2 { margin-top: 2.2rem; font-size: 1.25rem; font-weight: 500; }
 .post-body pre {
   background: var(--steel-2);
@@ -1094,23 +1104,55 @@ body.js .mech-card:not(.is-open) .spec-sheet { grid-template-rows: 0fr; }
 
 /* ---------- deep dive ---------- */
 
-.case-study .chip-row { margin-top: 1.3rem; }
-.case-study .card-links { margin-top: 0.9rem; }
-
-.diagram { margin: 2.2rem 0 0.5rem; }
+.case-study {
+  width: 100%;
+  max-width: 100%;
+}
+.case-study h1 {
+  font-size: clamp(2.2rem, 5.5vw, 3.4rem);
+  margin: 0 0 0.8rem;
+  color: var(--ink);
+}
+.case-study .page-intro {
+  font-size: 1.15rem;
+  line-height: 1.65;
+  color: var(--ink-soft);
+  max-width: 100%;
+}
+.case-study .chip-row {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.case-study .card-links {
+  margin-top: 1.2rem;
+}
+.diagram {
+  margin: 3rem 0 2.5rem;
+  width: 100%;
+}
 .diagram img {
   display: block;
   width: 100%;
+  max-width: 100%;
   height: auto;
-  border-radius: 6px;
-  border: 1px solid var(--edge-lo);
-  box-shadow: inset 0 1px 0 var(--edge-hi);
+  border-radius: 10px;
+  border: 1px solid var(--edge);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
 }
 .diagram figcaption {
-  margin-top: 0.75rem;
+  margin-top: 1rem;
   color: var(--ink-soft);
-  font-size: 0.82rem;
-  line-height: 1.55;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  text-align: center;
+}
+.case-study .post-body {
+  max-width: 1000px;
+  margin: 2.5rem 0 0;
+  font-size: 1.06rem;
+  line-height: 1.75;
 }
 
 /* ---------- resume ---------- */
@@ -1125,10 +1167,35 @@ body.js .mech-card:not(.is-open) .spec-sheet { grid-template-rows: 0fr; }
 }
 .resume-header h1 { margin: 0; font-size: clamp(1.6rem, 4vw, 2.1rem); }
 
-.resume-intro { margin-bottom: 2.2rem; }
-.resume-name { font-size: 1.1rem; font-weight: 500; font-family: var(--font-head); text-transform: uppercase; letter-spacing: 0.02em; margin: 0 0 0.2rem; }
-.resume-contact { color: var(--ink-soft); font-size: 0.8rem; font-family: var(--font-mono); margin: 0; }
-.lead { color: var(--ink-soft); }
+.resume-intro {
+  margin-bottom: 2.5rem;
+  width: 100%;
+  max-width: 100%;
+  border-bottom: 1px solid var(--edge-lo);
+  padding-bottom: 1.8rem;
+}
+.resume-name {
+  font-size: 1.25rem;
+  font-weight: 500;
+  font-family: var(--font-head);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin: 0 0 0.3rem;
+  color: var(--ink);
+}
+.resume-contact {
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+  font-family: var(--font-mono);
+  margin: 0 0 1.2rem;
+}
+.lead {
+  color: var(--ink-soft);
+  font-size: 1.05rem;
+  line-height: 1.7;
+  max-width: 100%;
+  margin: 0;
+}
 
 .resume-block { margin-top: 2.4rem; }
 .resume-block h2 {
