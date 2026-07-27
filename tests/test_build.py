@@ -36,8 +36,24 @@ def test_mechanism_components_render(site: Path) -> None:
     mechanism design language — assert they reach the built home page."""
     html = (site / "index.html").read_text()
     assert "digit-strip d2" in html  # odometer for 2000+
-    assert 'class="gear"' in html  # driven gear
+    assert "schematic-gear" in html  # driven gear in AI schematic
+    assert "ai-schematic-section" in html  # interactive AI pipeline diagram
+    assert "story-section" in html  # Mechanical vs AI superpower comparison
     assert 'class="plate"' in html and "Drawn by" in html  # title-block footer
+
+
+def test_genai_hero_transformation_render(site: Path) -> None:
+    """Assert that the Simple / Tech view toggle, AI pipeline schematic nodes,
+    and Mechanical vs AI story cards reach the built home page."""
+    html = (site / "index.html").read_text()
+    assert "view-toggle" in html
+    assert "vt-simple" in html and "vt-tech" in html
+    assert "DWG-AI-01" in html  # schematic drawing tag
+    assert "MULTI-AGENT RAG ARCHITECTURE" in html
+    assert "Why Mechanical Engineering Makes Me a Better AI Engineer" in html
+    assert "ERROR BUDGETING" in html
+    assert "CLOSED-LOOP CONTROL" in html
+    assert "LOAD TESTING" in html
 
 
 def test_interaction_layer_present(site: Path) -> None:

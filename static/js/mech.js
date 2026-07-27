@@ -65,4 +65,91 @@
       });
     });
   }
+
+  /* ---- #3 simple/tech view toggle with localStorage ---- */
+  var toggleBtn = document.getElementById("view-toggle");
+  function setViewMode(mode) {
+    if (mode === "simple") {
+      root.classList.add("mode-simple");
+      if (toggleBtn) {
+        var simpleOpt = toggleBtn.querySelector(".vt-simple");
+        var techOpt = toggleBtn.querySelector(".vt-tech");
+        if (simpleOpt && techOpt) {
+          simpleOpt.classList.add("active");
+          techOpt.classList.remove("active");
+        }
+      }
+    } else {
+      root.classList.remove("mode-simple");
+      if (toggleBtn) {
+        var simpleOpt = toggleBtn.querySelector(".vt-simple");
+        var techOpt = toggleBtn.querySelector(".vt-tech");
+        if (simpleOpt && techOpt) {
+          techOpt.classList.add("active");
+          simpleOpt.classList.remove("active");
+        }
+      }
+    }
+    try {
+      localStorage.setItem("view_mode", mode);
+    } catch (e) {}
+  }
+
+  var savedMode = "tech";
+  try {
+    savedMode = localStorage.getItem("view_mode") || "tech";
+  } catch (e) {}
+  setViewMode(savedMode);
+
+  if (toggleBtn) {
+    toggleBtn.addEventListener("click", function () {
+      var isSimple = root.classList.contains("mode-simple");
+      setViewMode(isSimple ? "tech" : "simple");
+    });
+  }
+
+  /* ---- #4 AI Pipeline Schematic interactive console drawer ---- */
+  var schNodes = document.querySelectorAll(".sch-node");
+  var schConsole = document.getElementById("schematic-console");
+  var scStageName = document.getElementById("sc-stage-name");
+  var scBody = document.getElementById("sc-body");
+  var scClose = document.getElementById("sc-close");
+
+  function closeConsole() {
+    Array.prototype.forEach.call(schNodes, function (n) {
+      n.classList.remove("is-active");
+      n.setAttribute("aria-expanded", "false");
+    });
+    if (schConsole) schConsole.style.display = "none";
+  }
+
+  if (scClose) {
+    scClose.addEventListener("click", closeConsole);
+  }
+
+  Array.prototype.forEach.call(schNodes, function (node) {
+    function toggleNode() {
+      var wasOpen = node.classList.contains("is-active");
+      closeConsole();
+      if (!wasOpen) {
+        node.classList.add("is-active");
+        node.setAttribute("aria-expanded", "true");
+        var tel = node.querySelector(".node-telemetry");
+        if (tel && scBody && schConsole) {
+          scBody.innerHTML = tel.innerHTML;
+          if (scStageName) {
+            scStageName.textContent = node.getAttribute("data-num") || "";
+          }
+          schConsole.style.display = "block";
+        }
+      }
+    }
+    node.addEventListener("click", toggleNode);
+    node.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
+        e.preventDefault();
+        toggleNode();
+      }
+    });
+  });
 })();

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_mech.html" import odometer, rack_gear, project_card, social_links %}
+{% from "_mech.html" import odometer, rack_gear, ai_pipeline_schematic, project_card, social_links %}
 
 {% block body_class %}home{% endblock %}
 
@@ -32,31 +32,47 @@
   </ul>
 </section>
 
-{{ rack_gear() }}
+{{ ai_pipeline_schematic() }}
 
-<section class="assembly" aria-label="Career, in three parts">
-  <div class="part">
-    <div class="fastener"><div class="bolt-head"></div><div class="shaft"></div><div class="washer"></div></div>
-    <div class="part-card">
-      <p class="part-num">PART 01</p>
-      <p class="part-title">Mechanical foundation</p>
-      <p class="part-desc">B.Tech, Mechanical Engineering — the tolerance-stack discipline that still runs everything I build.</p>
-    </div>
+<section class="story-section" aria-label="Why Mechanical Engineering Makes Me a Better AI Engineer">
+  <div class="story-header">
+    <span class="section-eyebrow">00 · SUPERPOWER</span>
+    <h2><span class="tech-label">Why Mechanical Engineering Makes Me a Better AI Engineer</span><span
+        class="simple-label">Why a Mechanical Engineer Builds Better AI Systems</span></h2>
+    <p class="story-subtitle"><span class="tech-label">The tolerance-stack and control systems discipline behind
+        high-reliability GenAI</span><span class="simple-label">How engineering discipline makes my AI systems reliable
+        in production</span></p>
   </div>
-  <div class="part">
-    <div class="fastener"><div class="bolt-head"></div><div class="shaft"></div><div class="washer"></div></div>
-    <div class="part-card">
-      <p class="part-num">PART 02</p>
-      <p class="part-title">Production systems</p>
-      <p class="part-desc">5 yrs backend &amp; cloud — async Python, distributed pipelines, load-tested at scale.</p>
+  <div class="story-grid">
+    <div class="story-card">
+      <div class="sc-badge">01 · ERROR BUDGETING</div>
+      <h3 class="sc-title"><span class="tech-label">Tolerance Stack-ups &rarr; Hallucination Control</span><span
+          class="simple-label">Stopping Errors Before They Add Up</span></h3>
+      <p class="sc-body"><span class="tech-label">In mechanics, micro-tolerances compound across parts and freeze
+          assemblies. In multi-agent AI, small errors compound across LLM hops. I build automated safeguard gates and
+          RAGAS eval harnesses to eliminate error stack-up.</span><span class="simple-label">In machines, tiny errors
+          add up and break the system. In AI, small mistakes add up and cause hallucinations. I build strict automated
+          safety checks so answers stay accurate.</span></p>
     </div>
-  </div>
-  <div class="part">
-    <div class="fastener"><div class="bolt-head"></div><div class="shaft"></div><div class="washer"></div></div>
-    <div class="part-card">
-      <p class="part-num">PART 03</p>
-      <p class="part-title">GenAI specialist</p>
-      <p class="part-desc">Multi-agent systems, RAG pipelines, and MCP tooling — shipped to production.</p>
+    <div class="story-card">
+      <div class="sc-badge">02 · CLOSED-LOOP CONTROL</div>
+      <h3 class="sc-title"><span class="tech-label">Sensor Feedback &rarr; Agentic Self-Correction</span><span
+          class="simple-label">Automated Quality Control</span></h3>
+      <p class="sc-body"><span class="tech-label">Open-loop systems drift; closed-loop systems correct via sensor
+          damping. My autonomous LangGraph agents use automated reflection, schema validation, and drift detection
+          before shipping output to production.</span><span class="simple-label">Machines need sensors to stay balanced.
+          My AI agents use automated feedback checks to verify their own work before sending an answer to the
+          user.</span></p>
+    </div>
+    <div class="story-card">
+      <div class="sc-badge">03 · STRESS &amp; LOAD TESTING</div>
+      <h3 class="sc-title"><span class="tech-label">Safety Factors &rarr; High-Concurrency RAG</span><span
+          class="simple-label">Built to Handle Heavy Load</span></h3>
+      <p class="sc-body"><span class="tech-label">You never ship a bridge without stress-testing safety factors under
+          load. I apply the same rigor to cloud infrastructure—load-testing multi-tenant vector search pipelines to
+          3,000+ concurrent sessions at sub-second latency.</span><span class="simple-label">You don't open a bridge
+          without stress-testing it. I load-test every AI system I build to handle 3,000+ users at once without slowing
+          down.</span></p>
     </div>
   </div>
 </section>
