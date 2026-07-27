@@ -21,11 +21,15 @@
 <li class="mech-card">
   <div class="fastener"><div class="bolt-head"></div><div class="shaft"></div><div class="washer"></div></div>
   <div class="mech-card-body">
-    <p class="card-ref">PART № {{ '%02d' % index }}<span class="unscrew-hint"> · unscrew for spec ⟳</span></p>
+    <p class="card-ref"><span class="tech-label">SYS-{{ '%02d' % index }} · MULTI-AGENT ARCHITECTURE</span><span class="simple-label">FEATURED PROJECT 0{{ index }}</span><span class="unscrew-hint"><span class="tech-label"> · unscrew for spec ⟳</span><span class="simple-label"> · VIEW METRICS ⟳</span></span></p>
     <h3>{{ project.title }}</h3>
     <p class="card-desc">{{ project.summary }}</p>
+    <div class="card-stack">
+      <span class="stack-label">STACK:</span>
+      <span class="stack-tags">{{ project.tech | join(' · ') }}</span>
+    </div>
     <div class="spec-sheet" id="{{ sid }}"><div class="spec-sheet-inner">
-      <dl class="spec"><dt>Stack</dt><dd>{{ project.tech | join('  ·  ') }}</dd></dl>
+      <dl class="spec"><dt>Architecture</dt><dd>{{ project.tech | join('  ·  ') }}</dd></dl>
       {%- if project.specs %}
       <div class="spec-rows">
         {%- for s in project.specs %}
@@ -78,4 +82,85 @@
     <circle class="gear-hub" cx="17" cy="17" r="5"/>
   </svg>
 </div>
+{%- endmacro -%}
+
+{# AI Systems Pipeline Schematic — interactive architectural flow schematic #}
+{%- macro ai_pipeline_schematic() -%}
+<section class="ai-schematic-section" aria-label="Interactive AI Systems Pipeline Schematic">
+  <div class="schematic-header">
+    <div class="sh-left">
+      <span class="sh-tag">DWG-AI-01</span>
+      <span class="sh-title"><span class="tech-label">MULTI-AGENT RAG ARCHITECTURE</span><span class="simple-label">HOW MY AI SYSTEMS WORK</span></span>
+    </div>
+    <div class="sh-right">
+      <span class="sh-hint">Click nodes for telemetry ▾</span>
+      <svg class="gear schematic-gear" viewBox="0 0 34 34" aria-hidden="true">
+        <g class="gear-tooth">
+          <rect x="15" y="1" width="4" height="6" transform="rotate(0 17 17)"/>
+          <rect x="15" y="1" width="4" height="6" transform="rotate(45 17 17)"/>
+          <rect x="15" y="1" width="4" height="6" transform="rotate(90 17 17)"/>
+          <rect x="15" y="1" width="4" height="6" transform="rotate(135 17 17)"/>
+          <rect x="15" y="1" width="4" height="6" transform="rotate(180 17 17)"/>
+          <rect x="15" y="1" width="4" height="6" transform="rotate(225 17 17)"/>
+          <rect x="15" y="1" width="4" height="6" transform="rotate(270 17 17)"/>
+          <rect x="15" y="1" width="4" height="6" transform="rotate(315 17 17)"/>
+        </g>
+        <circle class="gear-body" cx="17" cy="17" r="12"/>
+        <circle class="gear-hub" cx="17" cy="17" r="5"/>
+      </svg>
+    </div>
+  </div>
+  <div class="schematic-grid">
+    <!-- Node 1: Ingestion / Query -->
+    <div class="sch-node" tabindex="0" role="button" aria-expanded="false" data-node="node-ingest">
+      <div class="node-num">01 · INGESTION</div>
+      <div class="node-title"><span class="tech-label">QUERY &amp; CONTEXT</span><span class="simple-label">USER INPUT</span></div>
+      <div class="node-desc"><span class="tech-label">Prompt formatting, JWT claims &amp; tenant partitioning</span><span class="simple-label">Secure authentication &amp; input checking</span></div>
+      <div class="node-telemetry">
+        <div class="tel-row"><span>Auth:</span> <strong>Azure AD B2C / JWT</strong></div>
+        <div class="tel-row"><span>Isolation:</span> <strong>Per-tenant vector space</strong></div>
+        <div class="tel-row"><span>Latency:</span> <strong>~12ms prep</strong></div>
+      </div>
+    </div>
+    <div class="sch-connector" aria-hidden="true"><span>➔</span></div>
+
+    <!-- Node 2: RAG / Vector -->
+    <div class="sch-node" tabindex="0" role="button" aria-expanded="false" data-node="node-rag">
+      <div class="node-num">02 · RETRIEVAL</div>
+      <div class="node-title"><span class="tech-label">HYBRID RAG + RERANK</span><span class="simple-label">SMART DATABASE SEARCH</span></div>
+      <div class="node-desc"><span class="tech-label">pgvector &amp; Azure AI Search with semantic reranking</span><span class="simple-label">Finds relevant knowledge instantly</span></div>
+      <div class="node-telemetry">
+        <div class="tel-row"><span>Search:</span> <strong>Dense + Sparse Hybrid</strong></div>
+        <div class="tel-row"><span>Store:</span> <strong>pgvector / Azure AI Search</strong></div>
+        <div class="tel-row"><span>Recall:</span> <strong>0.94 Context Precision</strong></div>
+      </div>
+    </div>
+    <div class="sch-connector" aria-hidden="true"><span>➔</span></div>
+
+    <!-- Node 3: Multi-Agent -->
+    <div class="sch-node" tabindex="0" role="button" aria-expanded="false" data-node="node-agent">
+      <div class="node-num">03 · ORCHESTRATION</div>
+      <div class="node-title"><span class="tech-label">MULTI-AGENT SUPERVISOR</span><span class="simple-label">AI SPECIALIST WORKERS</span></div>
+      <div class="node-desc"><span class="tech-label">LangGraph state machine &amp; A2A/JSON-RPC protocols</span><span class="simple-label">Specialized AI agents divide &amp; conquer</span></div>
+      <div class="node-telemetry">
+        <div class="tel-row"><span>Framework:</span> <strong>LangGraph / Claude Code</strong></div>
+        <div class="tel-row"><span>Models:</span> <strong>Claude 3.5 Sonnet / GPT-4o</strong></div>
+        <div class="tel-row"><span>Scale:</span> <strong>3,000+ conc. sessions</strong></div>
+      </div>
+    </div>
+    <div class="sch-connector" aria-hidden="true"><span>➔</span></div>
+
+    <!-- Node 4: Safeguard / Eval -->
+    <div class="sch-node" tabindex="0" role="button" aria-expanded="false" data-node="node-eval">
+      <div class="node-num">04 · SAFEGUARD</div>
+      <div class="node-title"><span class="tech-label">EVAL HARNESS &amp; GATE</span><span class="simple-label">QUALITY &amp; SAFETY CHECK</span></div>
+      <div class="node-desc"><span class="tech-label">RAGAS eval suite, schema validation &amp; drift check</span><span class="simple-label">Automated error checks before shipping</span></div>
+      <div class="node-telemetry">
+        <div class="tel-row"><span>Eval:</span> <strong>RAGAS (4 metrics)</strong></div>
+        <div class="tel-row"><span>Hallucination:</span> <strong>&lt;0.5% rate</strong></div>
+        <div class="tel-row"><span>Status:</span> <strong>VERIFIED OPERATIONAL</strong></div>
+      </div>
+    </div>
+  </div>
+</section>
 {%- endmacro -%}

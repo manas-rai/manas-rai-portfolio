@@ -65,4 +65,69 @@
       });
     });
   }
+
+  /* ---- #3 simple/tech view toggle with localStorage ---- */
+  var toggleBtn = document.getElementById("view-toggle");
+  function setViewMode(mode) {
+    if (mode === "simple") {
+      root.classList.add("mode-simple");
+      if (toggleBtn) {
+        var simpleOpt = toggleBtn.querySelector(".vt-simple");
+        var techOpt = toggleBtn.querySelector(".vt-tech");
+        if (simpleOpt && techOpt) {
+          simpleOpt.classList.add("active");
+          techOpt.classList.remove("active");
+        }
+      }
+    } else {
+      root.classList.remove("mode-simple");
+      if (toggleBtn) {
+        var simpleOpt = toggleBtn.querySelector(".vt-simple");
+        var techOpt = toggleBtn.querySelector(".vt-tech");
+        if (simpleOpt && techOpt) {
+          techOpt.classList.add("active");
+          simpleOpt.classList.remove("active");
+        }
+      }
+    }
+    try {
+      localStorage.setItem("view_mode", mode);
+    } catch (e) {}
+  }
+
+  var savedMode = "tech";
+  try {
+    savedMode = localStorage.getItem("view_mode") || "tech";
+  } catch (e) {}
+  setViewMode(savedMode);
+
+  if (toggleBtn) {
+    toggleBtn.addEventListener("click", function () {
+      var isSimple = root.classList.contains("mode-simple");
+      setViewMode(isSimple ? "tech" : "simple");
+    });
+  }
+
+  /* ---- #4 AI Pipeline Schematic node telemetry toggle ---- */
+  var schNodes = document.querySelectorAll(".sch-node");
+  Array.prototype.forEach.call(schNodes, function (node) {
+    function toggleNode() {
+      var wasOpen = node.classList.contains("is-active");
+      Array.prototype.forEach.call(schNodes, function (n) {
+        n.classList.remove("is-active");
+        n.setAttribute("aria-expanded", "false");
+      });
+      if (!wasOpen) {
+        node.classList.add("is-active");
+        node.setAttribute("aria-expanded", "true");
+      }
+    }
+    node.addEventListener("click", toggleNode);
+    node.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
+        e.preventDefault();
+        toggleNode();
+      }
+    });
+  });
 })();

@@ -57,9 +57,16 @@
 
   <div class="meta-bar">
     <div class="meta-bar-inner">
-      <span class="mb-unit">UNIT MR-2026-01</span>
-      <span class="mb-center">{% block metabar %}MECHANISM SHEET{% endblock %}</span>
-      <span class="mb-status"><span class="led" aria-hidden="true"></span> OPERATIONAL</span>
+      <span class="mb-unit"><span class="tech-label">SYS MR-2026</span><span class="simple-label">MANAS RAI</span></span>
+      <span class="mb-center">{% block metabar %}<span class="tech-label">GENAI SYSTEMS ARCHITECTURE</span><span class="simple-label">SENIOR GENAI &amp; SYSTEMS ENGINEER</span>{% endblock %}</span>
+      <div class="mb-controls">
+        <span class="mb-status"><span class="led" aria-hidden="true"></span> <span class="tech-label">OPERATIONAL</span><span class="simple-label">AVAILABLE</span></span>
+        <button type="button" class="view-toggle" id="view-toggle" aria-label="Toggle between simple summary view and technical detail view">
+          <span class="vt-option vt-simple">👔 Simple</span>
+          <span class="vt-divider">/</span>
+          <span class="vt-option vt-tech active">🤖 Tech</span>
+        </button>
+      </div>
     </div>
   </div>
 
