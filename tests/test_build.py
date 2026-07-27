@@ -32,28 +32,58 @@ def test_home_contains_site_name(site: Path) -> None:
 
 
 def test_mechanism_components_render(site: Path) -> None:
-    """Odometer stats, driven gear, and the plate title-block footer are the
-    mechanism design language — assert they reach the built home page."""
+    """Odometer stats and the plate title-block footer are the mechanism design
+    language — assert they reach the built home page."""
     html = (site / "index.html").read_text()
-    assert "digit-strip d2" in html  # odometer for 2000+
-    assert "schematic-gear" in html  # driven gear in AI schematic
-    assert "ai-schematic-section" in html  # interactive AI pipeline diagram
+    assert "digit-strip d3" in html  # odometer for 3000 concurrent sessions
     assert "story-section" in html  # Mechanical vs AI superpower comparison
     assert 'class="plate"' in html and "Drawn by" in html  # title-block footer
 
 
-def test_genai_hero_transformation_render(site: Path) -> None:
-    """Assert that the Simple / Tech view toggle, AI pipeline schematic nodes,
-    and Mechanical vs AI story cards reach the built home page."""
+def test_superpower_story_renders(site: Path) -> None:
+    """The mechanical-to-AI story is the home page's differentiator; assert all
+    three cards reach the build."""
     html = (site / "index.html").read_text()
-    assert "view-toggle" in html
-    assert "vt-simple" in html and "vt-tech" in html
-    assert "DWG-AI-01" in html  # schematic drawing tag
-    assert "MULTI-AGENT RAG ARCHITECTURE" in html
     assert "Why Mechanical Engineering Makes Me a Better AI Engineer" in html
     assert "ERROR BUDGETING" in html
     assert "CLOSED-LOOP CONTROL" in html
     assert "LOAD TESTING" in html
+
+
+def test_home_page_leads_with_projects_not_chrome(site: Path) -> None:
+    """The generic RAG schematic and the simple/tech copy toggle were removed:
+    both put chrome (and unsourced metrics) ahead of the actual work."""
+    html = (site / "index.html").read_text()
+    for gone in (
+        "ai-schematic-section",
+        "DWG-AI-01",
+        "view-toggle",
+        "vt-simple",
+        "tech-label",
+        "simple-label",
+    ):
+        assert gone not in html, gone
+
+
+def test_headline_stats_link_to_their_source(site: Path) -> None:
+    """An unsourced number is decoration — every home-page stat must link to the
+    page that substantiates it."""
+    html = (site / "index.html").read_text()
+    assert 'href="/projects/clinical-simulation-platform/"' in html  # 3,000 sessions
+    assert html.count('class="stat-link"') == 3
+
+
+def test_no_undefined_css_custom_properties() -> None:
+    """A `var(--x)` with no definition invalidates the whole declaration, so a
+    missing token shows up as a stray currentColor border, not a build error."""
+    import re
+
+    css = (Path(__file__).parent.parent / "static" / "css" / "style.css").read_text()
+    defined = set(re.findall(r"^\s*(--[\w-]+)\s*:", css, re.MULTILINE))
+    # Only fallback-less references matter — `var(--mx, 50%)` is how the JS-set
+    # cursor properties degrade before a pointer has moved.
+    used = set(re.findall(r"var\(\s*(--[\w-]+)\s*\)", css))
+    assert not (used - defined), f"undefined CSS variables: {sorted(used - defined)}"
 
 
 def test_interaction_layer_present(site: Path) -> None:

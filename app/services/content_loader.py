@@ -40,8 +40,9 @@ class Project:
     github: str | None = None
     demo: str | None = None
     featured: bool = False
-    # Short italic descriptor used on the printable resume ("Open Source",
-    # "Multi-Agent SDLC Automation").
+    # Short descriptor naming what the project *is* ("Open Source",
+    # "Multi-Agent SDLC Automation") — shown on the printable resume and as
+    # the card reference line on the site.
     descriptor: str = ""
     # Spec-sheet rows revealed when a project card is unscrewed on the site:
     # a list of {label, value} facts. Optional.
