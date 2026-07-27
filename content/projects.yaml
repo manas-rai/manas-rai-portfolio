@@ -8,6 +8,7 @@
     product — tenant-isolated vector stores, secure authentication, and strict
     data partitioning, taken from zero to production and load-tested for 2,000+
     concurrent sessions at sub-second latency.
+  descriptor: Multi-Tenant RAG on Azure
   tech: [Python, FastAPI, Azure AI Search, Azure OpenAI, Azure AD B2C, Document Intelligence, LangChain, Cosmos DB, RAGAS, Multi-tenant]
   featured: true
   specs:
@@ -26,6 +27,7 @@
     prompt-engineered patient personas driven by authored case content, over
     real-time text and voice, plus an automated feedback report that scores the
     trainee. Load-tested for 3,000 concurrent sessions at sub-second latency.
+  descriptor: Real-Time Voice + Text LLM
   tech: [Python, Go, AWS, EKS, OpenAI, Anthropic, Realtime voice, WebSockets, PostgreSQL, LIT]
   featured: true
   specs:
