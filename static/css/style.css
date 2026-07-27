@@ -299,19 +299,23 @@ body:not(.mode-simple) .simple-label { display: none !important; }
 .schematic-grid {
   display: grid;
   grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
-  align-items: start;
-  gap: 0.5rem;
-  padding: 1.25rem 1rem;
+  align-items: stretch;
+  gap: 0.75rem;
+  padding: 1.5rem;
 }
 .sch-node {
   background: var(--bg);
   border: 1px solid var(--edge);
   border-radius: 5px;
-  padding: 0.75rem;
+  padding: 1rem;
   cursor: pointer;
   transition: border-color 0.2s var(--snap), transform 0.2s var(--snap), box-shadow 0.2s var(--snap);
   position: relative;
   outline: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
 }
 .sch-node:hover, .sch-node:focus, .sch-node.is-active {
   border-color: var(--brass-hi);
@@ -339,17 +343,13 @@ body:not(.mode-simple) .simple-label { display: none !important; }
   line-height: 1.35;
 }
 .node-telemetry {
-  display: none;
-  margin-top: 0.65rem;
-  padding-top: 0.6rem;
+  display: block;
+  margin-top: 0.85rem;
+  padding-top: 0.75rem;
   border-top: 1px dashed var(--edge);
   font-family: var(--font-mono);
   font-size: 0.68rem;
   color: var(--ink);
-}
-.sch-node.is-active .node-telemetry {
-  display: block;
-  animation: fade-in 0.2s ease-out;
 }
 .tel-row {
   display: flex;
@@ -361,9 +361,10 @@ body:not(.mode-simple) .simple-label { display: none !important; }
   display: flex;
   align-items: center;
   justify-content: center;
+  align-self: center;
   color: var(--edge-hi);
-  font-size: 0.9rem;
-  padding-top: 1.5rem;
+  font-size: 1.1rem;
+  padding: 0;
   user-select: none;
 }
 @media (max-width: 860px) {
@@ -546,7 +547,7 @@ body:not(.mode-simple) .simple-label { display: none !important; }
 
 /* ---------- odometer stats ---------- */
 
-.stats { margin: 0 1.25rem 1.7rem; }
+.stats { margin: 0 0 2.2rem; }
 .stat-grid {
   list-style: none;
   margin: 0;
