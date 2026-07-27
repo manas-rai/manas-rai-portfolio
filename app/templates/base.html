@@ -28,7 +28,9 @@
   <link rel="preload" as="font" type="font/woff2" crossorigin
         href="{{ path_for('static', path='fonts/inter-400.woff2') }}" />
   <link rel="stylesheet" href="{{ path_for('static', path='css/style.css') }}" />
+  {% block head %}{% endblock %}
 </head>
+{% from "_mech.html" import system_console %}
 <body class="{% block body_class %}{% endblock %}">
   <a class="skip-link" href="#main">Skip to content</a>
 
@@ -59,7 +61,13 @@
     <div class="meta-bar-inner">
       <span class="mb-unit">SYS MR-2026</span>
       <span class="mb-center">{% block metabar %}SENIOR GENAI &amp; SYSTEMS ENGINEER{% endblock %}</span>
-      <span class="mb-status"><span class="led" aria-hidden="true"></span> AVAILABLE</span>
+      <div class="mb-right">
+        <span class="mb-status"><span class="led" aria-hidden="true"></span> AVAILABLE</span>
+        <button type="button" class="console-open" id="console-open" hidden
+                aria-haspopup="dialog" aria-expanded="false" aria-controls="console">
+          <kbd>⌘K</kbd> <span>Console</span>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -78,6 +86,7 @@
       <div class="tb-cell"><div class="tb-label">Contact</div><div class="tb-value"><a href="mailto:{{ contact_email }}">Email</a></div></div>
     </div>
   </footer>
+  {{ system_console(interview, projects_all, path_for) }}
   <script src="{{ path_for('static', path='js/mech.js') }}" defer></script>
   {% block scripts %}{% endblock %}
 </body>

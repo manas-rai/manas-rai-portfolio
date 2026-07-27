@@ -31,6 +31,7 @@ from app.config import (
     STATIC_DIR,
     TEMPLATES_DIR,
 )
+from app.services import diagrams
 from app.services.content_loader import (
     ContentError,
     ContentIndex,
@@ -149,7 +150,12 @@ class SiteWriter:
         self.urls: list[str] = []
 
     def page(
-        self, template: str, url: str, context: dict | None = None, *, index: bool = True
+        self,
+        template: str,
+        url: str,
+        context: dict | None = None,
+        *,
+        index: bool = True,
     ) -> None:
         """Render template to dist/<url>/index.html (or a literal *.html path).
         Injects page_url so templates can emit canonical/OG URLs. Set index=False
@@ -176,6 +182,7 @@ def build(dist: Path = DIST_DIR, *, include_drafts: bool = False) -> None:
         CONTENT_DIR / "resume.yaml",
         include_drafts=include_drafts,
         case_studies_dir=CASE_STUDIES_DIR,
+        interview_file=CONTENT_DIR / "interview.yaml",
     )
 
     if dist.exists():
@@ -191,6 +198,17 @@ def build(dist: Path = DIST_DIR, *, include_drafts: bool = False) -> None:
         for project in index.projects:
             if slugify(project.title) == case.slug:
                 case_study_urls[project.title] = path_for("case_study", slug=case.slug)
+
+    # Architecture SVGs are inlined so their nodes and flow arrows can animate.
+    # Their stylesheets are lifted into one same-origin file — an inline <style>
+    # would be blocked by style-src 'self'.
+    diagram_markup, diagram_css = diagrams.build_stylesheet(
+        {
+            case.slug: STATIC_DIR / "images" / case.diagram
+            for case in index.case_studies
+            if case.diagram
+        }
+    )
 
     env = Environment(
         loader=FileSystemLoader(str(TEMPLATES_DIR)),
@@ -212,13 +230,15 @@ def build(dist: Path = DIST_DIR, *, include_drafts: bool = False) -> None:
             "linkedin_url": LINKEDIN_URL,
             "csp": CSP,
             "case_study_urls": case_study_urls,
+            "interview": index.interview,
+            "projects_all": index.projects,
             "path_for": path_for,
         },
     )
 
     _write_home(writer, index)
     _write_projects(writer, index)
-    _write_case_studies(writer, index)
+    _write_case_studies(writer, index, diagram_markup)
     _write_blog(writer, index)
     writer.page(
         "resume.html",
@@ -239,14 +259,17 @@ def build(dist: Path = DIST_DIR, *, include_drafts: bool = False) -> None:
     )
 
     shutil.copytree(STATIC_DIR, dist / "static")
+    (dist / "static" / "css" / "diagrams.css").write_text(diagram_css)
     _write_seo(writer, index, dist)
 
 
 def _write_seo(writer: SiteWriter, index: ContentIndex, dist: Path) -> None:
     """Emit sitemap.xml, robots.txt, and an RSS feed for the blog."""
     locs = sorted(set(writer.urls))
-    sitemap = ['<?xml version="1.0" encoding="UTF-8"?>',
-               '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+    sitemap = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    ]
     sitemap += [f"  <url><loc>{SITE_URL}{u}</loc></url>" for u in locs]
     sitemap.append("</urlset>")
     (dist / "sitemap.xml").write_text("\n".join(sitemap) + "\n")
@@ -255,24 +278,28 @@ def _write_seo(writer: SiteWriter, index: ContentIndex, dist: Path) -> None:
         f"User-agent: *\nAllow: /\nSitemap: {SITE_URL}/sitemap.xml\n"
     )
 
-    rss = ['<?xml version="1.0" encoding="UTF-8"?>',
-           '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">',
-           '  <channel>',
-           f"    <title>{xml_escape(SITE_NAME)} — Blog</title>",
-           f"    <link>{SITE_URL}/blog/</link>",
-           f"    <description>{xml_escape(SITE_TAGLINE)}</description>",
-           f'    <atom:link href="{SITE_URL}/feed.xml" rel="self" type="application/rss+xml"/>']
+    rss = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">',
+        "  <channel>",
+        f"    <title>{xml_escape(SITE_NAME)} — Blog</title>",
+        f"    <link>{SITE_URL}/blog/</link>",
+        f"    <description>{xml_escape(SITE_TAGLINE)}</description>",
+        f'    <atom:link href="{SITE_URL}/feed.xml" rel="self" type="application/rss+xml"/>',
+    ]
     for post in index.posts:
         link = f"{SITE_URL}{route_path('blog_post', slug=post.slug)}"
         pub = post.date.strftime("%a, %d %b %Y 00:00:00 +0000")
-        rss += ['    <item>',
-                f"      <title>{xml_escape(post.title)}</title>",
-                f"      <link>{link}</link>",
-                f"      <guid>{link}</guid>",
-                f"      <pubDate>{pub}</pubDate>",
-                f"      <description>{xml_escape(post.summary)}</description>",
-                '    </item>']
-    rss += ['  </channel>', '</rss>']
+        rss += [
+            "    <item>",
+            f"      <title>{xml_escape(post.title)}</title>",
+            f"      <link>{link}</link>",
+            f"      <guid>{link}</guid>",
+            f"      <pubDate>{pub}</pubDate>",
+            f"      <description>{xml_escape(post.summary)}</description>",
+            "    </item>",
+        ]
+    rss += ["  </channel>", "</rss>"]
     (dist / "feed.xml").write_text("\n".join(rss) + "\n")
 
 
@@ -290,7 +317,9 @@ def _write_projects(writer: SiteWriter, index: ContentIndex) -> None:
 
     def render(url: str, active: str | None) -> None:
         projects = (
-            [p for p in index.projects if active in p.tech] if active else index.projects
+            [p for p in index.projects if active in p.tech]
+            if active
+            else index.projects
         )
         filters = _filter_links(
             path_for("projects"),
@@ -309,12 +338,18 @@ def _write_projects(writer: SiteWriter, index: ContentIndex) -> None:
         render(route_path("projects_tech", tech=tech), tech)
 
 
-def _write_case_studies(writer: SiteWriter, index: ContentIndex) -> None:
+def _write_case_studies(
+    writer: SiteWriter, index: ContentIndex, diagram_markup: dict[str, str]
+) -> None:
     for case in index.case_studies:
         writer.page(
             "case_study.html",
             route_path("case_study", slug=case.slug),
-            {"case": case, "active_nav": "projects"},
+            {
+                "case": case,
+                "diagram_svg": diagram_markup.get(case.slug),
+                "active_nav": "projects",
+            },
         )
 
 
@@ -335,8 +370,12 @@ def _write_blog(writer: SiteWriter, index: ContentIndex) -> None:
                 {
                     "posts": page["posts"],
                     "filters": filters,
-                    "prev_url": f"{BASE_PATH}{page['prev_url']}" if page["prev_url"] else None,
-                    "next_url": f"{BASE_PATH}{page['next_url']}" if page["next_url"] else None,
+                    "prev_url": f"{BASE_PATH}{page['prev_url']}"
+                    if page["prev_url"]
+                    else None,
+                    "next_url": f"{BASE_PATH}{page['next_url']}"
+                    if page["next_url"]
+                    else None,
                     "active_nav": "blog",
                 },
             )

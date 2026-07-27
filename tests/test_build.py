@@ -109,8 +109,40 @@ def test_case_study_page_renders_with_diagram(site: Path) -> None:
     assert page.exists()
     html = page.read_text()
     assert "deep dive" in html.lower()
-    assert "devflow-kit-architecture.svg" in html
+    assert 'class="dwg dwg-devflow-kit"' in html  # inlined, not an <img>
     assert (site / "static" / "images" / "devflow-kit-architecture.svg").exists()
+
+
+def test_inlined_diagrams_carry_no_inline_styles(site: Path) -> None:
+    """Inlining the SVGs would smuggle their <style> blocks into the page, where
+    `style-src 'self'` blocks them and the diagram renders unstyled. The rules
+    must be lifted into a real stylesheet instead."""
+    sheet = site / "static" / "css" / "diagrams.css"
+    assert sheet.exists()
+    assert ".dwg-devflow-kit .node" in sheet.read_text()  # scoped, not global
+
+    for slug in ("devflow-kit", "healthcare-rag-platform", "reglens"):
+        html = (site / "projects" / slug / "index.html").read_text()
+        assert "<style>" not in html, slug
+        assert 'href="/static/css/diagrams.css"' in html, slug
+
+
+def test_diagram_flow_arrows_are_drawable(site: Path) -> None:
+    """`pathLength="1"` normalises every arrow so one dashoffset rule animates
+    them all. Dashed strokes are deliberately left alone — overriding their
+    dasharray would destroy the dashes that carry meaning."""
+    html = (site / "projects" / "devflow-kit" / "index.html").read_text()
+    assert html.count("data-draw") >= 3
+    assert html.count('pathLength="1"') == html.count("data-draw")
+    assert 'class="sync" pathLength' not in html  # dashed edges stay dashed
+
+
+def test_diagram_slugs_are_namespaced(site: Path) -> None:
+    """Every source SVG defines the same `accent`/`arrow` ids; inlined, two on
+    one page would collide."""
+    html = (site / "projects" / "reglens" / "index.html").read_text()
+    assert 'id="dwg-reglens-accent"' in html
+    assert 'id="accent"' not in html
 
 
 def test_project_cards_link_to_existing_case_studies(site: Path) -> None:
@@ -125,6 +157,33 @@ def test_project_cards_link_to_existing_case_studies(site: Path) -> None:
         "cloud-waste-hunter",
     ):
         assert f'href="/projects/{slug}/">Deep dive' in projects, slug
+
+
+def test_console_content_is_server_rendered(site: Path) -> None:
+    """The console only toggles visibility — its panels ship in the HTML so the
+    content is indexable and reachable without JS."""
+    for page in ("index.html", "projects/index.html", "blog/index.html"):
+        html = (site / page).read_text()
+        assert html.count('class="console-panel') == 3, page
+        assert "/stack" in html and "/interview" in html, page
+
+
+def test_interview_answers_load_and_link_to_case_studies(site: Path) -> None:
+    """Every trade-off points at the work behind it — the whole reason the
+    answers live in content/ rather than a template."""
+    html = (site / "index.html").read_text()
+    assert html.count('class="qa"') >= 5
+    assert "Architectural trade-offs" in html
+    for slug in ("reglens", "cloud-waste-hunter", "devflow-kit"):
+        assert f'href="/projects/{slug}/"' in html, slug
+
+
+def test_console_trigger_is_progressively_enhanced(site: Path) -> None:
+    """The ⌘K button ships hidden and is revealed by mech.js — advertising a
+    keyboard shortcut that cannot fire is worse than staying quiet."""
+    html = (site / "index.html").read_text()
+    assert 'class="console-open" id="console-open" hidden' in html
+    assert 'id="console" hidden' in html
 
 
 def test_blog_post_and_tag_pages_render(site: Path) -> None:
