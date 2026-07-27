@@ -116,7 +116,7 @@ inlined as SVG (CSP-safe, no external images). #}
           MY AI SYSTEMS WORK</span></span>
     </div>
     <div class="sh-right">
-      <span class="sh-hint"><span class="tech-label">LIVE SYSTEM TELEMETRY · 4 NODES</span><span class="simple-label">SYSTEM WORKFLOW</span></span>
+      <span class="sh-hint">Click nodes to inspect telemetry ▾</span>
       <svg class="gear schematic-gear" viewBox="0 0 34 34" aria-hidden="true">
         <g class="gear-tooth">
           <rect x="15" y="1" width="4" height="6" transform="rotate(0 17 17)" />
@@ -135,13 +135,13 @@ inlined as SVG (CSP-safe, no external images). #}
   </div>
   <div class="schematic-grid">
     <!-- Node 1: Ingestion / Query -->
-    <div class="sch-node" tabindex="0" role="button" aria-expanded="false" data-node="node-ingest">
+    <div class="sch-node" tabindex="0" role="button" aria-expanded="false" data-node="node-ingest" data-num="01 · INGESTION">
       <div class="node-num">01 · INGESTION</div>
       <div class="node-title"><span class="tech-label">QUERY &amp; CONTEXT</span><span class="simple-label">USER
           INPUT</span></div>
       <div class="node-desc"><span class="tech-label">Prompt formatting, JWT claims &amp; tenant
           partitioning</span><span class="simple-label">Secure authentication &amp; input checking</span></div>
-      <div class="node-telemetry">
+      <div class="node-telemetry" style="display:none;">
         <div class="tel-row"><span>Auth:</span> <strong>Azure AD B2C / JWT</strong></div>
         <div class="tel-row"><span>Isolation:</span> <strong>Per-tenant vector space</strong></div>
         <div class="tel-row"><span>Latency:</span> <strong>~12ms prep</strong></div>
@@ -150,13 +150,13 @@ inlined as SVG (CSP-safe, no external images). #}
     <div class="sch-connector" aria-hidden="true"><span>➔</span></div>
 
     <!-- Node 2: RAG / Vector -->
-    <div class="sch-node" tabindex="0" role="button" aria-expanded="false" data-node="node-rag">
+    <div class="sch-node" tabindex="0" role="button" aria-expanded="false" data-node="node-rag" data-num="02 · RETRIEVAL">
       <div class="node-num">02 · RETRIEVAL</div>
       <div class="node-title"><span class="tech-label">HYBRID RAG + RERANK</span><span class="simple-label">SMART
           DATABASE SEARCH</span></div>
       <div class="node-desc"><span class="tech-label">pgvector &amp; Azure AI Search with semantic reranking</span><span
           class="simple-label">Finds relevant knowledge instantly</span></div>
-      <div class="node-telemetry">
+      <div class="node-telemetry" style="display:none;">
         <div class="tel-row"><span>Search:</span> <strong>Dense + Sparse Hybrid</strong></div>
         <div class="tel-row"><span>Store:</span> <strong>pgvector / Azure AI Search</strong></div>
         <div class="tel-row"><span>Recall:</span> <strong>0.94 Context Precision</strong></div>
@@ -165,13 +165,13 @@ inlined as SVG (CSP-safe, no external images). #}
     <div class="sch-connector" aria-hidden="true"><span>➔</span></div>
 
     <!-- Node 3: Multi-Agent -->
-    <div class="sch-node" tabindex="0" role="button" aria-expanded="false" data-node="node-agent">
+    <div class="sch-node" tabindex="0" role="button" aria-expanded="false" data-node="node-agent" data-num="03 · ORCHESTRATION">
       <div class="node-num">03 · ORCHESTRATION</div>
       <div class="node-title"><span class="tech-label">MULTI-AGENT SUPERVISOR</span><span class="simple-label">AI
           SPECIALIST WORKERS</span></div>
       <div class="node-desc"><span class="tech-label">LangGraph state machine &amp; A2A/JSON-RPC protocols</span><span
           class="simple-label">Specialized AI agents divide &amp; conquer</span></div>
-      <div class="node-telemetry">
+      <div class="node-telemetry" style="display:none;">
         <div class="tel-row"><span>Framework:</span> <strong>LangGraph / Claude Code</strong></div>
         <div class="tel-row"><span>Models:</span> <strong>Claude 4.8 Opus / GPT-4o</strong></div>
         <div class="tel-row"><span>Scale:</span> <strong>3,000+ conc. sessions</strong></div>
@@ -180,18 +180,25 @@ inlined as SVG (CSP-safe, no external images). #}
     <div class="sch-connector" aria-hidden="true"><span>➔</span></div>
 
     <!-- Node 4: Safeguard / Eval -->
-    <div class="sch-node" tabindex="0" role="button" aria-expanded="false" data-node="node-eval">
+    <div class="sch-node" tabindex="0" role="button" aria-expanded="false" data-node="node-eval" data-num="04 · SAFEGUARD">
       <div class="node-num">04 · SAFEGUARD</div>
       <div class="node-title"><span class="tech-label">EVAL HARNESS &amp; GATE</span><span class="simple-label">QUALITY
           &amp; SAFETY CHECK</span></div>
       <div class="node-desc"><span class="tech-label">RAGAS eval suite, schema validation &amp; drift check</span><span
           class="simple-label">Automated error checks before shipping</span></div>
-      <div class="node-telemetry">
+      <div class="node-telemetry" style="display:none;">
         <div class="tel-row"><span>Eval:</span> <strong>RAGAS (4 metrics)</strong></div>
         <div class="tel-row"><span>Hallucination:</span> <strong>&lt;0.5% rate</strong></div>
         <div class="tel-row"><span>Status:</span> <strong>VERIFIED OPERATIONAL</strong></div>
       </div>
     </div>
+  </div>
+  <div class="schematic-console" id="schematic-console" aria-live="polite" style="display:none;">
+    <div class="sc-header">
+      <span class="sc-label">STAGE TELEMETRY // <strong id="sc-stage-name">01 · INGESTION</strong></span>
+      <button type="button" class="sc-close" id="sc-close" aria-label="Close telemetry console">COLLAPSE ✕</button>
+    </div>
+    <div class="sc-body" id="sc-body"></div>
   </div>
 </section>
 {%- endmacro -%}

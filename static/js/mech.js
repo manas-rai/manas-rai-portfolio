@@ -108,18 +108,40 @@
     });
   }
 
-  /* ---- #4 AI Pipeline Schematic node telemetry toggle ---- */
+  /* ---- #4 AI Pipeline Schematic interactive console drawer ---- */
   var schNodes = document.querySelectorAll(".sch-node");
+  var schConsole = document.getElementById("schematic-console");
+  var scStageName = document.getElementById("sc-stage-name");
+  var scBody = document.getElementById("sc-body");
+  var scClose = document.getElementById("sc-close");
+
+  function closeConsole() {
+    Array.prototype.forEach.call(schNodes, function (n) {
+      n.classList.remove("is-active");
+      n.setAttribute("aria-expanded", "false");
+    });
+    if (schConsole) schConsole.style.display = "none";
+  }
+
+  if (scClose) {
+    scClose.addEventListener("click", closeConsole);
+  }
+
   Array.prototype.forEach.call(schNodes, function (node) {
     function toggleNode() {
       var wasOpen = node.classList.contains("is-active");
-      Array.prototype.forEach.call(schNodes, function (n) {
-        n.classList.remove("is-active");
-        n.setAttribute("aria-expanded", "false");
-      });
+      closeConsole();
       if (!wasOpen) {
         node.classList.add("is-active");
         node.setAttribute("aria-expanded", "true");
+        var tel = node.querySelector(".node-telemetry");
+        if (tel && scBody && schConsole) {
+          scBody.innerHTML = tel.innerHTML;
+          if (scStageName) {
+            scStageName.textContent = node.getAttribute("data-num") || "";
+          }
+          schConsole.style.display = "block";
+        }
       }
     }
     node.addEventListener("click", toggleNode);
