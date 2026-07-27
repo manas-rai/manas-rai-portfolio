@@ -13,9 +13,36 @@ import yaml
 # stripped by nh3 — see design doc §4.2. Widening this is a deliberate, reviewed
 # change, not an incidental one.
 ALLOWED_TAGS = {
-    "a", "abbr", "b", "blockquote", "br", "code", "del", "em", "h1", "h2", "h3",
-    "h4", "h5", "h6", "hr", "i", "img", "li", "ol", "p", "pre", "span", "strong",
-    "table", "tbody", "td", "th", "thead", "tr", "ul",
+    "a",
+    "abbr",
+    "b",
+    "blockquote",
+    "br",
+    "code",
+    "del",
+    "em",
+    "h1",
+    "h2",
+    "h3",
+    "h4",
+    "h5",
+    "h6",
+    "hr",
+    "i",
+    "img",
+    "li",
+    "ol",
+    "p",
+    "pre",
+    "span",
+    "strong",
+    "table",
+    "tbody",
+    "td",
+    "th",
+    "thead",
+    "tr",
+    "ul",
 }
 # nh3 manages the "rel" attribute on <a> itself (adds noopener/noreferrer), so
 # it must not appear here.
@@ -112,6 +139,17 @@ class Resume:
 
 
 @dataclass(frozen=True)
+class InterviewAnswer:
+    """One architectural trade-off, surfaced by the console's /interview command.
+    `link` is a case-study slug, so a claim can point at the work behind it."""
+
+    question: str
+    answer: str
+    link: str = ""
+    link_label: str = ""
+
+
+@dataclass(frozen=True)
 class ContentIndex:
     """Immutable, in-memory view of all content, built once at startup."""
 
@@ -119,6 +157,7 @@ class ContentIndex:
     posts: list[Post] = field(default_factory=list)
     resume: Resume | None = None
     case_studies: list[CaseStudy] = field(default_factory=list)
+    interview: list[InterviewAnswer] = field(default_factory=list)
     _by_slug: dict[str, Post] = field(default_factory=dict)
     _by_tag: dict[str, list[Post]] = field(default_factory=dict)
 
@@ -175,7 +214,9 @@ def _render_markdown(body: str) -> str:
         extensions=["fenced_code", "tables", "codehilite", "toc"],
     )
     return nh3.clean(
-        html, tags=ALLOWED_TAGS, attributes={k: set(v) for k, v in ALLOWED_ATTRIBUTES.items()}
+        html,
+        tags=ALLOWED_TAGS,
+        attributes={k: set(v) for k, v in ALLOWED_ATTRIBUTES.items()},
     )
 
 
@@ -281,6 +322,31 @@ def _load_resume(resume_file: Path) -> Resume | None:
         raise ContentError(f"Invalid entry in {resume_file}: {exc}") from exc
 
 
+def _load_interview(interview_file: Path | None) -> list[InterviewAnswer]:
+    if not interview_file or not interview_file.exists():
+        return []
+    try:
+        raw = yaml.safe_load(interview_file.read_text()) or []
+    except yaml.YAMLError as exc:
+        raise ContentError(f"Malformed interview file {interview_file}: {exc}") from exc
+    if not isinstance(raw, list):
+        raise ContentError(f"{interview_file} must contain a list of answers")
+
+    answers: list[InterviewAnswer] = []
+    for i, item in enumerate(raw, 1):
+        if not isinstance(item, dict) or "question" not in item or "answer" not in item:
+            raise ContentError(f"Interview entry #{i} needs question + answer")
+        answers.append(
+            InterviewAnswer(
+                question=str(item["question"]).strip(),
+                answer=str(item["answer"]).strip(),
+                link=str(item.get("link", "")),
+                link_label=str(item.get("link_label", "")),
+            )
+        )
+    return answers
+
+
 def build_index(
     projects_file: Path,
     posts_dir: Path,
@@ -288,11 +354,13 @@ def build_index(
     *,
     include_drafts: bool,
     case_studies_dir: Path | None = None,
+    interview_file: Path | None = None,
 ) -> ContentIndex:
     """Parse all content once and build lookup structures. Raises ContentError
     on any malformed file so failures happen at boot, not per-request."""
     projects = _load_projects(projects_file)
     resume = _load_resume(resume_file)
+    interview = _load_interview(interview_file)
 
     case_studies: list[CaseStudy] = []
     if case_studies_dir and case_studies_dir.exists():
@@ -327,6 +395,7 @@ def build_index(
         posts=posts,
         resume=resume,
         case_studies=case_studies,
+        interview=interview,
         _by_slug=by_slug,
         _by_tag=by_tag,
     )

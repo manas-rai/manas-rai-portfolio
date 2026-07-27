@@ -223,3 +223,5 @@ __marimo__/
 # Cloudflare (local dev)
 .dev.vars
 .wrangler/
+
+.vscode/

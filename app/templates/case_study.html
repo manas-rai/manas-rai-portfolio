@@ -3,6 +3,12 @@
 {% block title %}{{ case.title }} — Deep dive — {{ site_name }}{% endblock %}
 {% block description %}{{ case.subtitle }}{% endblock %}
 
+{# Diagram styles are lifted out of the inlined SVGs at build time; only the
+   case-study pages need them. #}
+{% block head %}{% if diagram_svg %}
+<link rel="stylesheet" href="{{ path_for('static', path='css/diagrams.css') }}" />
+{% endif %}{% endblock %}
+
 {% block content %}
 <article class="case-study">
   <p class="hero-eyebrow">deep dive</p>
@@ -17,7 +23,15 @@
     {% if case.demo %}<a href="{{ case.demo }}">Live site ↗</a>{% endif %}
   </div>
 
-  {% if case.diagram %}
+  {% if diagram_svg %}
+  {# Inlined at build time (services/diagrams.py) so the stages and flow arrows
+     can draw themselves in. The SVG carries its own aria-label; the caption
+     below is the readable long description. #}
+  <figure class="diagram is-live">
+    {{ diagram_svg | safe }}
+    {% if case.diagram_caption %}<figcaption>{{ case.diagram_caption }}</figcaption>{% endif %}
+  </figure>
+  {% elif case.diagram %}
   <figure class="diagram">
     <img src="{{ path_for('static', path='images/' + case.diagram) }}"
          alt="{{ case.diagram_caption }}" loading="lazy" />

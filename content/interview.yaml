@@ -1,0 +1,81 @@
+# Answers shown by the ⌘K console's /interview command.
+#
+# DRAFT — review before shipping. Each answer is condensed from a decision you
+# already documented in the linked case study, but the phrasing is not yours
+# yet. Read them aloud; if a sentence isn't something you'd say in a room, cut
+# it. `answer` accepts several paragraphs (blank-line separated).
+
+- question: How do you keep a multi-agent system from compounding its own errors?
+  answer: |
+    You test it like a system, not like a chatbot. "The agents seem to work" is
+    not a standard anyone can act on.
+
+    In RegLens each stage — ingestion, retrieval, gap analysis, risk scoring,
+    routing — has component evals against a labelled golden dataset. On top of
+    that sit behavioural tests that check properties rather than outputs:
+    monotonicity, so a more severe input never scores lower risk; invariance, so
+    irrelevant rewording doesn't change the verdict; and counterfactuals. Those
+    catch the silent regressions that a single accuracy number hides.
+  link: reglens
+  link_label: RegLens — the evals harness
+
+- question: One model, or several?
+  answer: |
+    Several, when the sub-tasks genuinely differ. RegLens uses Gemini and Claude
+    on purpose: Gemini's multimodal reading handles messy regulatory PDFs, and
+    Claude's structured output is the reliable choice for gap-analysis reasoning
+    that has to come back as clean, typed data.
+
+    Matching the model to the sub-task beats forcing one model to do everything.
+    The corollary is that the model layer should be swappable — DevFlow Kit is
+    provider-agnostic across Anthropic, OpenAI, and Google, so the system isn't
+    married to one vendor's API or pricing.
+  link: reglens
+  link_label: RegLens — why multiple models
+
+- question: When do you reach for ML, and when are rules enough?
+  answer: |
+    Rules until the boundary stops being a threshold.
+
+    In Cloud Waste Hunter, idle EC2 detection gets an Isolation Forest, because
+    "idle" isn't one clean cutoff — usage patterns vary between workloads, and
+    outlier detection catches the shape of abandonment better than a fixed
+    number. Unattached EBS volumes over 30 days and snapshots over 90 days with
+    no associated AMI are just rules, because that genuinely is a threshold.
+
+    Using ML on the second case would add a model to maintain and explain, and
+    buy nothing.
+  link: cloud-waste-hunter
+  link_label: Cloud Waste Hunter — detection
+
+- question: What makes a long-running agent safe to actually operate?
+  answer: |
+    Being able to stop it, see it, and disagree with it.
+
+    RegLens checkpoints its supervisor in Postgres, so a run is durable and
+    resumable rather than something you restart from zero. It deliberately
+    interrupts at the report stage: the reviewer sees the draft and can approve,
+    override individual gap verdicts inline, or reject the run. Progress streams
+    over SSE the whole way through, so a long run is observable instead of a
+    black box.
+
+    Run state, checkpoints, policy embeddings, and the audit log all live in one
+    Postgres instance — one thing to back up, one thing to reason about.
+  link: reglens
+  link_label: RegLens — durable and human-gated
+
+- question: What did you deliberately choose not to build?
+  answer: |
+    Infrastructure, mostly. It's the part that outlives your attention.
+
+    The requirement I cared about most in DevFlow Kit was that there be nothing
+    new to run — no server, no queue, no hosted service to pay for and secure.
+    The whole pipeline executes on GitHub Actions you already have.
+
+    Same instinct in CostTracker: production targets ClickHouse because
+    per-request analytics is a columnar workload, but demanding ClickHouse just
+    to try the tool would be hostile, so the same schema runs on PostgreSQL for
+    local use. And rather than hand-maintain LLM prices, it syncs from LiteLLM's
+    public pricing data — 1,800+ models, no price file for anyone to forget.
+  link: devflow-kit
+  link_label: DevFlow Kit — zero added infrastructure

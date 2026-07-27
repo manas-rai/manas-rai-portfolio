@@ -44,6 +44,19 @@
 
 * { box-sizing: border-box; }
 
+/* Cross-document view transitions — the site is multi-page, so without this
+   every nav click is a white flash. The monogram and the meta strip are named,
+   so they morph across the navigation instead of cross-fading with everything
+   else. Browsers without support just navigate normally. */
+@view-transition { navigation: auto; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .brand { view-transition-name: brand; }
+  .meta-bar { view-transition-name: meta-bar; }
+  ::view-transition-old(root) { animation-duration: .18s; }
+  ::view-transition-new(root) { animation-duration: .28s; }
+}
+
 /* Full-bleed machined surface — the graphite sheet IS the screen, not a card
    floating on a workbench. Content sits in a centered column (.sheet) for
    readable line length while the material fills the whole viewport. */
@@ -199,6 +212,169 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   animation: led-blink 2.4s ease-in-out infinite;
 }
 @keyframes led-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.28; } }
+
+.mb-right { justify-self: end; display: inline-flex; align-items: center; gap: 0.9rem; }
+
+/* ---------- ⌘K system console ---------- */
+/* The trigger is `hidden` in the markup and unhidden by JS — advertising a
+   keyboard shortcut that can't work is worse than not advertising it. */
+.console-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--panel);
+  border: 1px solid var(--edge-hi);
+  border-radius: 4px;
+  padding: 2px 8px;
+  font: inherit;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: border-color .18s var(--snap), color .18s var(--snap);
+}
+.console-open:hover { border-color: var(--brass-hi); color: var(--ink); }
+.console-open kbd {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  color: var(--brass-hi);
+}
+@media (max-width: 560px) { .console-open span { display: none; } }
+
+.console[hidden] { display: none; }
+.console {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: start center;
+  padding: clamp(1rem, 8vh, 6rem) 1rem 2rem;
+}
+.console-scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 9, 11, .72);
+  animation: fade-in .16s ease-out;
+}
+.console-window {
+  position: relative;
+  width: min(760px, 100%);
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--edge-hi);
+  border-radius: 10px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, .6);
+  overflow: hidden;
+  animation: console-in .22s var(--cam);
+}
+@keyframes console-in {
+  from { opacity: 0; transform: translateY(-8px) scale(.985); }
+  to   { opacity: 1; transform: none; }
+}
+.console-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid var(--edge);
+  background: rgba(0, 0, 0, .25);
+}
+.console-prompt { color: var(--brass-hi); font-family: var(--font-mono); }
+.console-title {
+  margin: 0;
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: var(--ink-soft);
+}
+.console-close {
+  background: transparent;
+  border: 1px solid var(--edge);
+  border-radius: 3px;
+  color: var(--ink-soft);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  padding: 0.15rem 0.5rem;
+  cursor: pointer;
+}
+.console-close:hover { border-color: var(--brass-hi); color: var(--brass-hi); }
+.console-cmds {
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.7rem 1rem 0;
+  border-bottom: 1px solid var(--edge);
+}
+.console-cmd {
+  background: transparent;
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: 4px 4px 0 0;
+  padding: 0.4rem 0.8rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: color .15s var(--snap), background .15s var(--snap);
+}
+.console-cmd:hover { color: var(--ink); }
+.console-cmd.is-active {
+  color: var(--brass-hi);
+  background: var(--bg);
+  border-color: var(--edge);
+}
+.console-out { overflow-y: auto; padding: 1.1rem 1.25rem 1.4rem; }
+.console-panel[hidden] { display: none; }
+.console-note {
+  margin: 0 0 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+}
+.console-bom { margin: 0; }
+.bom-row {
+  display: grid;
+  grid-template-columns: minmax(140px, 12rem) 1fr;
+  gap: 0.6rem 1rem;
+  padding: 0.55rem 0;
+  border-top: 1px solid var(--edge-lo);
+}
+.bom-row dt { font-weight: 500; color: var(--ink); }
+.bom-row dd {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+.qa { border-top: 1px solid var(--edge-lo); }
+.qa summary {
+  cursor: pointer;
+  padding: 0.7rem 0;
+  font-weight: 500;
+  color: var(--ink);
+  list-style: none;
+}
+.qa summary::-webkit-details-marker { display: none; }
+.qa summary::before {
+  content: "+ ";
+  color: var(--brass-hi);
+  font-family: var(--font-mono);
+}
+.qa[open] summary::before { content: "− "; }
+.qa-body { padding: 0 0 0.9rem 1.1rem; }
+.qa-body p {
+  margin: 0 0 0.7rem;
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: var(--ink-soft);
+}
+.qa-link { font-family: var(--font-mono); font-size: 0.72rem; }
+.console-links { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+@media (max-width: 560px) {
+  .bom-row { grid-template-columns: 1fr; gap: 0.2rem; }
+}
 
 @media (max-width: 680px) { .mb-center { display: none; } }
 
@@ -682,6 +858,27 @@ body.js .mech-card.is-open .fastener::after { content: "SCREW IN ⟲"; }
 .spec-sheet-inner { min-height: 0; overflow: hidden; }
 body.js .mech-card:not(.is-open) .spec-sheet { grid-template-rows: 0fr; }
 
+/* Exploded assembly — unscrewing lifts the panel off the card the way an
+   exploded view separates a part from its stack. The bolt is already rising and
+   spinning (see .is-open .bolt-head); this gives it something to lift.
+   Fine pointers only: on touch the tilt reads as a rendering glitch, and the
+   perspective container would fight momentum scrolling. */
+body.fine .card-grid { perspective: 1600px; perspective-origin: 50% 30%; }
+body.fine .mech-card { transform-style: preserve-3d; }
+body.fine.js .mech-card .mech-card-body {
+  transition: transform .42s var(--cam), box-shadow .42s var(--cam);
+}
+body.fine.js .mech-card.is-open .mech-card-body {
+  transform: translateZ(30px) rotateX(3.2deg);
+  box-shadow:
+    inset 0 1px 0 var(--edge-hi),
+    inset 0 -1px 0 var(--edge-lo),
+    0 24px 42px rgba(0, 0, 0, .5);
+}
+/* The datasheet sits behind the lifted panel, so it reads as the layer beneath
+   rather than a drawer sliding out of nowhere. */
+body.fine.js .mech-card.is-open .spec-sheet { transform: translateZ(-10px); }
+
 /* Spec datasheet — the tech stack as one title-block field, not a pill soup. */
 .spec {
   margin: 0 0 0.9rem;
@@ -901,7 +1098,8 @@ body.js .mech-card:not(.is-open) .spec-sheet { grid-template-rows: 0fr; }
   margin: 3rem 0 2.5rem;
   width: 100%;
 }
-.diagram img {
+.diagram img,
+.diagram .dwg {
   display: block;
   width: 100%;
   max-width: 100%;
@@ -910,6 +1108,47 @@ body.js .mech-card:not(.is-open) .spec-sheet { grid-template-rows: 0fr; }
   border: 1px solid var(--edge);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
 }
+
+/* ---------- architecture diagrams: draw themselves on first view ----------
+   The SVGs are inlined at build time (services/diagrams.py) so their stages and
+   flow arrows are real elements. Stages fade in along the pipeline, then each
+   solid arrow strokes itself from source to target — `pathLength="1"` makes one
+   dashoffset rule work for every path regardless of its real geometry.
+
+   Everything is gated on `body.js`: without the script the diagram renders
+   complete and static, exactly as the flat image did. `--i` is the stagger
+   index, assigned in document order by mech.js. */
+body.js .diagram.is-live .dwg :is(.node, .agent, .pill, .lbl, .sub, .tag, .tag2, .tag3, .edge, .band, .plbl, .iso) {
+  opacity: 0;
+}
+body.js .diagram.is-live .dwg [data-draw] {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+body.js .diagram.is-live .dwg :is(.sync, .a2a, .flow, .flow2):not([data-draw]) {
+  opacity: 0;
+}
+
+/* `both` matters: the base rules above hold these at opacity 0 / dashoffset 1,
+   so an animation that doesn't retain its end state would snap back. */
+.diagram.is-revealed .dwg :is(.node, .agent, .pill, .lbl, .sub, .tag, .tag2, .tag3, .edge, .band, .plbl, .iso) {
+  animation: dwg-node .45s var(--cam) both;
+  animation-delay: calc(var(--i, 0) * 40ms);
+}
+.diagram.is-revealed .dwg [data-draw] {
+  animation: dwg-draw .7s var(--snap) both;
+  animation-delay: calc(var(--i, 0) * 40ms);
+}
+.diagram.is-revealed .dwg :is(.sync, .a2a, .flow, .flow2):not([data-draw]) {
+  animation: dwg-node .5s var(--snap) both;
+  animation-delay: calc(var(--i, 0) * 40ms);
+}
+
+@keyframes dwg-node {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes dwg-draw { to { stroke-dashoffset: 0; } }
 .diagram figcaption {
   margin-top: 1rem;
   color: var(--ink-soft);
@@ -1149,6 +1388,15 @@ body.js .mech-card:not(.is-open) .spec-sheet { grid-template-rows: 0fr; }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
   .led { animation: none !important; opacity: 1; }
+  /* Diagrams show complete rather than drawing themselves in — the content is
+     the point, the motion was only ever the delivery. */
+  body.js .diagram.is-live .dwg * {
+    opacity: 1 !important;
+    stroke-dashoffset: 0 !important;
+    animation: none !important;
+  }
+  body.fine.js .mech-card.is-open .mech-card-body,
+  body.fine.js .mech-card.is-open .spec-sheet { transform: none !important; }
   .d0, .d1, .d2, .d3, .d4, .d5, .d6, .d7, .d8, .d9 { animation: none !important; }
   .d0 { transform: translateY(0) !important; }
   .d1 { transform: translateY(-26px) !important; }

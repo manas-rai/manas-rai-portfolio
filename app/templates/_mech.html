@@ -59,6 +59,70 @@ tech stack as a single datasheet field (not a soup of equal-weight pills).
 </li>
 {%- endmacro -%}
 
+{# System console — a ⌘K command palette. Every panel is rendered server-side and
+just shown/hidden, so the content is in the HTML for search engines and for
+anyone without JS (who reaches it via the normal nav links instead).
+`interview` comes from content/interview.yaml. #}
+{%- macro system_console(interview, projects, path_for) -%}
+<div class="console" id="console" hidden>
+  <div class="console-scrim" data-console-close></div>
+  <div class="console-window" role="dialog" aria-modal="true" aria-labelledby="console-title">
+    <div class="console-bar">
+      <span class="console-prompt" aria-hidden="true">&gt;</span>
+      <h2 class="console-title" id="console-title">System console</h2>
+      <button type="button" class="console-close" data-console-close aria-label="Close console">ESC</button>
+    </div>
+    <div class="console-cmds" role="tablist" aria-label="Commands">
+      <button type="button" class="console-cmd is-active" role="tab" aria-selected="true"
+              aria-controls="cmd-stack" data-cmd="stack">/stack</button>
+      <button type="button" class="console-cmd" role="tab" aria-selected="false"
+              aria-controls="cmd-interview" data-cmd="interview">/interview</button>
+      <button type="button" class="console-cmd" role="tab" aria-selected="false"
+              aria-controls="cmd-resume" data-cmd="resume">/resume</button>
+    </div>
+
+    <div class="console-out">
+      <section class="console-panel is-active" id="cmd-stack" role="tabpanel" data-panel="stack">
+        <p class="console-note">What I build with, and what I built with it.</p>
+        <dl class="console-bom">
+          {%- for project in projects %}
+          <div class="bom-row">
+            <dt>{{ project.title }}</dt>
+            <dd>{{ project.tech | join(' · ') }}</dd>
+          </div>
+          {%- endfor %}
+        </dl>
+      </section>
+
+      <section class="console-panel" id="cmd-interview" role="tabpanel" data-panel="interview" hidden>
+        <p class="console-note">Architectural trade-offs, and how I actually decided.</p>
+        {%- for item in interview %}
+        <details class="qa"{% if loop.first %} open{% endif %}>
+          <summary>{{ item.question }}</summary>
+          <div class="qa-body">
+            {%- for para in item.answer.split('\n\n') %}
+            <p>{{ para }}</p>
+            {%- endfor %}
+            {%- if item.link %}
+            <a class="qa-link" href="{{ path_for('case_study', slug=item.link) }}">{{ item.link_label or 'Read the deep dive' }} →</a>
+            {%- endif %}
+          </div>
+        </details>
+        {%- endfor %}
+      </section>
+
+      <section class="console-panel" id="cmd-resume" role="tabpanel" data-panel="resume" hidden>
+        <p class="console-note">Full history, or a printable copy.</p>
+        <div class="console-links">
+          <a class="btn btn-primary" href="{{ path_for('resume') }}">Open resume</a>
+          <a class="btn btn-ghost" href="{{ path_for('static', path='resume.pdf') }}">Download PDF</a>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+{%- endmacro -%}
+
 {# Social links as machined icon buttons — GitHub, LinkedIn, Gmail brand marks
 inlined as SVG (CSP-safe, no external images). #}
 {%- macro social_links(github_url, linkedin_url, email, size='') -%}
