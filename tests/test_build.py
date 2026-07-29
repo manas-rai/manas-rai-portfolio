@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 import pytest
@@ -63,6 +64,34 @@ def test_home_page_leads_with_projects_not_chrome(site: Path) -> None:
         "simple-label",
     ):
         assert gone not in html, gone
+
+
+def test_hero_sequence_needs_no_javascript(site: Path) -> None:
+    """The hero dimensions itself with CSS alone. Gating it on `body.js` would
+    flash — mech.js is deferred, so it runs after first paint — and an inline
+    head script to set the class early is blocked by `script-src 'self'`."""
+    html = (site / "index.html").read_text()
+    assert 'class="hero-dim" aria-hidden="true"' in html  # decoration, not content
+    assert html.count('class="dim-rule"') == 2
+
+    js = (site / "static" / "js" / "mech.js").read_text()
+    for hook in ("hero-dim", "dim-rule", "shutter", "hero-wipe"):
+        assert hook not in js, hook
+
+
+def test_hero_sequence_is_reduced_motion_safe() -> None:
+    """Every animated hero part must be cancelled under reduced motion. These
+    animations carry `both` fill, so a part left animating would otherwise sit
+    at its from-state — invisible — for the whole delay."""
+    css = (Path(__file__).parent.parent / "static" / "css" / "style.css").read_text()
+    reduced = css[css.index("@media (prefers-reduced-motion: reduce)") :]
+
+    animated = set(re.findall(r"^(\.[\w.\- ]+?)\s*\{[^}]*animation:", css, re.M))
+    hero = {s for s in animated if "hero" in s or "dim-" in s or "stat-box" in s}
+    assert hero, "expected hero parts to be animated"
+    for selector in hero:
+        leaf = selector.strip().split()[-1]
+        assert leaf in reduced, f"{leaf} animates but is not cancelled"
 
 
 def test_headline_stats_link_to_their_source(site: Path) -> None:

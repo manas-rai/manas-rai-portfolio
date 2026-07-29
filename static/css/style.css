@@ -458,9 +458,99 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 
 .prose { max-width: var(--prose); }
 
-/* ---------- hero ---------- */
+/* ---------- hero: the drawing dimensions itself ----------
+   A pure-CSS load sequence — no script, so it runs before first paint and can't
+   flash or leave anything stranded when JS is unavailable. Everything is
+   animated with `both` fill, which holds the from-state through the delay; the
+   element is never painted visible and then snatched away.
+
+   Order (finished by ~940ms, name legible by ~480ms):
+     eyebrow rises            0ms
+     name wipes on           60ms   like a plotter drawing it
+     dimension line grows   380ms   outward from the label, ticks last
+     lede + actions         420ms
+     stat plates part       500ms   shuttering open left to right
+*/
 
 .hero { text-align: center; padding: 2.6rem 1.25rem 0.5rem; }
+
+@keyframes hero-rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+/* Ends slightly past the glyphs so the name's text-shadow isn't clipped. */
+@keyframes hero-wipe {
+  from { clip-path: inset(0 100% 0 0); }
+  to   { clip-path: inset(0 -0.2em 0 0); }
+}
+@keyframes dim-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes dim-tick { from { opacity: 0; transform: scaleY(0); } to { opacity: 1; transform: scaleY(1); } }
+@keyframes shutter-open { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+.hero-eyebrow { animation: hero-rise .34s var(--snap) both; }
+.hero-name    { animation: hero-wipe .42s var(--snap) 60ms both; }
+.hero .lede   { animation: hero-rise .38s var(--snap) 420ms both; }
+.hero-actions { animation: hero-rise .38s var(--snap) 500ms both; }
+.hero .social { animation: hero-rise .38s var(--snap) 560ms both; }
+
+/* Dimension line — extension ticks at the ends, rules growing outward from a
+   centred callout, arrowheads pointing at the ticks. */
+.hero-dim {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: 24rem;
+  margin: -0.35rem auto 1.5rem;
+  height: 1rem;
+}
+.dim-tick {
+  width: 1px;
+  height: 11px;
+  background: var(--edge-hi);
+  animation: dim-tick .2s var(--snap) 640ms both;
+}
+.dim-rule {
+  position: relative;
+  flex: 1;
+  height: 1px;
+  background: var(--edge-hi);
+  animation: dim-grow .32s var(--snap) 380ms both;
+}
+.dim-rule:first-of-type  { transform-origin: right center; }
+.dim-rule:last-of-type   { transform-origin: left center; }
+/* Arrowheads, pointing outward toward the extension ticks. */
+.dim-rule::after {
+  content: "";
+  position: absolute;
+  top: -2.5px;
+  border-block: 3px solid transparent;
+}
+.dim-rule:first-of-type::after {
+  left: 0;
+  border-right: 5px solid var(--edge-hi);
+}
+.dim-rule:last-of-type::after {
+  right: 0;
+  border-left: 5px solid var(--edge-hi);
+}
+.dim-label {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  animation: hero-rise .3s var(--snap) 440ms both;
+}
+
+/* Stat plates shutter open, left to right. scaleX rather than a clip-path so
+   the inset shadows that give them their machined edge survive. */
+.home .stat-box {
+  transform-origin: center;
+  animation: shutter-open .42s var(--cam) both;
+}
+.home .stat-box:nth-child(1) { animation-delay: 500ms; }
+.home .stat-box:nth-child(2) { animation-delay: 580ms; }
+.home .stat-box:nth-child(3) { animation-delay: 660ms; }
 
 .hero-eyebrow {
   font-family: var(--font-mono);
@@ -1397,6 +1487,11 @@ body.js .diagram.is-live .dwg :is(.sync, .a2a, .flow, .flow2):not([data-draw]) {
   }
   body.fine.js .mech-card.is-open .mech-card-body,
   body.fine.js .mech-card.is-open .spec-sheet { transform: none !important; }
+  /* The hero arrives already dimensioned. Cancelling the animation is enough —
+     none of these carry a hidden base state to fall back to. */
+  .hero-eyebrow, .hero-name, .hero .lede, .hero-actions, .hero .social,
+  .hero-dim .dim-tick, .hero-dim .dim-rule, .dim-label,
+  .home .stat-box { animation: none !important; }
   .d0, .d1, .d2, .d3, .d4, .d5, .d6, .d7, .d8, .d9 { animation: none !important; }
   .d0 { transform: translateY(0) !important; }
   .d1 { transform: translateY(-26px) !important; }

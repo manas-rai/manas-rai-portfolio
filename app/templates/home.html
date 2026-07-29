@@ -4,9 +4,19 @@
 {% block body_class %}home{% endblock %}
 
 {% block content %}
+{# The hero dimensions itself on load, the way a drawing gets annotated after
+   the part is drawn. Pure CSS: no script to wait for, so nothing flashes and
+   nothing breaks without JS. #}
 <section class="hero">
   <p class="hero-eyebrow">Software Engineer · GenAI Engineer</p>
   <h1 class="hero-name">{{ site_name }}</h1>
+  <div class="hero-dim" aria-hidden="true">
+    <span class="dim-tick"></span>
+    <span class="dim-rule"></span>
+    <span class="dim-label">SYS MR-2026</span>
+    <span class="dim-rule"></span>
+    <span class="dim-tick"></span>
+  </div>
   <p class="lede">{{ site_lede }}</p>
   <div class="hero-actions">
     <a class="btn btn-primary" href="{{ path_for('projects') }}">See the work</a>
