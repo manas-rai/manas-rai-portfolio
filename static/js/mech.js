@@ -12,6 +12,33 @@
   root.classList.add("js");
   if (fine) root.classList.add("fine");
 
+  /* Add `className` to each element the first time it scrolls into view.
+     Reveal-once, not scroll-scrubbed: something that un-plays on the way back
+     up is a distraction. Falls back to revealing everything immediately when
+     IntersectionObserver is missing or the visitor asked for less motion. */
+  function revealOnce(elements, className, threshold) {
+    if (!elements.length) return;
+    if (!("IntersectionObserver" in window) || reduce) {
+      Array.prototype.forEach.call(elements, function (el) {
+        el.classList.add(className);
+      });
+      return;
+    }
+    var observer = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add(className);
+          observer.unobserve(entry.target);
+        });
+      },
+      { threshold: threshold, rootMargin: "0px 0px -8% 0px" }
+    );
+    Array.prototype.forEach.call(elements, function (el) {
+      observer.observe(el);
+    });
+  }
+
   /* ---- #1 unscrew-to-reveal ---- */
   var cards = document.querySelectorAll(".mech-card");
   Array.prototype.forEach.call(cards, function (card) {
@@ -88,24 +115,24 @@
       });
     });
 
-    if (!("IntersectionObserver" in window) || reduce) {
-      Array.prototype.forEach.call(figures, function (f) {
-        f.classList.add("is-revealed");
-      });
-    } else {
-      var seen = new IntersectionObserver(
-        function (entries) {
-          entries.forEach(function (entry) {
-            if (!entry.isIntersecting) return;
-            entry.target.classList.add("is-revealed");
-            seen.unobserve(entry.target); // once is enough
-          });
-        },
-        { threshold: 0.2, rootMargin: "0px 0px -8% 0px" }
-      );
-      Array.prototype.forEach.call(figures, function (f) {
-        seen.observe(f);
-      });
+    // Arm only once the hidden state can definitely be undone — if this script
+    // died earlier, the diagram stays fully drawn instead of blank.
+    Array.prototype.forEach.call(figures, function (f) {
+      f.classList.add("is-armed");
+    });
+    revealOnce(figures, "is-revealed", 0.2);
+  }
+
+  /* ---- #5 the resume assembly bolts together as you scroll ----
+     Shaft draws down, nut seats, part swings in — one node at a time, in the
+     order they're read. Same arming rule: the hidden state is only applied
+     once we know we're here to remove it. */
+  var assembly = document.querySelector(".asm-line");
+  if (assembly) {
+    var nodes = assembly.querySelectorAll(".asm-node");
+    if (nodes.length) {
+      assembly.classList.add("is-armed");
+      revealOnce(nodes, "is-set", 0.15);
     }
   }
 

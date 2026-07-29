@@ -94,6 +94,32 @@ def test_hero_sequence_is_reduced_motion_safe() -> None:
         assert leaf in reduced, f"{leaf} animates but is not cancelled"
 
 
+def test_scroll_indicator_only_shows_where_it_can_tell_the_truth() -> None:
+    """Without `animation-timeline` the declaration is ignored and the animation
+    falls back to the document clock — the gear would sprint across the screen
+    once on load and stop, a progress indicator lying about progress. So it is
+    hidden by default and only revealed inside the @supports guard."""
+    css = (Path(__file__).parent.parent / "static" / "css" / "style.css").read_text()
+    assert ".scroll-rack { display: none; }" in css
+    guard = css.index("@supports (animation-timeline: scroll())")
+    shown = css.index("display: block", guard)
+    assert "prefers-reduced-motion: no-preference" in css[guard:shown]
+
+
+def test_scroll_reveals_are_armed_by_script_not_by_body_class(site: Path) -> None:
+    """`body.js` is set on mech.js's first line; the reveal code runs much
+    later. Gating a hidden state on `body.js` means any error in between leaves
+    the content permanently invisible. Arming from the reveal code itself makes
+    a failure mean 'no animation' rather than 'no content'."""
+    css = (Path(__file__).parent.parent / "static" / "css" / "style.css").read_text()
+    assert ".diagram.is-armed" in css and ".asm-line.is-armed" in css
+    assert "body.js .diagram" not in css
+    assert "body.js .asm-node" not in css
+
+    js = (site / "static" / "js" / "mech.js").read_text()
+    assert js.count('classList.add("is-armed")') == 2
+
+
 def test_headline_stats_link_to_their_source(site: Path) -> None:
     """An unsourced number is decoration — every home-page stat must link to the
     page that substantiates it."""

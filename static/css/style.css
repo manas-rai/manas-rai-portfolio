@@ -1208,14 +1208,14 @@ body.fine.js .mech-card.is-open .spec-sheet { transform: translateZ(-10px); }
    Everything is gated on `body.js`: without the script the diagram renders
    complete and static, exactly as the flat image did. `--i` is the stagger
    index, assigned in document order by mech.js. */
-body.js .diagram.is-live .dwg :is(.node, .agent, .pill, .lbl, .sub, .tag, .tag2, .tag3, .edge, .band, .plbl, .iso) {
+.diagram.is-armed .dwg :is(.node, .agent, .pill, .lbl, .sub, .tag, .tag2, .tag3, .edge, .band, .plbl, .iso) {
   opacity: 0;
 }
-body.js .diagram.is-live .dwg [data-draw] {
+.diagram.is-armed .dwg [data-draw] {
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
 }
-body.js .diagram.is-live .dwg :is(.sync, .a2a, .flow, .flow2):not([data-draw]) {
+.diagram.is-armed .dwg :is(.sync, .a2a, .flow, .flow2):not([data-draw]) {
   opacity: 0;
 }
 
@@ -1473,6 +1473,90 @@ body.js .diagram.is-live .dwg :is(.sync, .a2a, .flow, .flow2):not([data-draw]) {
   .meta-row span:nth-child(2) { display: none; }
 }
 
+/* ---------- scroll progress: a rack and pinion ----------
+   The gear rolls the width of the viewport as the document scrolls, driven by
+   scroll position rather than a clock — it reports where you are, which is what
+   makes the motion worth having.
+
+   Hidden by default and only shown where scroll-driven animations actually
+   work. That matters: without `animation-timeline`, the declaration is ignored
+   and the animation falls back to the document timeline, so the gear would
+   sprint across the screen once on load and stop — a progress indicator lying
+   about progress. Narrow viewports skip it too; a fixed strip along the bottom
+   costs more there than it gives. */
+.scroll-rack { display: none; }
+
+@supports (animation-timeline: scroll()) {
+  @media (min-width: 900px) and (prefers-reduced-motion: no-preference) {
+    .scroll-rack {
+      display: block;
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 30px;
+      z-index: 20;
+      pointer-events: none;
+    }
+  }
+}
+.scroll-rack .rack {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 7px;
+  height: 5px;
+  /* Tooth pitch is fixed while the gear's travel is not, so the mesh is exact
+     at one viewport width and approximate either side of it. */
+  background:
+    repeating-linear-gradient(90deg,
+      var(--metal-dark) 0 4px, transparent 4px 16px),
+    linear-gradient(var(--edge-lo), var(--steel-2));
+  border-top: 1px solid var(--edge-lo);
+}
+.scroll-rack .gear {
+  position: absolute;
+  bottom: 4px;
+  left: 0;
+  width: 26px;
+  height: 26px;
+  animation-name: rack-roll;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+  animation-duration: auto;
+  animation-timeline: scroll(root block);
+}
+.scroll-rack .gear-tooth { fill: var(--metal-mid); }
+.scroll-rack .gear-body { fill: var(--metal-dark); stroke: var(--edge-lo); stroke-width: 1; }
+.scroll-rack .gear-hub { fill: var(--brass); stroke: var(--edge-lo); stroke-width: 1; }
+@keyframes rack-roll {
+  from { translate: 0; rotate: 0deg; }
+  to   { translate: calc(100vw - 26px); rotate: 3600deg; }
+}
+
+/* ---------- resume: the assembly bolts together as you scroll ----------
+   The shaft draws downward, the nut seats, then the part swings in — one node
+   at a time, in the order you read them. IntersectionObserver drives it
+   (mech.js), so it works everywhere and plays once. */
+.asm-line.is-armed .asm-node .asm-rail::before {
+  transform: translateX(-50%) scaleY(0);
+  transform-origin: top center;
+  transition: transform .45s var(--snap);
+}
+.asm-line.is-armed .asm-node .asm-bolt {
+  opacity: 0;
+  transform: scale(.4) rotate(-40deg);
+  transition: opacity .3s var(--cam) .18s, transform .38s var(--cam) .18s;
+}
+.asm-line.is-armed .asm-node .asm-part {
+  opacity: 0;
+  transform: translateX(10px);
+  transition: opacity .4s var(--snap) .12s, transform .4s var(--snap) .12s;
+}
+.asm-line.is-armed .asm-node.is-set .asm-rail::before { transform: translateX(-50%) scaleY(1); }
+.asm-line.is-armed .asm-node.is-set .asm-bolt { opacity: 1; transform: none; }
+.asm-line.is-armed .asm-node.is-set .asm-part { opacity: 1; transform: none; }
+
 /* ---------- reduced motion ---------- */
 
 @media (prefers-reduced-motion: reduce) {
@@ -1480,7 +1564,7 @@ body.js .diagram.is-live .dwg :is(.sync, .a2a, .flow, .flow2):not([data-draw]) {
   .led { animation: none !important; opacity: 1; }
   /* Diagrams show complete rather than drawing themselves in — the content is
      the point, the motion was only ever the delivery. */
-  body.js .diagram.is-live .dwg * {
+  .diagram.is-armed .dwg * {
     opacity: 1 !important;
     stroke-dashoffset: 0 !important;
     animation: none !important;

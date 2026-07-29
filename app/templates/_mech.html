@@ -59,6 +59,31 @@ tech stack as a single datasheet field (not a soup of equal-weight pills).
 </li>
 {%- endmacro -%}
 
+{# Scroll progress as a rack and pinion: the gear rolls along the rack as the
+   page scrolls. Driven entirely by scroll position — it reports where you are
+   rather than animating on its own, which is why it earns the motion. CSS-only
+   via animation-timeline; browsers without scroll-driven animations simply
+   don't show it (see .scroll-rack in style.css). #}
+{%- macro scroll_rack() -%}
+<div class="scroll-rack" aria-hidden="true">
+  <div class="rack"></div>
+  <svg class="gear" viewBox="0 0 34 34">
+    <g class="gear-tooth">
+      <rect x="15" y="1" width="4" height="6" transform="rotate(0 17 17)" />
+      <rect x="15" y="1" width="4" height="6" transform="rotate(45 17 17)" />
+      <rect x="15" y="1" width="4" height="6" transform="rotate(90 17 17)" />
+      <rect x="15" y="1" width="4" height="6" transform="rotate(135 17 17)" />
+      <rect x="15" y="1" width="4" height="6" transform="rotate(180 17 17)" />
+      <rect x="15" y="1" width="4" height="6" transform="rotate(225 17 17)" />
+      <rect x="15" y="1" width="4" height="6" transform="rotate(270 17 17)" />
+      <rect x="15" y="1" width="4" height="6" transform="rotate(315 17 17)" />
+    </g>
+    <circle class="gear-body" cx="17" cy="17" r="12" />
+    <circle class="gear-hub" cx="17" cy="17" r="5" />
+  </svg>
+</div>
+{%- endmacro -%}
+
 {# System console — a ⌘K command palette. Every panel is rendered server-side and
 just shown/hidden, so the content is in the HTML for search engines and for
 anyone without JS (who reaches it via the normal nav links instead).
