@@ -1364,7 +1364,19 @@ body.fine.js .mech-card.is-open .spec-sheet { transform: translateZ(-10px); }
   margin-right: 0.6rem;
 }
 
-.post-body { margin-top: 2rem; font-size: 1.05rem; line-height: 1.75; color: var(--ink); }
+/* --max is 1680px so the layout fills big screens, which is right for card
+   grids and wrong for running text — unconstrained, a post sets ~150 characters
+   to the line. --prose exists for this; it just wasn't applied here. Full-bleed
+   diagrams are siblings of .post-body, so they still escape. */
+.post-body {
+  margin-top: 2rem;
+  max-width: var(--prose);
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: var(--ink);
+}
+/* The case-study lede deliberately stays full width (see .case-study
+   .page-intro below) — it's a subtitle under a large heading, not body copy. */
 .post-body h2 { margin-top: 2.2rem; font-size: 1.25rem; font-weight: 500; }
 .post-body pre {
   background: var(--steel-2);
