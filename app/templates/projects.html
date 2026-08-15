@@ -19,7 +19,8 @@
   {% if filters | length > 1 %}
   <p class="filters">
     {% for f in filters %}
-    <a href="{{ f.url }}" class="{{ 'active' if f.active }}">{{ f.label }}</a>
+    <a href="{{ f.url }}" class="{{ 'active' if f.active }}"
+       aria-label="Filter by {{ f.label }}">{{ f.label }}</a>
     {% endfor %}
   </p>
   {% endif %}

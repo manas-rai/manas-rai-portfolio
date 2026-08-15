@@ -1162,7 +1162,8 @@ body.fine.js .mech-card.is-open .spec-sheet { transform: translateZ(-10px); }
   font-size: 0.62rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--metal-dark);
+  /* --metal-dark measures 1.81:1 here and fails AA; --ink-soft is 5.57:1. */
+  color: var(--ink-soft);
   text-align: right;
 }
 
