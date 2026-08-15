@@ -3,6 +3,12 @@
 
 {% block body_class %}home{% endblock %}
 
+{# Featured cards carry their architecture drawings, so the diagram styles
+   have to come along. #}
+{% block head %}{% if project_diagrams %}
+<link rel="stylesheet" href="{{ path_for('static', path='css/diagrams.css') }}" />
+{% endif %}{% endblock %}
+
 {% block content %}
 {# The hero dimensions itself on load, the way a drawing gets annotated after
    the part is drawn. Pure CSS: no script to wait for, so nothing flashes and
@@ -92,7 +98,8 @@
   {% if featured_projects %}
   <ul class="card-grid">
     {% for project in featured_projects %}
-    {{ project_card(project, loop.index, case_study_urls.get(project.title)) }}
+    {{ project_card(project, loop.index, case_study_urls.get(project.title),
+                    project_diagrams.get(project.title)) }}
     {% endfor %}
   </ul>
   {% else %}

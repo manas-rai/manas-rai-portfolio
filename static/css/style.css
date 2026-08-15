@@ -1202,6 +1202,64 @@ body.fine.js .mech-card.is-open .spec-sheet { transform: translateZ(-10px); }
   pointer-events: none;
 }
 
+/* ---------- full bleed: let a drawing escape the column ----------
+   The content column is capped for readable line length, which is right for
+   prose and wrong for a wide schematic. This breaks out to the viewport using
+   margin alone, so it works inside the existing .sheet without any wrapper. */
+/* Negative margins only — no `width: 100vw`. On desktop browsers with a classic
+   scrollbar, 100vw counts the scrollbar and the page gains a horizontal scroll;
+   letting the block fill between two negative margins does not. */
+.full-bleed {
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  padding-inline: 1.5rem;
+}
+.full-bleed .dwg { max-width: min(1900px, 100%); margin-inline: auto; }
+.full-bleed figcaption { max-width: var(--prose); margin-inline: auto; }
+
+/* ---------- lead post: the newest entry, at scale ---------- */
+.lead-post {
+  background: var(--panel-2);
+  border-radius: 6px;
+  box-shadow: inset 0 1px 0 var(--edge-hi), inset 0 -1px 0 var(--edge-lo);
+  overflow: hidden;
+  margin: 0 0 1.6rem;
+}
+.lead-post > .card-ref { margin-bottom: 0; }
+.lead-post-body { padding: 1.4rem 1.5rem 1.5rem; }
+.lead-post-body h2 {
+  font-size: clamp(1.5rem, 3.2vw, 2.3rem);
+  margin: 0 0 0.7rem;
+  max-width: var(--prose);
+}
+.lead-post-body h2 a { color: var(--ink); }
+.lead-post-body h2 a:hover { color: var(--brass-hi); text-decoration: none; }
+.lead-post-body .lead-desc { max-width: var(--prose); margin-bottom: 1.1rem; }
+.lead-post-body .card-links { margin: 0; }
+
+/* ---------- contact: the address gets the size ---------- */
+.contact-plate {
+  background: var(--panel-2);
+  border-radius: 6px;
+  box-shadow: inset 0 1px 0 var(--edge-hi), inset 0 -1px 0 var(--edge-lo);
+  overflow: hidden;
+  margin: 0 0 1.6rem;
+}
+.contact-plate > .card-ref { margin-bottom: 0; }
+.contact-plate-body { padding: 1.5rem; }
+.contact-address {
+  display: inline-block;
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: clamp(1.4rem, 4vw, 2.4rem);
+  letter-spacing: 0.01em;
+  color: var(--ink);
+  margin-bottom: 1.2rem;
+  word-break: break-word;
+}
+.contact-address:hover { color: var(--brass-hi); text-decoration: none; }
+.contact-plate .contact-actions { margin: 0; }
+
 /* ---------- filters (selector pills) ---------- */
 
 .filters {

@@ -236,8 +236,16 @@ def build(dist: Path = DIST_DIR, *, include_drafts: bool = False) -> None:
         },
     )
 
-    _write_home(writer, index)
-    _write_projects(writer, index, diagram_markup)
+    # The architecture SVGs are already namespaced, so the same markup can sit
+    # in a project card as thumbnail art. Keyed by title, matched by slug.
+    project_diagrams = {
+        project.title: diagram_markup[slugify(project.title)]
+        for project in index.projects
+        if slugify(project.title) in diagram_markup
+    }
+
+    _write_home(writer, index, project_diagrams)
+    _write_projects(writer, index, project_diagrams)
     _write_case_studies(writer, index, diagram_markup)
     _write_blog(writer, index)
     writer.page(
@@ -303,28 +311,27 @@ def _write_seo(writer: SiteWriter, index: ContentIndex, dist: Path) -> None:
     (dist / "feed.xml").write_text("\n".join(rss) + "\n")
 
 
-def _write_home(writer: SiteWriter, index: ContentIndex) -> None:
+def _write_home(
+    writer: SiteWriter, index: ContentIndex, by_title: dict[str, str]
+) -> None:
     writer.page(
         "home.html",
         "/",
-        {"featured_projects": index.featured_projects, "recent_posts": index.posts[:3]},
+        {
+            "featured_projects": index.featured_projects,
+            "recent_posts": index.posts[:3],
+            "project_diagrams": by_title,
+        },
     )
 
 
 def _write_projects(
-    writer: SiteWriter, index: ContentIndex, diagram_markup: dict[str, str]
+    writer: SiteWriter, index: ContentIndex, by_title: dict[str, str]
 ) -> None:
     all_tech = sorted({t for p in index.projects for t in p.tech})
     _unique_slugs(all_tech, "tech")
 
-    # The architecture SVGs already exist and are already namespaced, so the
-    # same markup can sit in a project card as a thumbnail. Keyed by title,
-    # matched to its case study by slug.
-    by_title = {
-        project.title: diagram_markup[slugify(project.title)]
-        for project in index.projects
-        if slugify(project.title) in diagram_markup
-    }
+
 
     def render(url: str, active: str | None) -> None:
         projects = (
