@@ -1087,6 +1087,121 @@ body.fine.js .mech-card.is-open .spec-sheet { transform: translateZ(-10px); }
   border-top: 1px solid var(--edge);
 }
 
+/* ---------- lead part: the first project, drawn at scale ----------
+   Six identical boxes give a reader nothing to look at first. The lead project
+   runs full width with its real architecture drawing beside it and its specs
+   set as display figures rather than 0.72rem mono. */
+.lead-part { margin: 0 0 1.5rem; }
+.lead-plate {
+  background: var(--panel-2);
+  border-radius: 6px;
+  box-shadow: inset 0 1px 0 var(--edge-hi), inset 0 -1px 0 var(--edge-lo);
+  overflow: hidden;
+}
+.lead-plate > .card-ref { margin-bottom: 0; }
+.lead-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: 1.6rem;
+  align-items: center;
+  padding: 1.4rem 1.5rem 1.5rem;
+}
+.lead-copy h2 {
+  font-size: clamp(1.5rem, 3vw, 2.1rem);
+  margin: 0 0 0.7rem;
+}
+.lead-desc {
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+  line-height: 1.65;
+  margin: 0 0 1.3rem;
+}
+
+/* Specs as figures — the numbers are the argument, so they get the size. */
+.figure-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  margin: 0 0 1.4rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--edge);
+}
+.figure dt {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 0.35rem;
+}
+.figure dd {
+  margin: 0;
+  font-family: var(--font-head);
+  font-size: 1.02rem;
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--ink);
+}
+
+.lead-dwg { margin: 0; }
+.lead-dwg .dwg {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--edge);
+  border-radius: 4px;
+}
+.lead-dwg figcaption {
+  margin-top: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--metal-dark);
+  text-align: right;
+}
+
+@media (max-width: 900px) {
+  .lead-inner { grid-template-columns: 1fr; }
+  .lead-dwg { order: -1; }
+}
+
+/* ---------- card art: each project's own drawing, cropped to a band ---------- */
+.card-dwg {
+  position: relative;
+  height: 132px;
+  margin: 0 0 1rem;
+  overflow: hidden;
+  border-bottom: 1px solid var(--edge);
+  background: var(--edge-lo);
+}
+.card-dwg .dwg {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* Pulled up so the band lands on the busy middle of the drawing rather than
+     its empty top margin. */
+  margin-top: -6%;
+  opacity: .78;
+  filter: saturate(.6);
+  transition: opacity .3s var(--snap), filter .3s var(--snap), transform .5s var(--snap);
+}
+.mech-card:hover .card-dwg .dwg {
+  opacity: 1;
+  filter: saturate(1);
+  transform: scale(1.03);
+}
+/* Fades the drawing into the panel so it reads as card art, not a pasted image.
+   The fade starts low so the middle of the drawing — where the nodes are —
+   stays legible. */
+.card-dwg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(transparent 62%, var(--panel-2));
+  pointer-events: none;
+}
+
 /* ---------- filters (selector pills) ---------- */
 
 .filters {

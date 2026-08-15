@@ -17,7 +17,7 @@ string of 0–9 chars; `suffix` is the unit (+, %, yrs). #}
 {# Project card — a bolted part: fastener stack on top, panel body, and the
 tech stack as a single datasheet field (not a soup of equal-weight pills).
 `index` drives the part number; `deep_dive_url` is optional. #}
-{%- macro project_card(project, index, deep_dive_url=None) -%}
+{%- macro project_card(project, index, deep_dive_url=None, diagram_svg=None) -%}
 {%- set sid = 'spec-' ~ (project.title | slug) -%}
 <li class="mech-card">
   <div class="fastener">
@@ -28,6 +28,12 @@ tech stack as a single datasheet field (not a soup of equal-weight pills).
   <div class="mech-card-body">
     <p class="card-ref">SYS-{{ '%02d' % index }}{% if project.descriptor %} · {{ project.descriptor | upper }}{% endif %}<span
         class="unscrew-hint"> · unscrew for spec ⟳</span></p>
+    {%- if diagram_svg %}
+    {# The project's own architecture drawing, cropped to a band. Decorative
+       here — the readable version lives on the case study — so it is hidden
+       from assistive tech rather than repeating a long caption. #}
+    <div class="card-dwg" aria-hidden="true">{{ diagram_svg | safe }}</div>
+    {%- endif %}
     <h3>{{ project.title }}</h3>
     <p class="card-desc">{{ project.summary }}</p>
     <div class="card-stack">

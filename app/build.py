@@ -237,7 +237,7 @@ def build(dist: Path = DIST_DIR, *, include_drafts: bool = False) -> None:
     )
 
     _write_home(writer, index)
-    _write_projects(writer, index)
+    _write_projects(writer, index, diagram_markup)
     _write_case_studies(writer, index, diagram_markup)
     _write_blog(writer, index)
     writer.page(
@@ -311,9 +311,20 @@ def _write_home(writer: SiteWriter, index: ContentIndex) -> None:
     )
 
 
-def _write_projects(writer: SiteWriter, index: ContentIndex) -> None:
+def _write_projects(
+    writer: SiteWriter, index: ContentIndex, diagram_markup: dict[str, str]
+) -> None:
     all_tech = sorted({t for p in index.projects for t in p.tech})
     _unique_slugs(all_tech, "tech")
+
+    # The architecture SVGs already exist and are already namespaced, so the
+    # same markup can sit in a project card as a thumbnail. Keyed by title,
+    # matched to its case study by slug.
+    by_title = {
+        project.title: diagram_markup[slugify(project.title)]
+        for project in index.projects
+        if slugify(project.title) in diagram_markup
+    }
 
     def render(url: str, active: str | None) -> None:
         projects = (
@@ -330,7 +341,12 @@ def _write_projects(writer: SiteWriter, index: ContentIndex) -> None:
         writer.page(
             "projects.html",
             url,
-            {"projects": projects, "filters": filters, "active_nav": "projects"},
+            {
+                "projects": projects,
+                "filters": filters,
+                "project_diagrams": by_title,
+                "active_nav": "projects",
+            },
         )
 
     render(ROUTES["projects"], None)

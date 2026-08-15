@@ -3,6 +3,12 @@
 
 {% block title %}Projects — {{ site_name }}{% endblock %}
 
+{# The architecture SVGs are inlined here as card art, so the diagram styles
+   have to come along. #}
+{% block head %}{% if project_diagrams %}
+<link rel="stylesheet" href="{{ path_for('static', path='css/diagrams.css') }}" />
+{% endif %}{% endblock %}
+
 {% block content %}
 <section class="section">
   <div class="section-head">
@@ -19,9 +25,47 @@
   {% endif %}
 
   {% if projects %}
+  {# The first project leads at full width with its architecture drawing beside
+     it and its specs set as display figures. Six identical boxes give a reader
+     nothing to look at first. #}
+  {% set lead = projects[0] %}
+  <article class="lead-part">
+    <div class="lead-plate">
+      <p class="card-ref">SYS-01{% if lead.descriptor %} · {{ lead.descriptor | upper }}{% endif %}</p>
+      <div class="lead-inner">
+        <div class="lead-copy">
+          <h2>{{ lead.title }}</h2>
+          <p class="lead-desc">{{ lead.summary }}</p>
+          {% if lead.specs %}
+          <dl class="figure-row">
+            {% for s in lead.specs[:3] %}
+            <div class="figure">
+              <dt>{{ s.label }}</dt>
+              <dd>{{ s.value }}</dd>
+            </div>
+            {% endfor %}
+          </dl>
+          {% endif %}
+          <div class="card-links">
+            {% if case_study_urls.get(lead.title) %}<a href="{{ case_study_urls.get(lead.title) }}">Deep dive →</a>{% endif %}
+            {% if lead.github %}<a href="{{ lead.github }}">GitHub ↗</a>{% endif %}
+            {% if lead.demo %}<a href="{{ lead.demo }}">Live site ↗</a>{% endif %}
+          </div>
+        </div>
+        {% if project_diagrams.get(lead.title) %}
+        <figure class="lead-dwg">
+          {{ project_diagrams.get(lead.title) | safe }}
+          <figcaption>Architecture — full drawing in the deep dive</figcaption>
+        </figure>
+        {% endif %}
+      </div>
+    </div>
+  </article>
+
   <ul class="card-grid">
-    {% for project in projects %}
-    {{ project_card(project, loop.index, case_study_urls.get(project.title)) }}
+    {% for project in projects[1:] %}
+    {{ project_card(project, loop.index + 1, case_study_urls.get(project.title),
+                    project_diagrams.get(project.title)) }}
     {% endfor %}
   </ul>
   {% else %}
