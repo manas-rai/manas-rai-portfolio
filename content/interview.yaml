@@ -3,7 +3,44 @@
 # Every fact here comes from the linked case study. The phrasing is kept plain
 # and matter-of-fact on purpose — a stylish line reads as written, and these
 # should read as spoken. If a sentence isn't one you'd say in a room, change it.
-# `answer` accepts several paragraphs (blank-line separated).
+#
+# The set is weighted to the professional work (Healthcare RAG, Clinical
+# Simulation) rather than the side projects, and no single project answers more
+# than one question. `answer` accepts several paragraphs (blank-line separated).
+
+- question: When is RAG the wrong tool?
+  answer: |
+    When you already know exactly what context the model needs.
+
+    The clinical simulation platform has no RAG in it, on purpose. Every turn
+    needs the same two things: the persona and guardrails, and the specific case
+    being simulated. Neither is a search problem. The system prompt is fetched
+    and version-managed from LangSmith, the case JSON comes from a CDN, and the
+    service assembles the prompt from both.
+
+    Retrieval would have added latency to a voice conversation that can't afford
+    it, and a failure mode — retrieving the wrong passage — in exchange for
+    solving a problem I didn't have.
+  link: clinical-simulation-platform
+  link_label: Clinical Simulation Platform — the runtime loop
+
+- question: How do you guarantee one tenant never sees another's data?
+  answer: |
+    By making tenant a property of every layer, so there's no single filter to
+    forget.
+
+    On the healthcare platform, documents land in per-tenant Blob Storage
+    containers and are embedded into a per-tenant Azure AI Search index — the
+    data is separated before any query exists. At request time Azure AD B2C
+    establishes tenant identity and claims, and a tenant filter is applied on
+    every retrieval. Conversation history sits in Cosmos DB, a collection per
+    tenant, so isolation covers memory and not just retrieval.
+
+    The point of doing it at every layer is that no one code path can leak by
+    itself. And it was verified under load, not just in tests — isolation that
+    only holds at low concurrency isn't isolation.
+  link: healthcare-rag-platform
+  link_label: Healthcare RAG Platform — tenant-scoped retrieval
 
 - question: How do you keep a multi-agent system from compounding its own errors?
   answer: |
@@ -19,19 +56,6 @@
   link: reglens
   link_label: RegLens — the evals harness
 
-- question: One model, or several?
-  answer: |
-    Several, when the sub-tasks genuinely differ. RegLens uses Gemini and Claude
-    on purpose — Gemini's multimodal reading handles messy regulatory PDFs, and
-    Claude's structured output is more reliable for the gap-analysis reasoning
-    that has to come back as clean, typed data.
-
-    The other half of that is keeping the model layer swappable. DevFlow Kit
-    runs provider-agnostic across Anthropic, OpenAI, and Google, so it isn't
-    tied to one vendor's API or pricing.
-  link: reglens
-  link_label: RegLens — why multiple models
-
 - question: When do you reach for ML, and when are rules enough?
   answer: |
     Rules first. I reach for ML when the boundary isn't a threshold.
@@ -46,20 +70,22 @@
   link: cloud-waste-hunter
   link_label: Cloud Waste Hunter — detection
 
-- question: What makes a long-running agent safe to actually operate?
+- question: What makes a destructive action safe to automate?
   answer: |
-    You need to be able to stop it, watch it, and overrule it.
+    Being able to preview it, approve it, and undo it. The detection is the easy
+    half; the safety design is what makes anyone actually press the button.
 
-    RegLens checkpoints its supervisor in Postgres, so a run is durable and
-    resumable instead of restarting from zero. It interrupts at the report stage
-    on purpose: the reviewer sees the draft and can approve it, override
-    individual gap verdicts inline, or reject the run. Progress streams over SSE
-    throughout, so a long run is observable rather than a black box.
+    Cloud Waste Hunter never deletes straight from a finding. Every action can
+    be dry-run first, showing exactly what would go and what depends on it. A
+    human confirms each execution — there is no fully automatic destroy path.
+    Everything is written to an audit log: who approved what, when, and what
+    happened. And executed actions stay reversible for seven days, because
+    snapshots are taken before deletion.
 
-    Run state, checkpoints, policy embeddings, and the audit log all live in one
-    Postgres instance.
-  link: reglens
-  link_label: RegLens — durable and human-gated
+    A tool that deletes cloud resources and can't answer "who did this and can
+    we undo it" doesn't get installed.
+  link: cloud-waste-hunter
+  link_label: Cloud Waste Hunter — the safety pipeline
 
 - question: What did you deliberately choose not to build?
   answer: |
