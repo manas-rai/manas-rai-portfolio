@@ -147,7 +147,12 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 }
 .brand:hover .brand-mark { transform: rotate(60deg); }  /* a turn of the nut */
 
-.site-nav { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+/* `min-width: 0` is load-bearing: as a flex item the nav defaults to
+   `min-width: auto`, which refuses to shrink below its four links on one line.
+   That widened the header past the viewport, which widened the document, which
+   clipped every page on a phone. flex-wrap alone can't fire while the item is
+   allowed to stay at its content width. */
+.site-nav { display: flex; gap: 1.5rem; flex-wrap: wrap; min-width: 0; }
 .site-nav a {
   position: relative;
   color: var(--ink-soft);
@@ -1690,6 +1695,25 @@ body.fine.js .mech-card.is-open .spec-sheet { transform: translateZ(-10px); }
 .tb-value a:hover { color: var(--brass-hi); }
 
 /* ---------- responsive ---------- */
+
+/* ---------- phones ----------
+   Nothing here is decorative: at 390px the header, the filter row and the
+   drawings all need room the desktop layout assumes it has. */
+@media (max-width: 560px) {
+  .header-inner { padding: 0.7rem 1rem; gap: 0.5rem 0.9rem; }
+  .site-nav { gap: 0.5rem 1rem; }
+  .site-nav a { font-size: 0.68rem; letter-spacing: 0.1em; }
+  .meta-bar-inner { padding: 0.5rem 1rem; gap: 0.6rem; }
+  .sheet { padding: 1.2rem 1rem 2rem; }
+  .full-bleed { padding-inline: 1rem; }
+  /* The filter row is long enough on a phone to bury the content under it. */
+  .filters { gap: 0.35rem; font-size: 0.66rem; }
+  .filters a { padding: 0.25rem 0.5rem; }
+  /* Card art is mostly unreadable at this width; keep it as texture, not detail. */
+  .card-dwg { height: 96px; }
+  .lead-inner { padding: 1.1rem 1rem 1.2rem; gap: 1.1rem; }
+  .figure-row { grid-template-columns: 1fr; gap: 0.7rem; }
+}
 
 @media (max-width: 780px) {
   .plate { grid-template-columns: repeat(2, 1fr); }
