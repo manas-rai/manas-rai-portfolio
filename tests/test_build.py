@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 import pytest
@@ -63,6 +64,60 @@ def test_home_page_leads_with_projects_not_chrome(site: Path) -> None:
         "simple-label",
     ):
         assert gone not in html, gone
+
+
+def test_hero_sequence_needs_no_javascript(site: Path) -> None:
+    """The hero dimensions itself with CSS alone. Gating it on `body.js` would
+    flash — mech.js is deferred, so it runs after first paint — and an inline
+    head script to set the class early is blocked by `script-src 'self'`."""
+    html = (site / "index.html").read_text()
+    assert 'class="hero-dim" aria-hidden="true"' in html  # decoration, not content
+    assert html.count('class="dim-rule"') == 2
+
+    js = (site / "static" / "js" / "mech.js").read_text()
+    for hook in ("hero-dim", "dim-rule", "shutter", "hero-wipe"):
+        assert hook not in js, hook
+
+
+def test_hero_sequence_is_reduced_motion_safe() -> None:
+    """Every animated hero part must be cancelled under reduced motion. These
+    animations carry `both` fill, so a part left animating would otherwise sit
+    at its from-state — invisible — for the whole delay."""
+    css = (Path(__file__).parent.parent / "static" / "css" / "style.css").read_text()
+    reduced = css[css.index("@media (prefers-reduced-motion: reduce)") :]
+
+    animated = set(re.findall(r"^(\.[\w.\- ]+?)\s*\{[^}]*animation:", css, re.M))
+    hero = {s for s in animated if "hero" in s or "dim-" in s or "stat-box" in s}
+    assert hero, "expected hero parts to be animated"
+    for selector in hero:
+        leaf = selector.strip().split()[-1]
+        assert leaf in reduced, f"{leaf} animates but is not cancelled"
+
+
+def test_scroll_indicator_only_shows_where_it_can_tell_the_truth() -> None:
+    """Without `animation-timeline` the declaration is ignored and the animation
+    falls back to the document clock — the gear would sprint across the screen
+    once on load and stop, a progress indicator lying about progress. So it is
+    hidden by default and only revealed inside the @supports guard."""
+    css = (Path(__file__).parent.parent / "static" / "css" / "style.css").read_text()
+    assert ".scroll-rack { display: none; }" in css
+    guard = css.index("@supports (animation-timeline: scroll())")
+    shown = css.index("display: block", guard)
+    assert "prefers-reduced-motion: no-preference" in css[guard:shown]
+
+
+def test_scroll_reveals_are_armed_by_script_not_by_body_class(site: Path) -> None:
+    """`body.js` is set on mech.js's first line; the reveal code runs much
+    later. Gating a hidden state on `body.js` means any error in between leaves
+    the content permanently invisible. Arming from the reveal code itself makes
+    a failure mean 'no animation' rather than 'no content'."""
+    css = (Path(__file__).parent.parent / "static" / "css" / "style.css").read_text()
+    assert ".diagram.is-armed" in css and ".asm-line.is-armed" in css
+    assert "body.js .diagram" not in css
+    assert "body.js .asm-node" not in css
+
+    js = (site / "static" / "js" / "mech.js").read_text()
+    assert js.count('classList.add("is-armed")') == 2
 
 
 def test_headline_stats_link_to_their_source(site: Path) -> None:

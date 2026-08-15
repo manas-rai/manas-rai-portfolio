@@ -13,13 +13,20 @@
     me — I read everything.
   </p>
 
-  <p class="contact-actions">
-    <a class="btn btn-primary" href="mailto:{{ contact_email }}">Email me →</a>
-    <a class="btn btn-ghost" href="{{ linkedin_url }}">Message on LinkedIn</a>
-  </p>
+  {# The address is the only thing on this page that matters, so it gets the
+     size instead of sitting in a list at label scale. #}
+  <div class="contact-plate">
+    <p class="card-ref">PRIMARY CHANNEL</p>
+    <div class="contact-plate-body">
+      <a class="contact-address" href="mailto:{{ contact_email }}">{{ contact_email }}</a>
+      <p class="contact-actions">
+        <a class="btn btn-primary" href="mailto:{{ contact_email }}">Email me →</a>
+        <a class="btn btn-ghost" href="{{ linkedin_url }}">Message on LinkedIn</a>
+      </p>
+    </div>
+  </div>
 
   <ul class="contact-channels">
-    <li><span class="skill-label">Email</span> <a href="mailto:{{ contact_email }}">{{ contact_email }}</a></li>
     <li><span class="skill-label">LinkedIn</span> <a href="{{ linkedin_url }}">linkedin.com/in/manasrai12</a></li>
     <li><span class="skill-label">GitHub</span> <a href="{{ github_url }}">github.com/manas-rai</a></li>
   </ul>

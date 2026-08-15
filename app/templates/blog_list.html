@@ -18,8 +18,21 @@
   {% endif %}
 
   {% if posts %}
+  {# The newest post leads at display scale. A flat list of equal rows gives a
+     reader no entry point. #}
+  {% set lead = posts[0] %}
+  <article class="lead-post">
+    <p class="card-ref">LATEST · {{ lead.date.strftime('%b %d, %Y')|upper }}</p>
+    <div class="lead-post-body">
+      <h2><a href="{{ path_for('blog_post', slug=lead.slug) }}">{{ lead.title }}</a></h2>
+      <p class="lead-desc">{{ lead.summary }}</p>
+      <p class="card-links"><a href="{{ path_for('blog_post', slug=lead.slug) }}">Read it →</a></p>
+    </div>
+  </article>
+
+  {% if posts | length > 1 %}
   <ul class="post-list">
-    {% for post in posts %}
+    {% for post in posts[1:] %}
     <li class="post-summary">
       <div>
         <a class="post-title" href="{{ path_for('blog_post', slug=post.slug) }}">{{ post.title }}</a>
@@ -29,6 +42,7 @@
     </li>
     {% endfor %}
   </ul>
+  {% endif %}
 
   {% if prev_url or next_url %}
   <nav class="pagination">

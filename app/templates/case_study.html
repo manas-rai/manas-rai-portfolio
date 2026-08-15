@@ -27,7 +27,9 @@
   {# Inlined at build time (services/diagrams.py) so the stages and flow arrows
      can draw themselves in. The SVG carries its own aria-label; the caption
      below is the readable long description. #}
-  <figure class="diagram is-live">
+  {# Full-bleed: the drawing is the densest thing on the page, so it escapes the
+     content column and gets the whole viewport width to breathe. #}
+  <figure class="diagram is-live full-bleed">
     {{ diagram_svg | safe }}
     {% if case.diagram_caption %}<figcaption>{{ case.diagram_caption }}</figcaption>{% endif %}
   </figure>

@@ -3,10 +3,26 @@
 
 {% block body_class %}home{% endblock %}
 
+{# Featured cards carry their architecture drawings, so the diagram styles
+   have to come along. #}
+{% block head %}{% if project_diagrams %}
+<link rel="stylesheet" href="{{ path_for('static', path='css/diagrams.css') }}" />
+{% endif %}{% endblock %}
+
 {% block content %}
+{# The hero dimensions itself on load, the way a drawing gets annotated after
+   the part is drawn. Pure CSS: no script to wait for, so nothing flashes and
+   nothing breaks without JS. #}
 <section class="hero">
   <p class="hero-eyebrow">Software Engineer · GenAI Engineer</p>
   <h1 class="hero-name">{{ site_name }}</h1>
+  <div class="hero-dim" aria-hidden="true">
+    <span class="dim-tick"></span>
+    <span class="dim-rule"></span>
+    <span class="dim-label">SYS MR-2026</span>
+    <span class="dim-rule"></span>
+    <span class="dim-tick"></span>
+  </div>
   <p class="lede">{{ site_lede }}</p>
   <div class="hero-actions">
     <a class="btn btn-primary" href="{{ path_for('projects') }}">See the work</a>
@@ -82,7 +98,8 @@
   {% if featured_projects %}
   <ul class="card-grid">
     {% for project in featured_projects %}
-    {{ project_card(project, loop.index, case_study_urls.get(project.title)) }}
+    {{ project_card(project, loop.index, case_study_urls.get(project.title),
+                    project_diagrams.get(project.title)) }}
     {% endfor %}
   </ul>
   {% else %}

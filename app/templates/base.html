@@ -30,7 +30,7 @@
   <link rel="stylesheet" href="{{ path_for('static', path='css/style.css') }}" />
   {% block head %}{% endblock %}
 </head>
-{% from "_mech.html" import system_console %}
+{% from "_mech.html" import system_console, scroll_rack %}
 <body class="{% block body_class %}{% endblock %}">
   <a class="skip-link" href="#main">Skip to content</a>
 
@@ -86,6 +86,7 @@
       <div class="tb-cell"><div class="tb-label">Contact</div><div class="tb-value"><a href="mailto:{{ contact_email }}">Email</a></div></div>
     </div>
   </footer>
+  {{ scroll_rack() }}
   {{ system_console(interview, projects_all, path_for) }}
   <script src="{{ path_for('static', path='js/mech.js') }}" defer></script>
   {% block scripts %}{% endblock %}
